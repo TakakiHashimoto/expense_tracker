@@ -1,0 +1,16 @@
+{
+  "status": "commited",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:3000",
+  "executionArgs": {
+    "projectName": "expense_tracker",
+    "projectPath": "/mnt/windows/Users/gooko/angela_project/expenseTracker/expense_tracker",
+    "testIds": [],
+    "additionalInstruction": "",
+    "envs": {
+      "API_KEY": "sk-user-JXX_eyJht6AKRetAjGFcXoz-685bHYW_5NpqINz2VJqmSCc-4wW-sQRaUKP0-FVt8f7wiomsx9DPhrVPF0fit2X2zRuUg5WGtRRA6KKuphEHdfCA7Hqm5BoU5ayu6QF46Ps"
+    }
+  },
+  "serverPort": 35877
+}

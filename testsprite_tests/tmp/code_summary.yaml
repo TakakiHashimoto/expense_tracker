@@ -1,0 +1,150 @@
+version: "2"
+type: frontend
+tech_stack:
+  - TypeScript
+  - Next.js
+  - React
+  - Tailwind CSS
+  - Supabase
+  - Plaid
+routes:
+  - path: /
+    file: src/app/(marketing)/page.tsx
+    auth_required: false
+    description: Landing page with hero section, how it works, and security information
+  - path: /login
+    file: src/app/(auth)/login/page.tsx
+    auth_required: false
+    description: User login page with email and password authentication
+  - path: /signup
+    file: src/app/(auth)/signup/page.tsx
+    auth_required: false
+    description: User registration page
+  - path: /verify-email
+    file: src/app/(auth)/verify-email/page.tsx
+    auth_required: false
+    description: Email verification page after signup
+  - path: /auth/confirm
+    file: src/app/(auth)/auth/confirm/route.ts
+    auth_required: false
+    description: Email confirmation callback route
+  - path: /dashboard
+    file: src/app/(protected)/dashboard/page.tsx
+    auth_required: true
+    description: Protected user dashboard showing user data
+  - path: /connect-bank
+    file: src/app/(protected)/connect-bank/page.tsx
+    auth_required: true
+    description: Protected bank connection page using Plaid
+  - path: /dev/seed
+    file: src/app/(protected)/dev/seed/page.tsx
+    auth_required: true
+    description: Development seed page for testing
+features:
+  - name: User Authentication - Login
+    description: Login with email and password credentials using Supabase
+    files:
+      - src/features/auth/components/LoginForm.tsx
+      - src/lib/supabase/browser.ts
+    entry_route: /login
+    user_interactions:
+      - Navigate to /login page
+      - Enter email in email input field
+      - Enter password in password input field
+      - Click Submit button
+      - See success redirect to /dashboard or error message
+    api_calls:
+      - method: POST
+        endpoint: supabase.auth.signInWithPassword
+    auth_required: false
+  - name: User Authentication - Signup
+    description: Register new user with email and password
+    files:
+      - src/features/auth/components/SignupForm.tsx
+      - src/lib/supabase/browser.ts
+    entry_route: /signup
+    user_interactions:
+      - Navigate to /signup page
+      - Enter email in email input field
+      - Enter password in password input field
+      - Click Submit button
+      - See redirect to /verify-email page
+      - Check email for verification link
+    api_calls:
+      - method: POST
+        endpoint: supabase.auth.signUp
+    auth_required: false
+  - name: Email Verification
+    description: Verify user email after signup
+    files:
+      - src/app/(auth)/verify-email/page.tsx
+      - src/app/(auth)/auth/confirm/route.ts
+    entry_route: /verify-email
+    user_interactions:
+      - User receives email with confirmation link
+      - Click link in email to verify
+      - Browser redirects to /auth/confirm endpoint
+      - User is confirmed and can login
+    api_calls:
+      - method: GET
+        endpoint: /api/auth/confirm
+    auth_required: false
+  - name: Dashboard
+    description: Protected user dashboard displaying fetched user data
+    files:
+      - src/app/(protected)/dashboard/page.tsx
+      - src/features/dashboard/actions.ts
+      - src/features/dashboard/components/DashboardClient.tsx
+    entry_route: /dashboard
+    user_interactions:
+      - User must be authenticated to access
+      - View dashboard with initial data loaded from server
+      - Interact with dashboard data and controls
+    api_calls:
+      - method: GET
+        endpoint: /api/dashboard (via getDashboardData action)
+    auth_required: true
+  - name: Bank Connection - Plaid Integration
+    description: Connect bank account using Plaid Link Token
+    files:
+      - src/app/(protected)/connect-bank/page.tsx
+      - src/app/api/plaid/link-token/route.ts
+      - src/features/auth/components
+    entry_route: /connect-bank
+    user_interactions:
+      - User navigates to /connect-bank page
+      - Request Plaid link token from server
+      - Plaid Link modal appears
+      - User authorizes bank connection
+      - Bank transactions are fetched
+      - User is redirected after successful connection
+    api_calls:
+      - method: POST
+        endpoint: /api/plaid/link-token
+      - method: POST
+        endpoint: /api/plaid/exchange (implied)
+    auth_required: true
+  - name: Landing Page
+    description: Marketing landing page with hero section, features, and security information
+    files:
+      - src/app/(marketing)/page.tsx
+      - src/components/landingPage/LandingHero.tsx
+      - src/components/landingPage/LandingProcess.tsx
+      - src/components/landingPage/LandingSecurity.tsx
+      - src/contents/landingData.ts
+    entry_route: /
+    user_interactions:
+      - User visits landing page
+      - View hero section with call-to-action
+      - Scroll through how it works section
+      - Scroll through security information
+      - Click Get Started button to navigate to signup
+    api_calls: []
+    auth_required: false
+known_limitations:
+  - issue: Plaid exchange endpoint exists but may not be fully implemented
+    location: src/app/api/plaid/exhange/
+    impact: Bank connection flow may require additional work
+  - issue: Middleware deprecation warning
+    location: src/middleware.ts
+    impact: Should migrate to proxy pattern in future

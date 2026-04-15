@@ -1,0 +1,184 @@
+@import "tailwindcss";
+
+/* Optional: only keep if you actually use tw-animate utilities */
+@import "tw-animate-css";
+
+/* If you plan to toggle dark mode by adding class="dark" on <html> */
+@custom-variant dark (&:is(.dark *));
+
+/* ---------------------------
+   Theme Tokens (trustworthy dark)
+   --------------------------- */
+:root {
+  /* Core palette */
+  --background: #090e16; /* deep navy-black */
+  --surface: #0b1220; /* main surface */
+  --surface-2: #0f1a2e; /* lifted cards */
+  --border: #1b2a44; /* subtle border */
+
+  --foreground: #f5f7fb; /* near-white */
+  --muted: #b6c2d7; /* muted text */
+  --muted-2: #7f93b5; /* secondary muted */
+
+  --accent: #59deca; /* your green/teal accent */
+  --accent-2: #2dd4bf; /* optional */
+
+  --radius: 16px;
+
+  --font-sans: var(--font-poppins);
+}
+
+/* Tailwind v4 theme mapping: makes tokens usable as
+   bg-background, text-foreground, border-border, etc.
+*/
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-muted-2: var(--muted-2);
+  --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
+
+  --radius-sm: calc(var(--radius) - 8px);
+  --radius-md: calc(var(--radius) - 4px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 8px);
+}
+
+/* ---------------------------
+   Utilities (short class names)
+   --------------------------- */
+@utility container-page {
+  @apply mx-auto w-full max-w-6xl px-6 md:px-10;
+}
+
+@utility section {
+  @apply py-16 md:py-20;
+}
+
+@utility headline {
+  @apply text-4xl md:text-6xl font-semibold tracking-tight;
+}
+
+@utility subheadline {
+  @apply mt-4 max-w-2xl text-base md:text-lg leading-relaxed text-muted;
+}
+
+@utility glass {
+  @apply rounded-[var(--radius)] border border-border bg-surface/60 backdrop-blur-xl;
+}
+
+@utility card {
+  @apply rounded-[var(--radius)] border border-border bg-surface-2 shadow-lg;
+}
+
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-semibold transition;
+}
+
+@utility btn-primary {
+  @apply btn bg-accent text-black hover:opacity-90;
+}
+
+@utility btn-secondary {
+  @apply btn border border-border bg-surface-2/70 hover:bg-white/5;
+}
+
+@utility feature-grid {
+  @apply grid gap-6 md:grid-cols-3;
+}
+
+@utility feature-card {
+  @apply card p-6;
+}
+
+@utility feature-title {
+  @apply mt-4 text-lg font-semibold;
+}
+
+@utility feature-text {
+  @apply mt-2 text-sm leading-relaxed text-muted;
+}
+
+@utility landing-bg {
+  @apply relative min-h-screen overflow-hidden;
+
+  /* Base + spotlights (matches the design) */
+  background-color: #070b12;
+  background-image:
+    /* top-left glow behind headline */
+    radial-gradient(
+      900px 650px at 18% 18%,
+      rgba(255, 255, 255, 0.06) 0%,
+      rgba(255, 255, 255, 0) 60%
+    ),
+    radial-gradient(
+      900px 650px at 18% 18%,
+      rgba(89, 222, 202, 0.1) 0%,
+      rgba(89, 222, 202, 0) 62%
+    ),
+    /* right glow behind phone */
+      radial-gradient(
+        1100px 750px at 78% 18%,
+        rgba(120, 140, 255, 0.1) 0%,
+        rgba(120, 140, 255, 0) 60%
+      ),
+    radial-gradient(
+      1100px 750px at 78% 18%,
+      rgba(255, 255, 255, 0.04) 0%,
+      rgba(255, 255, 255, 0) 60%
+    ),
+    /* bottom-right glow behind Plaid card */
+      radial-gradient(
+        1000px 700px at 74% 78%,
+        rgba(120, 140, 255, 0.08) 0%,
+        rgba(120, 140, 255, 0) 62%
+      ),
+    radial-gradient(
+      1000px 700px at 74% 78%,
+      rgba(89, 222, 202, 0.08) 0%,
+      rgba(89, 222, 202, 0) 65%
+    ),
+    /* soft overall top->bottom depth */
+      linear-gradient(180deg, rgba(7, 11, 18, 0.15) 0%, rgba(7, 11, 18, 1) 75%);
+
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+/* vignette (dark edges like the mock) */
+.landing-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    1200px 900px at 50% 25%,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.7) 70%
+  );
+}
+
+/* optional: faint “grain” */
+.landing-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.4'/%3E%3C/svg%3E");
+}
+
+/* ---------------------------
+   Base styles
+   --------------------------- */
+@layer base {
+  html,
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-sans), system-ui, sans-serif;
+  }
+}

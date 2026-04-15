@@ -1,0 +1,973 @@
+[
+  {
+    "id": "TC001",
+    "title": "Signup fails when email is already registered",
+    "description": "Verifies an error message is shown when attempting to sign up with an email that already exists.",
+    "category": "User Authentication - Signup",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /signup"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/signup\""
+      },
+      {
+        "type": "action",
+        "description": "Type \"existing.user@example.com\" into the email input field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"ValidPassw0rd!234\" into the password input field"
+      },
+      {
+        "type": "action",
+        "description": "Click Submit button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"already\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"email\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "Signup validation: invalid email format is rejected",
+    "description": "Verifies client/server validation prevents signup when the email format is invalid.",
+    "category": "User Authentication - Signup",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /signup"
+      },
+      {
+        "type": "action",
+        "description": "Type \"not-an-email\" into the email input field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"ValidPassw0rd!234\" into the password input field"
+      },
+      {
+        "type": "action",
+        "description": "Click Submit button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"invalid\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/signup\""
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "Signup validation: empty email shows required/validation message",
+    "description": "Verifies the form shows a visible validation error when email is missing.",
+    "category": "User Authentication - Signup",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /signup"
+      },
+      {
+        "type": "action",
+        "description": "Click Submit button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/signup\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"email\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"required\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "Signup validation: empty password shows required/validation message",
+    "description": "Verifies the form shows a visible validation error when password is missing.",
+    "category": "User Authentication - Signup",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /signup"
+      },
+      {
+        "type": "action",
+        "description": "Type \"new.user.testrun+3@example.com\" into the email input field"
+      },
+      {
+        "type": "action",
+        "description": "Click Submit button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/signup\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"password\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"required\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Signup validation: very short password is rejected",
+    "description": "Verifies the signup form blocks weak passwords and shows a visible error message.",
+    "category": "User Authentication - Signup",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /signup"
+      },
+      {
+        "type": "action",
+        "description": "Type \"new.user.testrun+4@example.com\" into the email input field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"123\" into the password input field"
+      },
+      {
+        "type": "action",
+        "description": "Click Submit button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"password\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"too\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "Verify-email page shows instructions after signup",
+    "description": "Ensures the verify-email page clearly instructs the user to check their inbox and complete verification.",
+    "category": "Email Verification",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /verify-email"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify page title contains \"Verify\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Verify\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"email\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"check\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Verify-email page provides navigation back to login",
+    "description": "Ensures users who already verified (or want to try logging in) can navigate from verify-email to the login screen.",
+    "category": "Email Verification",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /verify-email"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Log in\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Log in\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/login\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify page title contains \"Login\""
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Verify-email page provides navigation to signup for users who reached it accidentally",
+    "description": "Ensures users can reach signup from the verify-email screen if they do not have an account yet.",
+    "category": "Email Verification",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /verify-email"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Sign up\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Sign up\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/signup\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify page title contains \"Sign\""
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Load Dashboard with initial server data when authenticated",
+    "description": "Verifies an authenticated user can reach the Dashboard and see initial totals and breakdowns loaded.",
+    "category": "Dashboard",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Monthly\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Category\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Dashboard\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Apply date range filter and see Dashboard update",
+    "description": "Verifies an authenticated user can change the date range filter and sees updated results on the Dashboard.",
+    "category": "Dashboard",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click the date range filter control"
+      },
+      {
+        "type": "action",
+        "description": "Select \"Last 30 days\" from the date range dropdown"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Last 30 days\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Switch date range filter to another option and confirm selection persists",
+    "description": "Verifies an authenticated user can change the date range filter multiple times and the selected range remains visible.",
+    "category": "Dashboard",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click the date range filter control"
+      },
+      {
+        "type": "action",
+        "description": "Select \"This month\" from the date range dropdown"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"This month\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Dashboard shows a loading state while data is being fetched",
+    "description": "Verifies the Dashboard displays a visible loading indicator before the initial data appears.",
+    "category": "Dashboard",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Loading\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Dashboard\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Category\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "Dashboard remains usable after changing filter (no blank state)",
+    "description": "Verifies that applying a date filter does not result in an empty/blank dashboard container and key sections remain visible.",
+    "category": "Dashboard",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click the date range filter control"
+      },
+      {
+        "type": "action",
+        "description": "Select \"This year\" from the date range dropdown"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Category\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "Dashboard shows initial data sections without requiring additional interactions",
+    "description": "Verifies the Dashboard renders core sections (totals and category breakdown) immediately after load without user interaction.",
+    "category": "Dashboard",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Totals\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Breakdown\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Dashboard\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "Sync transactions success updates last sync and shows success state",
+    "description": "Verifies that using Sync now completes successfully and the UI shows a success message plus a visible last sync update.",
+    "category": "Bank Connection - Plaid Integration",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /connect-bank"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sync now\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Last sync\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC016",
+    "title": "Landing page renders hero section with primary call-to-action",
+    "description": "Verifies the landing page loads and shows the hero content with a visible Get Started call-to-action.",
+    "category": "Landing Page",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Hero section\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Get Started\" button is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"How it works\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC017",
+    "title": "Scroll through How it works section content is visible",
+    "description": "Verifies the user can scroll to the How it works section and see its explanatory content.",
+    "category": "Landing Page",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Hero section\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Scroll to \"How it works\" section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"How it works\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"How it works\" section content is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC018",
+    "title": "Scroll through Security information content is visible",
+    "description": "Verifies the user can scroll to the security section and see security-related information.",
+    "category": "Landing Page",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Hero section\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Scroll to \"Security\" section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Security\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Security\" section content is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC019",
+    "title": "Get Started button navigates to Signup page from hero",
+    "description": "Verifies clicking Get Started on the landing page routes the user to the signup page.",
+    "category": "Landing Page",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Get Started\" button is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Get Started\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/signup\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify page title contains \"Sign\""
+      }
+    ]
+  },
+  {
+    "id": "TC020",
+    "title": "Get Started navigation from lower page position still routes to Signup",
+    "description": "Verifies Get Started works even after scrolling down the landing page.",
+    "category": "Landing Page",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Scroll to \"Security\" section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Security\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Get Started\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/signup\""
+      }
+    ]
+  },
+  {
+    "id": "TC021",
+    "title": "Create a new manual account successfully",
+    "description": "Verifies a signed-in user can add a manual account and see it in the Accounts list.",
+    "category": "Accounts & Transactions (Manual CRUD)",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Accounts\" control or tab"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Add Account\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Add Account\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC022",
+    "title": "Create a new manual account with name and type and confirm it appears",
+    "description": "Verifies account creation works end-to-end when required fields are provided and the new account is visible afterward.",
+    "category": "Accounts & Transactions (Manual CRUD)",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Accounts\" control or tab"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Add Account\" button"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Test Checking Account\" into the account name field"
+      }
+    ]
+  },
+  {
+    "id": "TC023",
+    "title": "Account creation validation: required fields missing shows error",
+    "description": "Verifies attempting to save an account with missing required fields shows a visible validation error and does not create an account.",
+    "category": "Accounts & Transactions (Manual CRUD)",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Accounts\" control or tab"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Add Account\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      }
+    ]
+  },
+  {
+    "id": "TC024",
+    "title": "Account creation validation: error message is visible",
+    "description": "Verifies the UI displays a clear validation error message when saving an empty account form.",
+    "category": "Accounts & Transactions (Manual CRUD)",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Accounts\" control or tab"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Add Account\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"required\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC025",
+    "title": "Add a manual expense transaction and see it in the transactions list",
+    "description": "Verifies a user can add a transaction and the new transaction appears in the Transactions list.",
+    "category": "Accounts & Transactions (Manual CRUD)",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Transactions\" control or tab"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Add Transaction\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Add Transaction\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC026",
+    "title": "Prevent creating a transaction for an account not owned by the user",
+    "description": "Verifies the app blocks creating a transaction against an account that does not belong to the current user and shows an authorization error.",
+    "category": "Accounts & Transactions (Manual CRUD)",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Transactions\" control or tab"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Add Transaction\" button"
+      },
+      {
+        "type": "action",
+        "description": "Select \"(Not your account)\" from the account dropdown"
+      }
+    ]
+  },
+  {
+    "id": "TC027",
+    "title": "Authorization error is shown and transaction is not added to the list",
+    "description": "Verifies that after attempting to save a transaction using a non-owned account, an authorization error is visible and the transaction does not appear in the list.",
+    "category": "Accounts & Transactions (Manual CRUD)",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Transactions\" control or tab"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"not authorized\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Transaction created\" is not visible"
+      }
+    ]
+  }
+]
