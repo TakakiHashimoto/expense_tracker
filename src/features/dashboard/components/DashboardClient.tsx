@@ -1,8 +1,6 @@
 import { type DashboardType } from "../type";
 
-type Props = {
-  initialValue: DashboardType;
-};
+type Props = { initialValue: DashboardType };
 
 export default function DashboardClient({ initialValue }: Props) {
   return (

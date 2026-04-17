@@ -64,16 +64,18 @@ export async function POST(request: NextRequest) {
 
     // add accounts to database
     for (const account of accounts) {
-      await supabase.from("accounts").insert({
-        user_id: user.id,
-        type: account.type,
-        name: account.name,
-        is_active: true,
-        plaid_item_id: data?.[0].id,
-        plaid_account_id: account.id,
-        mask: account.mask,
-        subtype: account.subtype,
-      });
+      await supabase
+        .from("accounts")
+        .insert({
+          user_id: user.id,
+          type: account.type,
+          name: account.name,
+          is_active: true,
+          plaid_item_id: data?.[0].id,
+          plaid_account_id: account.id,
+          mask: account.mask,
+          subtype: account.subtype,
+        });
     }
 
     return NextResponse.json({ plaid_item_uuid: data?.[0].id });
@@ -82,7 +84,7 @@ export async function POST(request: NextRequest) {
     // add those transaction data to database
     // redirect to dashboard
   } catch (e) {
-    NextResponse.json({
+    return NextResponse.json({
       error: { message: "Failed to exchange access token", code: "400" },
     });
   }

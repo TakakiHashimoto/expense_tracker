@@ -36,9 +36,7 @@ export async function POST() {
 
   // setting the config to pass into link token request
   const linkTokenRequest = {
-    user: {
-      client_user_id: user.id,
-    },
+    user: { client_user_id: user.id },
     client_name: "Takaki's Expense Tracker",
     products: [Products.Transactions],
     country_codes: [CountryCode.Ca],
@@ -53,10 +51,7 @@ export async function POST() {
   } catch (e) {
     console.log(e);
     return NextResponse.json({
-      error: {
-        message: "Failed to create link token",
-        code: "400",
-      },
+      error: { message: "Failed to create link token", code: "400" },
       success: false,
     });
   }

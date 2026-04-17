@@ -16,10 +16,7 @@ export async function syncTransactions(
   while (hasMore) {
     // get transaction data
     const request = cursor
-      ? {
-          access_token: accessToken,
-          cursor: cursor,
-        }
+      ? { access_token: accessToken, cursor: cursor }
       : { access_token: accessToken };
     const response = await client.transactionsSync(request);
     const data = response.data;

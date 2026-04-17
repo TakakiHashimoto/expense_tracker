@@ -3,114 +3,112 @@ import { createClient } from "@/lib/supabase/server";
 import { RemovedTransaction, Transaction } from "plaid";
 
 export async function persistSyncResult(
-    added: Transaction[],
-    modified: Transaction[],
-    removed: RemovedTransaction[],  
-    cursor: string,
-    itemUuid: string,
+  added: Transaction[],
+  modified: Transaction[],
+  removed: RemovedTransaction[],
+  cursor: string | null,
+  itemUuid: string,
 ) {
-    const supabase = await createClient();
-    const user = await getUser(supabase);
+  const supabase = await createClient();
+  const user = await getUser(supabase);
 
-    for (const item of added) {
-        const { data, error } = await supabase
-            .from("accounts")
-            .select("id")
-            .eq("plaid_account_id", item.account_id);
-        // const categoryId = await supabase
-        //   .from("categories")
-        //   .select("id")
-        //   .or(
-        //     `raw_category->>primary.eq.${item.personal_finance_category?.primary}, raw_category->>detailed.eq.${item.personal_finance_category?.detailed}`,
-        //   );
+  for (const item of added) {
+    const { data, error } = await supabase
+      .from("accounts")
+      .select("id")
+      .eq("plaid_account_id", item.account_id);
+    // const categoryId = await supabase
+    //   .from("categories")
+    //   .select("id")
+    //   .or(
+    //     `raw_category->>primary.eq.${item.personal_finance_category?.primary}, raw_category->>detailed.eq.${item.personal_finance_category?.detailed}`,
+    //   );
 
-        if (error) {
-            throw new Error("Something went wrong while fetching accounts id");
-        }
-        const { error: addedError } = await supabase
-            .from("transactions")
-            .insert({
-                user_id: user.id,
-                account_id: data?.[0].id,
-                category_id: null,
-                posted_at: item.datetime ?? item.date,
-                amount: item.amount,
-                merchant: item.merchant_name,
-                plaid_transaction_id: item.transaction_id,
-                plaid_item_id: itemUuid, // How do I get hold of plaid_id? Maybe it is a foreign key so I don't necessarily put here
-                pending: item.pending,
-                authorized_at: item.authorized_datetime ?? item.authorized_date,
-                payment_channel: item.payment_channel,
-                raw_category: item.personal_finance_category,
-                plaid_account_id: item.account_id,
-                location: item.location,
-            });
-
-        if (addedError) {
-            throw new Error("Something went wrong");
-        }
+    if (error) {
+      throw new Error("Something went wrong while fetching accounts id");
     }
+    const { error: addedError } = await supabase.from("transactions").insert({
+      user_id: user.id,
+      account_id: data?.[0].id,
+      category_id: null,
+      posted_at: item.datetime ?? item.date,
+      amount: item.amount,
+      merchant: item.merchant_name,
+      plaid_transaction_id: item.transaction_id,
+      plaid_item_id: itemUuid, // How do I get hold of plaid_id? Maybe it is a foreign key so I don't necessarily put here
+      pending: item.pending,
+      authorized_at: item.authorized_datetime ?? item.authorized_date,
+      payment_channel: item.payment_channel,
+      raw_category: item.personal_finance_category,
+      plaid_account_id: item.account_id,
+      location: item.location,
+    });
 
-    for (const item of modified) {
-        const { data, error } = await supabase
-            .from("accounts")
-            .select("id")
-            .eq("plaid_account_id", item.account_id);
-        // const categoryId = await supabase
-        //   .from("categories")
-        //   .select("id")
-        //   .or(
-        //     `raw_category->>primary.eq.${item.personal_finance_category?.primary}, raw_category->>detailed.eq.${item.personal_finance_category?.detailed}`,
-        //   );
-
-        if (error) {
-            throw new Error("Something went wrong"); // Thhis message is temporary filler
-        }
-        const { error: modifiedError } = await supabase
-            .from("transactions")
-            .upsert({
-                user_id: user.id,
-                account_id: data?.[0].id,
-                category_id: null,
-                posted_at: item.datetime ?? item.date,
-                amount: item.amount,
-                merchant: item.merchant_name,
-                plaid_transaction_id: item.transaction_id,
-                plaid_item_id: itemUuid, // How do I get hold of plaid_id? Maybe it is a foreign key so I don't necessarily put here
-                pending: item.pending,
-                authorized_at: item.authorized_datetime ?? item.authorized_date,
-                payment_channel: item.payment_channel,
-                raw_category: item.personal_finance_category,
-                plaid_account_id: item.account_id,
-                location: item.location,
-            });
-
-        if (modifiedError) {
-            throw new Error("Something went wrong"); // this message is temporary filler
-        }
+    if (addedError) {
+      throw new Error("Something went wrong");
     }
+  }
 
-    for (const item of removed) {
-        const { error: removedError } = await supabase
-            .from("transactions")
-            .delete()
-            .eq("plaid_transaction_id", item.transaction_id);
+  for (const item of modified) {
+    const { data, error } = await supabase
+      .from("accounts")
+      .select("id")
+      .eq("plaid_account_id", item.account_id);
+    // const categoryId = await supabase
+    //   .from("categories")
+    //   .select("id")
+    //   .or(
+    //     `raw_category->>primary.eq.${item.personal_finance_category?.primary}, raw_category->>detailed.eq.${item.personal_finance_category?.detailed}`,
+    //   );
 
-        if (removedError) {
-            throw new Error("something went wrong");
-        }
+    if (error) {
+      throw new Error("Something went wrong"); // Thhis message is temporary filler
     }
+    const { error: modifiedError } = await supabase
+      .from("transactions")
+      .upsert({
+        user_id: user.id,
+        account_id: data?.[0].id,
+        category_id: null,
+        posted_at: item.datetime ?? item.date,
+        amount: item.amount,
+        merchant: item.merchant_name,
+        plaid_transaction_id: item.transaction_id,
+        plaid_item_id: itemUuid, // How do I get hold of plaid_id? Maybe it is a foreign key so I don't necessarily put here
+        pending: item.pending,
+        authorized_at: item.authorized_datetime ?? item.authorized_date,
+        payment_channel: item.payment_channel,
+        raw_category: item.personal_finance_category,
+        plaid_account_id: item.account_id,
+        location: item.location,
+      });
 
-    const { error: cursorError } = await supabase
-        .from("plaid_items")
-        .update({ transactions_cursor: cursor })
-        .eq("id", itemUuid); // What should it be equal?
-
-    if (cursorError) {
-        throw new Error("Something went wrong while updating cursor");
+    if (modifiedError) {
+      throw new Error("Something went wrong"); // this message is temporary filler
     }
+  }
 
-    return { success: true, message: "Successfully updated database" };
+  for (const item of removed) {
+    const { error: removedError } = await supabase
+      .from("transactions")
+      .delete()
+      .eq("plaid_transaction_id", item.transaction_id);
+
+    if (removedError) {
+      throw new Error("something went wrong");
+    }
+  }
+
+  const { error: cursorError } = await supabase
+    .from("plaid_items")
+    .update({ transactions_cursor: cursor })
+    .eq("id", itemUuid); // What should it be equal?
+
+  if (cursorError) {
+    throw new Error("Something went wrong while updating cursor");
+  }
+
+  return { success: true, message: "Successfully updated database" };
 }
 
 // information you need for transactions database:
@@ -273,7 +271,7 @@ export async function persistSyncResult(
 //   ],
 
 export async function getPlaidItemId() {
-    const supabase = await createClient();
+  const supabase = await createClient();
 }
 
 export async function getAccessToken() {}

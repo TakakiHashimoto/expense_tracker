@@ -26,10 +26,7 @@ export default function ConnectBank() {
     token: linkToken ?? "",
     onSuccess: async (public_token, metadata) => {
       // send public_token to a server
-      const passData = {
-        public_token,
-        metadata,
-      };
+      const passData = { public_token, metadata };
       // change the public token to access token request for server
       const res = await fetch(`${baseUrl}/api/plaid/exchange`, {
         method: "POST",
@@ -37,7 +34,7 @@ export default function ConnectBank() {
         body: JSON.stringify(passData),
       });
 
-      const plaid_item_uuid = await res.json();
+      const { plaid_item_uuid } = await res.json(); // This is plaid_items internal DB id
 
       await fetch(`${baseUrl}/api/plaid/sync-transactions`, {
         method: "POST",
