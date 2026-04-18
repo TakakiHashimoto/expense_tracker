@@ -38,6 +38,7 @@ export async function POST(request: NextRequest) {
       public_token: public_token,
     });
     const { access_token, item_id } = res.data;
+    // item_id = one item_id for one institution like TD
 
     const {
       institution: { name, institution_id },
@@ -46,6 +47,7 @@ export async function POST(request: NextRequest) {
 
     // fill up the plaid_item database
     const user = await getUser(supabase);
+
     const { data } = await supabase
       .from("plaid_items")
       .insert({
@@ -64,6 +66,7 @@ export async function POST(request: NextRequest) {
 
     // add accounts to database
     for (const account of accounts) {
+      // TD checking, TD savings
       await supabase
         .from("accounts")
         .insert({

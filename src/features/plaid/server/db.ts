@@ -2,6 +2,7 @@ import { getUser } from "@/features/dashboard/actions";
 import { createClient } from "@/lib/supabase/server";
 import { RemovedTransaction, Transaction } from "plaid";
 
+// take Plaid’s sync changes and apply those changes into your own database
 export async function persistSyncResult(
   added: Transaction[],
   modified: Transaction[],
@@ -12,37 +13,45 @@ export async function persistSyncResult(
   const supabase = await createClient();
   const user = await getUser(supabase);
 
+  function normalizeAmount(amount: number) {
+    return -amount;
+  }
+
+  // Here, I want to add "added" to a transaction DB.
+  // ex) Takaki's TD and Takaki's TD's account.
   for (const item of added) {
     const { data, error } = await supabase
       .from("accounts")
       .select("id")
-      .eq("plaid_account_id", item.account_id);
-    // const categoryId = await supabase
-    //   .from("categories")
-    //   .select("id")
-    //   .or(
-    //     `raw_category->>primary.eq.${item.personal_finance_category?.primary}, raw_category->>detailed.eq.${item.personal_finance_category?.detailed}`,
-    //   );
+      .match({ plaid_account_id: item.account_id, plaid_item_id: itemUuid });
 
     if (error) {
       throw new Error("Something went wrong while fetching accounts id");
     }
-    const { error: addedError } = await supabase.from("transactions").insert({
-      user_id: user.id,
-      account_id: data?.[0].id,
-      category_id: null,
-      posted_at: item.datetime ?? item.date,
-      amount: item.amount,
-      merchant: item.merchant_name,
-      plaid_transaction_id: item.transaction_id,
-      plaid_item_id: itemUuid, // How do I get hold of plaid_id? Maybe it is a foreign key so I don't necessarily put here
-      pending: item.pending,
-      authorized_at: item.authorized_datetime ?? item.authorized_date,
-      payment_channel: item.payment_channel,
-      raw_category: item.personal_finance_category,
-      plaid_account_id: item.account_id,
-      location: item.location,
-    });
+
+    const accountId = data?.[0]?.id;
+    if (!accountId) throw new Error("Can't find an account");
+
+    const { error: addedError } = await supabase.from("transactions").upsert(
+      {
+        user_id: user.id,
+        account_id: accountId,
+        category_id: null,
+        posted_at: item.datetime ?? item.date,
+        amount: normalizeAmount(item.amount),
+        merchant: item.merchant_name,
+        plaid_transaction_id: item.transaction_id,
+        plaid_item_id: itemUuid, // How do I get hold of plaid_id? Maybe it is a foreign key so I don't necessarily put here
+        pending: item.pending,
+        authorized_at: item.authorized_datetime ?? item.authorized_date,
+        payment_channel: item.payment_channel,
+        raw_category: item.personal_finance_category,
+        plaid_account_id: item.account_id,
+        name: item.name,
+        location: item.location,
+      },
+      { onConflict: "plaid_item_id,plaid_transaction_id" },
+    );
 
     if (addedError) {
       throw new Error("Something went wrong");
@@ -53,46 +62,51 @@ export async function persistSyncResult(
     const { data, error } = await supabase
       .from("accounts")
       .select("id")
-      .eq("plaid_account_id", item.account_id);
-    // const categoryId = await supabase
-    //   .from("categories")
-    //   .select("id")
-    //   .or(
-    //     `raw_category->>primary.eq.${item.personal_finance_category?.primary}, raw_category->>detailed.eq.${item.personal_finance_category?.detailed}`,
-    //   );
+      .match({ plaid_account_id: item.account_id, plaid_item_id: itemUuid });
 
     if (error) {
-      throw new Error("Something went wrong"); // Thhis message is temporary filler
+      throw new Error("Something went wrong while fetching accounts id");
     }
-    const { error: modifiedError } = await supabase
-      .from("transactions")
-      .upsert({
+
+    const accountId = data?.[0]?.id;
+    if (!accountId) throw new Error("Can't find an account");
+
+    const { error: modifiedError } = await supabase.from("transactions").upsert(
+      {
         user_id: user.id,
-        account_id: data?.[0].id,
+        account_id: accountId,
         category_id: null,
         posted_at: item.datetime ?? item.date,
-        amount: item.amount,
+        amount: normalizeAmount(item.amount),
         merchant: item.merchant_name,
         plaid_transaction_id: item.transaction_id,
         plaid_item_id: itemUuid, // How do I get hold of plaid_id? Maybe it is a foreign key so I don't necessarily put here
         pending: item.pending,
         authorized_at: item.authorized_datetime ?? item.authorized_date,
+        name: item.name,
         payment_channel: item.payment_channel,
         raw_category: item.personal_finance_category,
         plaid_account_id: item.account_id,
         location: item.location,
-      });
+      },
+      { onConflict: "plaid_item_id,plaid_transaction_id" },
+    );
 
     if (modifiedError) {
       throw new Error("Something went wrong"); // this message is temporary filler
     }
   }
 
+  // Here, I want to mark "removed" an item that matches with
+  // find account with this Plaid account id that belongs to this linked item
   for (const item of removed) {
     const { error: removedError } = await supabase
       .from("transactions")
-      .delete()
-      .eq("plaid_transaction_id", item.transaction_id);
+      .update({ is_removed: true })
+      .match({
+        plaid_transaction_id: item.transaction_id,
+        plaid_item_id: itemUuid,
+      });
 
     if (removedError) {
       throw new Error("something went wrong");

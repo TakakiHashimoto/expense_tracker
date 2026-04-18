@@ -46,6 +46,7 @@ export async function POST(request: NextRequest) {
     });
 
     const client = new PlaidApi(config);
+
     const { added, modified, removed, cursor } = await syncTransactions(
       access_token,
       transactionCursor,
