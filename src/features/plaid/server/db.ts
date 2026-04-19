@@ -13,6 +13,9 @@ export async function persistSyncResult(
   const supabase = await createClient();
   const user = await getUser(supabase);
 
+  // Plaid uses positive = money out, negative = money in.
+  // Our app uses negative = expense, positive = income.
+  // Flip once at ingestion so the rest of the app has one consistent rule.
   function normalizeAmount(amount: number) {
     return -amount;
   }
@@ -23,13 +26,18 @@ export async function persistSyncResult(
     const { data, error } = await supabase
       .from("accounts")
       .select("id")
-      .match({ plaid_account_id: item.account_id, plaid_item_id: itemUuid });
+      .match({
+        plaid_account_id: item.account_id,
+        plaid_item_id: itemUuid,
+        user_id: user.id,
+      })
+      .single();
 
-    if (error) {
+    if (error || !data) {
       throw new Error("Something went wrong while fetching accounts id");
     }
 
-    const accountId = data?.[0]?.id;
+    const accountId = data.id;
     if (!accountId) throw new Error("Can't find an account");
 
     const { error: addedError } = await supabase.from("transactions").upsert(
@@ -49,6 +57,7 @@ export async function persistSyncResult(
         plaid_account_id: item.account_id,
         name: item.name,
         location: item.location,
+        is_removed: false,
       },
       { onConflict: "plaid_item_id,plaid_transaction_id" },
     );
@@ -62,35 +71,44 @@ export async function persistSyncResult(
     const { data, error } = await supabase
       .from("accounts")
       .select("id")
-      .match({ plaid_account_id: item.account_id, plaid_item_id: itemUuid });
+      .match({
+        plaid_account_id: item.account_id,
+        plaid_item_id: itemUuid,
+        user_id: user.id,
+      })
+      .single();
 
-    if (error) {
+    if (error || !data) {
       throw new Error("Something went wrong while fetching accounts id");
     }
 
-    const accountId = data?.[0]?.id;
+    const accountId = data.id;
     if (!accountId) throw new Error("Can't find an account");
 
-    const { error: modifiedError } = await supabase.from("transactions").upsert(
-      {
-        user_id: user.id,
-        account_id: accountId,
-        category_id: null,
-        posted_at: item.datetime ?? item.date,
-        amount: normalizeAmount(item.amount),
-        merchant: item.merchant_name,
-        plaid_transaction_id: item.transaction_id,
-        plaid_item_id: itemUuid, // How do I get hold of plaid_id? Maybe it is a foreign key so I don't necessarily put here
-        pending: item.pending,
-        authorized_at: item.authorized_datetime ?? item.authorized_date,
-        name: item.name,
-        payment_channel: item.payment_channel,
-        raw_category: item.personal_finance_category,
-        plaid_account_id: item.account_id,
-        location: item.location,
-      },
-      { onConflict: "plaid_item_id,plaid_transaction_id" },
-    );
+    // upsert is to add if new and update if already exists. ==> the way to know is to have constraints in db
+    const { error: modifiedError } = await supabase
+      .from("transactions")
+      .upsert(
+        {
+          user_id: user.id,
+          account_id: accountId,
+          category_id: null,
+          posted_at: item.datetime ?? item.date,
+          amount: normalizeAmount(item.amount),
+          merchant: item.merchant_name,
+          plaid_transaction_id: item.transaction_id,
+          plaid_item_id: itemUuid,
+          pending: item.pending,
+          authorized_at: item.authorized_datetime ?? item.authorized_date,
+          name: item.name,
+          payment_channel: item.payment_channel,
+          raw_category: item.personal_finance_category,
+          plaid_account_id: item.account_id,
+          location: item.location,
+          is_removed: false,
+        },
+        { onConflict: "plaid_item_id,plaid_transaction_id" },
+      );
 
     if (modifiedError) {
       throw new Error("Something went wrong"); // this message is temporary filler
@@ -116,7 +134,8 @@ export async function persistSyncResult(
   const { error: cursorError } = await supabase
     .from("plaid_items")
     .update({ transactions_cursor: cursor })
-    .eq("id", itemUuid); // What should it be equal?
+    .eq("id", itemUuid)
+    .eq("user_id", user.id); // What should it be equal?
 
   if (cursorError) {
     throw new Error("Something went wrong while updating cursor");

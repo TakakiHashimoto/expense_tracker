@@ -1,10 +1,8 @@
-import { getUser } from "@/features/dashboard/actions";
-import { createClient } from "@/lib/supabase/server";
 import { PlaidApi, Transaction, RemovedTransaction } from "plaid";
 
 export async function syncTransactions(
   accessToken: string,
-  cursor: string,
+  cursor: string | null,
   client: PlaidApi,
 ) {
   // getting all the transaction data that matches with the access token =

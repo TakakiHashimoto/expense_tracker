@@ -18,22 +18,36 @@ export async function POST(request: NextRequest) {
   const { plaid_item_uuid } = await request.json(); // This is internal DB plaid_items_id
 
   try {
-    const { data } = await supabase
-      .from("plaid_item_secrets")
-      .select("access_token")
-      .eq("plaid_item_id", plaid_item_uuid);
+    const { data: cursorData, error: cursorError } = await supabase
+      .from("plaid_items")
+      .select("id, transactions_cursor")
+      .eq("id", plaid_item_uuid)
+      .eq("user_id", user.id)
+      .single();
 
-    const access_token = data?.[0].access_token;
-    if (!access_token) {
-      return NextResponse.json({ error: "access_toekn not found" });
+    if (cursorError || !cursorData) {
+      throw new Error("Failed to fetch plaid items");
     }
 
-    const { data: cursorData } = await supabase
-      .from("plaid_items")
-      .select("transactions_cursor")
-      .eq("id", plaid_item_uuid);
+    const transactionCursor = cursorData.transactions_cursor;
 
-    const transactionCursor = cursorData?.[0].transactions_cursor;
+    const { data, error: secretError } = await supabase
+      .from("plaid_item_secrets")
+      .select("access_token")
+      .eq("plaid_item_id", plaid_item_uuid)
+      .single();
+
+    if (secretError || !data) {
+      return NextResponse.json({ error: "Couldn't find " }, { status: 404 });
+    }
+    const access_token = data.access_token;
+
+    if (!access_token) {
+      return NextResponse.json(
+        { error: "access_token not found" },
+        { status: 404 },
+      );
+    }
 
     const config = new Configuration({
       basePath: PlaidEnvironments[plaidEnv],
@@ -55,7 +69,16 @@ export async function POST(request: NextRequest) {
 
     await persistSyncResult(added, modified, removed, cursor, plaid_item_uuid);
     // add those item to database.
+    return NextResponse.json({
+      success: true,
+      addedCount: added.length,
+      removedCount: removed.length,
+      modifiedCount: modified.length,
+    });
   } catch (e) {
-    return NextResponse.json({ error: "Failed to sync transactions" });
+    return NextResponse.json(
+      { error: "Failed to sync transactions" },
+      { status: 500 },
+    );
   }
 }

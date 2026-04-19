@@ -19,8 +19,11 @@ export async function POST() {
   const supabase = await createClient();
   const user = await getUser(supabase);
 
-  if (!plaidClientId || !plaidEnv || !plaidSecret) {
-    throw new Error("Missing credentials");
+  if (!plaidClientId || !plaidSecret) {
+    return NextResponse.json(
+      { error: "Missing Plaid Credentials" },
+      { status: 500 },
+    );
   }
   const config = new Configuration({
     basePath: PlaidEnvironments[plaidEnv],

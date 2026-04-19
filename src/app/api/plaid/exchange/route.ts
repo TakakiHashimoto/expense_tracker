@@ -40,56 +40,73 @@ export async function POST(request: NextRequest) {
     const { access_token, item_id } = res.data;
     // item_id = one item_id for one institution like TD
 
-    const {
-      institution: { name, institution_id },
-      accounts,
-    } = metadata;
+    const institutionName = metadata?.institution?.name ?? null;
+    const institutionId = metadata?.institution?.institution_id ?? null;
+    const accounts = metadata?.accounts ?? [];
 
     // fill up the plaid_item database
     const user = await getUser(supabase);
-
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("plaid_items")
       .insert({
         user_id: user.id,
         plaid_item_id: item_id,
-        institution_id: institution_id,
-        institution_name: name,
+        institution_id: institutionId,
+        institution_name: institutionName,
         transactions_cursor: null,
       })
-      .select("id");
+      .select("id")
+      .single();
+
+    if (error || !data) {
+      return NextResponse.json(
+        { error: "Failed to create plaid item" },
+        { status: 500 },
+      );
+    }
+
+    const plaidItemUuid = data.id;
 
     // add access_token and item_id to database
-    await supabase
+    const { error: plaidSecretsError } = await supabase
       .from("plaid_item_secrets")
-      .insert({ access_token: access_token, plaid_item_id: data?.[0].id });
+      .insert({ access_token: access_token, plaid_item_id: plaidItemUuid });
+
+    if (plaidSecretsError) {
+      throw plaidSecretsError;
+    }
 
     // add accounts to database
     for (const account of accounts) {
       // TD checking, TD savings
-      await supabase
+      const { error: accountError } = await supabase
         .from("accounts")
         .insert({
           user_id: user.id,
           type: account.type,
           name: account.name,
           is_active: true,
-          plaid_item_id: data?.[0].id,
+          plaid_item_id: plaidItemUuid,
           plaid_account_id: account.id,
           mask: account.mask,
           subtype: account.subtype,
         });
+
+      if (accountError) {
+        throw accountError;
+      }
     }
 
-    return NextResponse.json({ plaid_item_uuid: data?.[0].id });
+    return NextResponse.json({ plaid_item_uuid: plaidItemUuid });
 
     // get necessary data from another
     // add those transaction data to database
     // redirect to dashboard
   } catch (e) {
-    return NextResponse.json({
-      error: { message: "Failed to exchange access token", code: "400" },
-    });
+    return NextResponse.json(
+      { error: { message: "Failed to exchange access token", code: "400" } },
+      { status: 400 },
+    );
   }
 }
 
