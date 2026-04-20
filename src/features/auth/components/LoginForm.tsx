@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/browser";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { getUserOnboardingState } from "../actions";
 
 export default function LoginForm() {
   const supabase = createClient();
@@ -30,7 +31,22 @@ export default function LoginForm() {
       return;
     }
 
-    router.push("/dashboard");
+    // get plaid item for this user
+    // If empty, redirect to "connect-bank",
+    // If they already have items, redirect to dashboard
+
+    const onBoadingState = await getUserOnboardingState();
+    if (!onBoadingState.ok) {
+      setLoginError("Server Error");
+      return;
+    }
+
+    if (!onBoadingState.hasPlaidItems) {
+      router.push("/connect-bank");
+    } else {
+      // In client side, router.push() is the Nextjs way to redirect
+      router.push("/dashboard");
+    }
   }
 
   return (
