@@ -5,42 +5,71 @@
 
 /* If you plan to toggle dark mode by adding class="dark" on <html> */
 @custom-variant dark (&:is(.dark *));
-
 /* ---------------------------
-   Theme Tokens (trustworthy dark)
+   Theme Tokens - Stitch Landing Theme
    --------------------------- */
 :root {
-  /* Core palette */
-  --background: #090e16; /* deep navy-black */
-  --surface: #0b1220; /* main surface */
-  --surface-2: #0f1a2e; /* lifted cards */
-  --border: #1b2a44; /* subtle border */
+  --background: #0f131d;
+  --surface: #0f131d;
 
-  --foreground: #f5f7fb; /* near-white */
-  --muted: #b6c2d7; /* muted text */
-  --muted-2: #7f93b5; /* secondary muted */
+  --surface-container-lowest: #0a0e18;
+  --surface-container-low: #171b26;
+  --surface-container: #1c1f2a;
+  --surface-container-high: #262a35;
+  --surface-container-highest: #313540;
+  --surface-bright: #353944;
 
-  --accent: #59deca; /* your green/teal accent */
-  --accent-2: #2dd4bf; /* optional */
+  --on-surface: #dfe2f1;
+  --on-surface-variant: #bbcabf;
+
+  --primary: #4edea3;
+  --primary-container: #10b981;
+  --on-primary-container: #00422b;
+
+  --secondary: #adc6ff;
+  --tertiary: #ffb3af;
+
+  --outline: #86948a;
+  --outline-variant: #3c4a42;
 
   --radius: 16px;
 
   --font-sans: var(--font-poppins);
 }
 
-/* Tailwind v4 theme mapping: makes tokens usable as
-   bg-background, text-foreground, border-border, etc.
-*/
+/* Tailwind v4 theme mapping */
 @theme inline {
   --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --color-surface: var(--surface);
-  --color-surface-2: var(--surface-2);
-  --color-border: var(--border);
-  --color-muted: var(--muted);
-  --color-muted-2: var(--muted-2);
-  --color-accent: var(--accent);
-  --color-accent-2: var(--accent-2);
+
+  --color-surface-container-lowest: var(--surface-container-lowest);
+  --color-surface-container-low: var(--surface-container-low);
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-high: var(--surface-container-high);
+  --color-surface-container-highest: var(--surface-container-highest);
+  --color-surface-bright: var(--surface-bright);
+
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-variant: var(--on-surface-variant);
+
+  --color-primary: var(--primary);
+  --color-primary-container: var(--primary-container);
+  --color-on-primary-container: var(--on-primary-container);
+
+  --color-secondary: var(--secondary);
+  --color-tertiary: var(--tertiary);
+
+  --color-outline: var(--outline);
+  --color-outline-variant: var(--outline-variant);
+
+  /* Optional aliases so your old classes still work */
+  --color-foreground: var(--on-surface);
+  --color-muted: var(--on-surface-variant);
+  --color-muted-2: var(--outline);
+  --color-accent: var(--primary);
+  --color-accent-2: var(--primary-container);
+  --color-border: var(--outline-variant);
+  --color-surface-2: var(--surface-container-low);
 
   --radius-sm: calc(var(--radius) - 8px);
   --radius-md: calc(var(--radius) - 4px);
@@ -48,11 +77,25 @@
   --radius-xl: calc(var(--radius) + 8px);
 }
 
+.material-symbols-outlined {
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
+}
+
+.glass-panel {
+  background: rgba(23, 27, 38, 0.7);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
 /* ---------------------------
    Utilities (short class names)
    --------------------------- */
 @utility container-page {
-  @apply mx-auto w-full max-w-6xl px-6 md:px-10;
+  @apply mx-auto w-full max-w-7xl px-8;
 }
 
 @utility section {
@@ -68,11 +111,16 @@
 }
 
 @utility glass {
-  @apply rounded-[var(--radius)] border border-border bg-surface/60 backdrop-blur-xl;
+  @apply rounded-[var(--radius)] border border-white/5 bg-surface-container-low/70 backdrop-blur-2xl;
 }
 
 @utility card {
-  @apply rounded-[var(--radius)] border border-border bg-surface-2 shadow-lg;
+  @apply rounded-[var(--radius)] border border-white/5 bg-surface-container-low shadow-2xl;
+}
+
+@utility gradient-text {
+  @apply bg-gradient-to-r from-primary to-on-surface bg-clip-text text-transparent;
+  /* background is cliped in a shape of text and if text becomes transparent, it allows to see through bg */
 }
 
 @utility btn {
@@ -80,11 +128,11 @@
 }
 
 @utility btn-primary {
-  @apply btn bg-accent text-black hover:opacity-90;
+  @apply btn bg-gradient-to-r from-primary to-primary-container text-on-primary-container hover:shadow-[0_0_20px_rgba(78,222,163,0.3)];
 }
 
 @utility btn-secondary {
-  @apply btn border border-border bg-surface-2/70 hover:bg-white/5;
+  @apply btn border border-white/5 bg-surface-container-highest hover:bg-surface-bright;
 }
 
 @utility feature-grid {
@@ -178,7 +226,7 @@
 @layer base {
   html,
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background text-on-surface antialiased;
     font-family: var(--font-sans), system-ui, sans-serif;
   }
 }

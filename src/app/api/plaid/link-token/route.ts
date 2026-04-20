@@ -7,7 +7,7 @@ import {
   CountryCode,
   Products,
 } from "plaid";
-import { getUser } from "@/features/dashboard/actions";
+import { grabUser } from "@/features/dashboard/actions";
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
@@ -17,7 +17,7 @@ const plaidSecret = process.env.PLAID_SECRET;
 
 export async function POST() {
   const supabase = await createClient();
-  const user = await getUser(supabase);
+  const user = await grabUser(supabase);
 
   if (!plaidClientId || !plaidSecret) {
     return NextResponse.json(

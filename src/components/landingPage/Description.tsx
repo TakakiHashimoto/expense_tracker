@@ -1,11 +1,6 @@
 import Image from "next/image";
 
-type props = {
-  icon: string;
-  alt: string;
-  title: string;
-  description: string;
-};
+type props = { icon: string; alt: string; title: string; description: string };
 
 function Description({ icon, alt, title, description }: props) {
   return (

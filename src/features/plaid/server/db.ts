@@ -1,4 +1,4 @@
-import { getUser } from "@/features/dashboard/actions";
+import { grabUser } from "@/features/dashboard/actions";
 import { createClient } from "@/lib/supabase/server";
 import { RemovedTransaction, Transaction } from "plaid";
 
@@ -11,7 +11,7 @@ export async function persistSyncResult(
   itemUuid: string,
 ) {
   const supabase = await createClient();
-  const user = await getUser(supabase);
+  const user = await grabUser(supabase);
 
   // Plaid uses positive = money out, negative = money in.
   // Our app uses negative = expense, positive = income.

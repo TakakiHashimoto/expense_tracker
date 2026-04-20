@@ -1,6 +1,6 @@
 // here in this page syncs transactions data which is associated with access-token
 
-import { getUser } from "@/features/dashboard/actions";
+import { grabUser } from "@/features/dashboard/actions";
 import { syncTransactions } from "@/features/plaid/server/sync";
 
 import { persistSyncResult } from "@/features/plaid/server/db";
@@ -14,7 +14,7 @@ const plaidSecret = process.env.PLAID_SECRET;
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
-  const user = await getUser(supabase);
+  const user = await grabUser(supabase);
   const { plaid_item_uuid } = await request.json(); // This is internal DB plaid_items_id
 
   try {

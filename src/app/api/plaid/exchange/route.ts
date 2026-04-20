@@ -1,6 +1,6 @@
 // Here, exchange public token to access token and store access token and plaid items to database
 
-import { getUser } from "@/features/dashboard/actions";
+import { grabUser } from "@/features/dashboard/actions";
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { Configuration, PlaidApi, PlaidEnvironments } from "plaid";
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     const accounts = metadata?.accounts ?? [];
 
     // fill up the plaid_item database
-    const user = await getUser(supabase);
+    const user = await grabUser(supabase);
     const { data, error } = await supabase
       .from("plaid_items")
       .insert({

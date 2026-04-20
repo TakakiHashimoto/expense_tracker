@@ -1,4 +1,5 @@
 export type Transaction = {
+  id: string;
   account_id: string;
   category_id: string;
   posted_at: string;

@@ -7,10 +7,10 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { SupabaseClient, User } from "@supabase/supabase-js";
+import { SupabaseClient, type User } from "@supabase/supabase-js";
 import { type Transaction, type DashboardType } from "./type";
 
-export async function getUser(supabase: SupabaseClient): Promise<User> {
+export async function grabUser(supabase: SupabaseClient): Promise<User> {
   const {
     data: { user },
     error,
@@ -26,6 +26,14 @@ export async function getUser(supabase: SupabaseClient): Promise<User> {
   return user;
 }
 
+/**
+ *
+ * @param user
+ * @param supabase
+ * @param firstDayOfMonth
+ * @param firstDayOfNextMonth
+ * @returns array of { account_id: string; category_id: string; posted_at: string; amount: number; merchant: string; note: string;} ;
+ */
 async function getThisMonthExpenses(
   user: User,
   supabase: SupabaseClient,
@@ -35,7 +43,7 @@ async function getThisMonthExpenses(
   // get this month expenses
   const { data: transactions, error } = await supabase
     .from("transactions")
-    .select("account_id, category_id, posted_at, amount, merchant, note")
+    .select("id, account_id, category_id, posted_at, amount, merchant, note")
     .eq("user_id", user.id)
     .lt("amount", 0)
     .gte("posted_at", firstDayOfMonth.toISOString())
@@ -58,7 +66,7 @@ async function getThisMonthIncome(
 ): Promise<Transaction[]> {
   const { data: income, error } = await supabase
     .from("transactions")
-    .select("account_id, category_id, posted_at, amount, merchant, note")
+    .select("id, account_id, category_id, posted_at, amount, merchant, note")
     .eq("user_id", user.id)
     .gt("amount", 0)
     .gte("posted_at", firstDayOfMonth.toISOString())
@@ -80,7 +88,7 @@ async function getRecentTransactions(
 ): Promise<Transaction[]> {
   const { data: recentTransactions, error } = await supabase
     .from("transactions")
-    .select("account_id, category_id, posted_at, amount, merchant, note")
+    .select("id, account_id, category_id, posted_at, amount, merchant, note")
     .eq("user_id", user.id)
     .gte("posted_at", firstDayOfMonth.toISOString())
     .lt("posted_at", firstDayOfNextMonth.toISOString())
@@ -151,7 +159,7 @@ async function getTotalMonthlyExpenses(
 
 export async function getDashboardData(): Promise<DashboardType> {
   const supabase = await createClient();
-  const user = await getUser(supabase);
+  const user = await grabUser(supabase);
   const today = new Date(); // server time => What's wrong with server time?
   const firstDayOfMonth = new Date(
     Date.UTC(today.getFullYear(), today.getMonth(), 1),

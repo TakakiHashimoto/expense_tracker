@@ -5,7 +5,7 @@ import LandingHero from "@/components/landingPage/LandingHero";
 
 function LandingPage() {
   return (
-    <div className="flex flex-col gap-3 landing-bg">
+    <div className="min-h-screen bg-surface text-on-surface flex flex-col gap-16">
       <LandingHero
         heroData={landingContent.hero}
         buttonData={landingContent.button}
