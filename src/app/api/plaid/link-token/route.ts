@@ -53,9 +53,9 @@ export async function POST() {
     return NextResponse.json({ link_token: res.data.link_token });
   } catch (e) {
     console.log(e);
-    return NextResponse.json({
-      error: { message: "Failed to create link token", code: "400" },
-      success: false,
-    });
+    return NextResponse.json(
+      { error: { message: "Failed to create link token" }, success: false },
+      { status: 500 },
+    );
   }
 }

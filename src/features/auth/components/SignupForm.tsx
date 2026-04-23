@@ -47,7 +47,7 @@ export default function SignupForm() {
         </div>
         <div className="relative z-10 max-w-xl">
           <div className="mb-12 flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center shadow-lg shadow-primary/20">
+            <div className="w-12 h-12 rounded-xl bg-linear-to-br from-primary to-primary-container flex items-center justify-center shadow-lg shadow-primary/20">
               <span
                 className="material-symbols-outlined text-on-primary text-3xl"
                 style={{ fontVariationSettings: '"FILL" 1' }}
@@ -72,7 +72,7 @@ export default function SignupForm() {
             </div>
             <div className="grid gap-6">
               <div className="flex gap-4 items-start p-6 rounded-2xl bg-surface-container-low transition-colors hover:bg-surface-container">
-                <div className="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center shrink-0">
                   <span className="material-symbols-outlined text-primary text-xl">
                     query_stats
                   </span>
@@ -88,7 +88,7 @@ export default function SignupForm() {
                 </div>
               </div>
               <div className="flex gap-4 items-start p-6 rounded-2xl bg-surface-container-low transition-colors hover:bg-surface-container">
-                <div className="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center shrink-0">
                   <span className="material-symbols-outlined text-secondary text-xl">
                     shield
                   </span>

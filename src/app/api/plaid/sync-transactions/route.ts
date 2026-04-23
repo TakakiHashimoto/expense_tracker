@@ -17,6 +17,13 @@ export async function POST(request: NextRequest) {
   const user = await grabUser(supabase);
   const { plaid_item_uuid } = await request.json(); // This is internal DB plaid_items_id
 
+  if (!plaid_item_uuid) {
+    return NextResponse.json(
+      { error: "Missing plaid item uuid" },
+      { status: 400 },
+    );
+  }
+
   try {
     const { data: cursorData, error: cursorError } = await supabase
       .from("plaid_items")
