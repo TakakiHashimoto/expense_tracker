@@ -1,190 +1,62 @@
-import { type DashboardType } from "../type";
+import { type DashboardData } from "../type";
+import DashboardStats from "./DashboardStats";
+import { formatValue } from "@/lib/formatValue";
+import Link from "next/link";
 
-type Props = { initialValue: DashboardType };
+type Props = { initialValue: DashboardData };
 
 export default function DashboardClient({ initialValue }: Props) {
-  console.log(initialValue);
+  if (!initialValue.ok) {
+    return (
+      <div className="space-y-5 flex flex-col items-center">
+        <p className="text-tertiary text-3xl">
+          Error Occurred while fetching your data
+        </p>
+        <Link href="/dashboard" className="">
+          Try again
+        </Link>
+      </div>
+    );
+  }
+
+  if (!initialValue.hasPlaidItems) {
+    return (
+      <div className="">
+        <p>You don't have your account connected</p>
+        <Link
+          href="/connect-bank"
+          className="w-fit bg-linear-to-r from-primary to-primary-container text-on-primary px-10 py-5 rounded-xl font-bold text-lg active:scale-95 transition-transform shadow-[0_0_20px_rgba(78,222,163,0.15)] flex items-center gap-3"
+        >
+          Connect your bank here
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div>
-      {initialValue.monthlyExpenses.length === 0 ? (
-        <p>0</p>
-      ) : (
-        initialValue.monthlyExpenses.map((item) => (
-          <p key={item.id}>{item.amount}</p>
-        ))
-      )}
+      <section className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+        <DashboardStats
+          title="THIS MONTH SPENDING"
+          value={formatValue(initialValue.stats.monthlySpending, "money")}
+          type="monthly-spending"
+        />
+        <DashboardStats
+          title="TODAY"
+          value={formatValue(initialValue.stats.todayTotal, "money")}
+          type="today-total"
+        />
+        <DashboardStats
+          title="MONTHLY INCOME"
+          value={formatValue(initialValue.stats.monthlyIncome, "money")}
+          type="monthly-income"
+        />
+        <DashboardStats
+          title="RECENT ACTIVITIES"
+          value={formatValue(initialValue.stats.recentActivities, "count")}
+          type="recent-activities"
+        />
+      </section>
     </div>
   );
 }
-
-// ###################### initialValue ##########################
-// {
-//   monthlyExpenses: [
-//     {
-//       account_id: '87f191d0-4729-4f93-96a3-4e76d2ddcccf',
-//       category_id: null,
-//       posted_at: '2026-04-14T00:00:00+00:00',
-//       amount: -5.4,
-//       merchant: 'Uber',
-//       note: null
-//     },
-//     {
-//       account_id: '70e0a4f2-27f3-4e16-a1a0-80ab95820b6d',
-//       category_id: null,
-//       posted_at: '2026-04-14T00:00:00+00:00',
-//       amount: -25,
-//       merchant: null,
-//       note: null
-//     },
-//     {
-//       account_id: 'f0ac6505-f242-4bb3-9290-a3c5b436f242',
-//       category_id: null,
-//       posted_at: '2026-04-13T00:00:00+00:00',
-//       amount: -1000,
-//       merchant: null,
-//       note: null
-//     },
-//     {
-//       account_id: '12c10c59-aacb-4238-bd06-9578b1e69f8c',
-//       category_id: null,
-//       posted_at: '2026-04-13T00:00:00+00:00',
-//       amount: -5850,
-//       merchant: null,
-//       note: null
-//     },
-//     {
-//       account_id: '9250572b-ad71-413e-9e5d-d883ea1140ce',
-//       category_id: null,
-//       posted_at: '2026-04-12T00:00:00+00:00',
-//       amount: -78.5,
-//       merchant: null,
-//       note: null
-//     },
-//     {
-//       account_id: '87f191d0-4729-4f93-96a3-4e76d2ddcccf',
-//       category_id: null,
-//       posted_at: '2026-04-11T00:00:00+00:00',
-//       amount: -12,
-//       merchant: "McDonald's",
-//       note: null
-//     },
-//     {
-//       account_id: '87f191d0-4729-4f93-96a3-4e76d2ddcccf',
-//       category_id: null,
-//       posted_at: '2026-04-11T00:00:00+00:00',
-//       amount: -4.33,
-//       merchant: 'Starbucks',
-//       note: null
-//     },
-//     {
-//       account_id: '87f191d0-4729-4f93-96a3-4e76d2ddcccf',
-//       category_id: null,
-//       posted_at: '2026-04-10T00:00:00+00:00',
-//       amount: -89.4,
-//       merchant: 'FUN',
-//       note: null
-//     }
-//   ],
-//   monthlyIncome: [
-//     {
-//       account_id: '87f191d0-4729-4f93-96a3-4e76d2ddcccf',
-//       category_id: null,
-//       posted_at: '2026-04-12T00:00:00+00:00',
-//       amount: 500,
-//       merchant: 'United Airlines',
-//       note: null
-//     },
-//     {
-//       account_id: '70e0a4f2-27f3-4e16-a1a0-80ab95820b6d',
-//       category_id: null,
-//       posted_at: '2026-04-09T00:00:00+00:00',
-//       amount: 4.22,
-//       merchant: null,
-//       note: null
-//     }
-//   ],
-//   monthlyTotoal: -7064.63,
-//   recentTransactions: [
-//     {
-//       account_id: '87f191d0-4729-4f93-96a3-4e76d2ddcccf',
-//       category_id: null,
-//       posted_at: '2026-04-14T00:00:00+00:00',
-//       amount: -5.4,
-//       merchant: 'Uber',
-//       note: null
-//     },
-//     {
-//       account_id: '70e0a4f2-27f3-4e16-a1a0-80ab95820b6d',
-//       category_id: null,
-//       posted_at: '2026-04-14T00:00:00+00:00',
-//       amount: -25,
-//       merchant: null,
-//       note: null
-//     },
-//     {
-//       account_id: 'f0ac6505-f242-4bb3-9290-a3c5b436f242',
-//       category_id: null,
-//       posted_at: '2026-04-13T00:00:00+00:00',
-//       amount: -1000,
-//       merchant: null,
-//       note: null
-//     },
-//     {
-//       account_id: '12c10c59-aacb-4238-bd06-9578b1e69f8c',
-//       category_id: null,
-//       posted_at: '2026-04-13T00:00:00+00:00',
-//       amount: -5850,
-//       merchant: null,
-//       note: null
-//     },
-//     {
-//       account_id: '87f191d0-4729-4f93-96a3-4e76d2ddcccf',
-//       category_id: null,
-//       posted_at: '2026-04-12T00:00:00+00:00',
-//       amount: 500,
-//       merchant: 'United Airlines',
-//       note: null
-//     },
-//     {
-//       account_id: '9250572b-ad71-413e-9e5d-d883ea1140ce',
-//       category_id: null,
-//       posted_at: '2026-04-12T00:00:00+00:00',
-//       amount: -78.5,
-//       merchant: null,
-//       note: null
-//     },
-//     {
-//       account_id: '87f191d0-4729-4f93-96a3-4e76d2ddcccf',
-//       category_id: null,
-//       posted_at: '2026-04-11T00:00:00+00:00',
-//       amount: -12,
-//       merchant: "McDonald's",
-//       note: null
-//     },
-//     {
-//       account_id: '87f191d0-4729-4f93-96a3-4e76d2ddcccf',
-//       category_id: null,
-//       posted_at: '2026-04-11T00:00:00+00:00',
-//       amount: -4.33,
-//       merchant: 'Starbucks',
-//       note: null
-//     },
-//     {
-//       account_id: '87f191d0-4729-4f93-96a3-4e76d2ddcccf',
-//       category_id: null,
-//       posted_at: '2026-04-10T00:00:00+00:00',
-//       amount: -89.4,
-//       merchant: 'FUN',
-//       note: null
-//     },
-//     {
-//       account_id: '70e0a4f2-27f3-4e16-a1a0-80ab95820b6d',
-//       category_id: null,
-//       posted_at: '2026-04-09T00:00:00+00:00',
-//       amount: 4.22,
-//       merchant: null,
-//       note: null
-//     }
-//   ],
-//   todayTotal: 0
-// }

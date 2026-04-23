@@ -8,10 +8,22 @@ export type Transaction = {
   note: string;
 };
 
-export type DashboardType = {
-  monthlyExpenses: Transaction[];
-  monthlyIncome: Transaction[];
-  monthlyTotoal: number;
-  recentTransactions: Transaction[];
-  todayTotal: number;
-};
+export type DashboardData =
+  | { ok: true; hasPlaidItems: false }
+  | {
+      ok: true;
+      hasPlaidItems: true;
+      stats: {
+        monthlySpending: number;
+        monthlyIncome: number;
+        todayTotal: number;
+        recentActivities: number;
+      };
+      recentTransactions: {
+        id: string;
+        name: string;
+        amount: number;
+        date: string;
+      }[];
+    }
+  | { ok: false; error: string };

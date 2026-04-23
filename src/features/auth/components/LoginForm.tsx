@@ -152,7 +152,7 @@ export default function LoginForm() {
               />
             </div>
             <div aria-live="polite" aria-atomic="true">
-              {loginError && <p>{loginError}</p>}
+              {loginError && <p className="text-tertiary">{loginError}</p>}
             </div>
             <button
               type="submit"

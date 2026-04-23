@@ -1,10 +1,8 @@
 import { getDashboardData } from "@/features/dashboard/actions";
 import DashboardClient from "@/features/dashboard/components/DashboardClient";
+import { DashboardData } from "@/features/dashboard/type";
 
-export default async function DashBoard() {
-  // fetch data on load:
-  // in the future I will prevent from fetching every render, maybe cacheing or useMemo
-
-  const data = await getDashboardData();
+export default async function Dashboard() {
+  const data: DashboardData = await getDashboardData();
   return <DashboardClient initialValue={data} />;
 }

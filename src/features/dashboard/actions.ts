@@ -8,7 +8,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { SupabaseClient, type User } from "@supabase/supabase-js";
-import { type Transaction, type DashboardType } from "./type";
+import { type Transaction, type DashboardData } from "./type";
 
 export async function grabUser(supabase: SupabaseClient): Promise<User> {
   const {
@@ -157,9 +157,24 @@ async function getTotalMonthlyExpenses(
   return data ?? 0;
 }
 
-export async function getDashboardData(): Promise<DashboardType> {
+// TODO: make sure to specify return value
+export async function getDashboardData(): Promise<DashboardData> {
   const supabase = await createClient();
   const user = await grabUser(supabase);
+
+  const { count, error: plaidItemsError } = await supabase
+    .from("plaid_items")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id);
+
+  if (plaidItemsError) {
+    return { ok: false, error: plaidItemsError.message };
+  }
+
+  if ((count ?? 0) < 0) {
+    return { ok: true, hasPlaidItems: false };
+  }
+
   const today = new Date(); // server time => What's wrong with server time?
   const firstDayOfMonth = new Date(
     Date.UTC(today.getFullYear(), today.getMonth(), 1),
@@ -188,10 +203,19 @@ export async function getDashboardData(): Promise<DashboardType> {
   ]);
 
   return {
-    monthlyExpenses,
-    monthlyIncome,
-    monthlyTotoal,
-    recentTransactions,
-    todayTotal,
+    ok: true,
+    hasPlaidItems: true,
+    stats: {
+      monthlySpending: monthlyTotoal,
+      monthlyIncome: monthlyIncome.reduce((acc, cur) => acc + cur.amount, 0),
+      todayTotal: todayTotal,
+      recentActivities: recentTransactions.length,
+    },
+    recentTransactions: recentTransactions.map((tran) => ({
+      id: tran.id,
+      name: tran.merchant,
+      amount: tran.amount,
+      date: tran.posted_at,
+    })),
   };
 }
