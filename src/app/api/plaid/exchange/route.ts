@@ -32,7 +32,36 @@ export async function POST(request: NextRequest) {
 
   const client = new PlaidApi(config);
   try {
+    const user = await grabUser(supabase);
+
+    const { count, error: existingError } = await supabase
+      .from("plaid_items")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id);
+
+    if (existingError) {
+      return NextResponse.json(
+        { error: "Failed to check existing bank connection" },
+        { status: 500 },
+      );
+    }
+
+    if ((count ?? 0) > 0) {
+      return NextResponse.json(
+        { error: "User already have their banks connected" },
+        { status: 409 },
+      );
+    }
+
     const { public_token, metadata } = await request.json();
+
+    if (!public_token) {
+      return NextResponse.json(
+        { error: "public_token is not provided" },
+        { status: 400 },
+      );
+    }
+
     // change the public token to access token
     const res = await client.itemPublicTokenExchange({
       public_token: public_token,
@@ -45,7 +74,6 @@ export async function POST(request: NextRequest) {
     const accounts = metadata?.accounts ?? [];
 
     // fill up the plaid_item database
-    const user = await grabUser(supabase);
     const { data, error } = await supabase
       .from("plaid_items")
       .insert({
@@ -103,9 +131,10 @@ export async function POST(request: NextRequest) {
     // add those transaction data to database
     // redirect to dashboard
   } catch (e) {
+    console.log(e);
     return NextResponse.json(
-      { error: { message: "Failed to exchange access token", code: "400" } },
-      { status: 400 },
+      { error: { message: "Failed to connect bank account" } },
+      { status: 500 },
     );
   }
 }

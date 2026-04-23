@@ -26,6 +26,8 @@
   --primary-container: #10b981;
   --on-primary-container: #00422b;
 
+  --primary-fixed-dim: #4edea3;
+
   --secondary: #adc6ff;
   --tertiary: #ffb3af;
 
@@ -55,6 +57,8 @@
   --color-primary: var(--primary);
   --color-primary-container: var(--primary-container);
   --color-on-primary-container: var(--on-primary-container);
+
+  --color-primary-fixed-dim: var(--primary-fixed-dim);
 
   --color-secondary: var(--secondary);
   --color-tertiary: var(--tertiary);
