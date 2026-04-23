@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { PhoneMock } from "../PhoneImage";
 import GetStartedButton from "./GetStartedButton";
-import DashboardMock from "./DashboardMock";
+import DashboardMock from "../common/DashboardMock";
 
 type props = {
   heroData: { title: string; subtitle: string };

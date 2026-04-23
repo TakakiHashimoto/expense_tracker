@@ -1,0 +1,337 @@
+<!doctype html>
+
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-secondary": "#002e6a",
+              "secondary-fixed": "#d8e2ff",
+              "on-tertiary": "#650911",
+              error: "#ffb4ab",
+              primary: "#4edea3",
+              "primary-fixed-dim": "#4edea3",
+              "on-tertiary-fixed": "#410005",
+              "inverse-surface": "#dfe2f1",
+              "tertiary-fixed": "#ffdad7",
+              "secondary-container": "#0566d9",
+              "on-error-container": "#ffdad6",
+              "primary-container": "#10b981",
+              "error-container": "#93000a",
+              "surface-container": "#1c1f2a",
+              "on-surface-variant": "#bbcabf",
+              "on-surface": "#dfe2f1",
+              outline: "#86948a",
+              "on-secondary-fixed": "#001a42",
+              "on-secondary-container": "#e6ecff",
+              "on-primary": "#003824",
+              background: "#0f131d",
+              "on-primary-fixed": "#002113",
+              "primary-fixed": "#6ffbbe",
+              "on-tertiary-container": "#711419",
+              "on-primary-container": "#00422b",
+              "inverse-on-surface": "#2c303b",
+              "surface-variant": "#313540",
+              "on-error": "#690005",
+              "tertiary-fixed-dim": "#ffb3af",
+              "surface-tint": "#4edea3",
+              secondary: "#adc6ff",
+              "surface-container-lowest": "#0a0e18",
+              tertiary: "#ffb3af",
+              surface: "#0f131d",
+              "on-secondary-fixed-variant": "#004395",
+              "on-primary-fixed-variant": "#005236",
+              "on-background": "#dfe2f1",
+              "surface-dim": "#0f131d",
+              "inverse-primary": "#006c49",
+              "surface-bright": "#353944",
+              "tertiary-container": "#fc7c78",
+              "surface-container-low": "#171b26",
+              "outline-variant": "#3c4a42",
+              "secondary-fixed-dim": "#adc6ff",
+              "surface-container-highest": "#313540",
+              "surface-container-high": "#262a35",
+              "on-tertiary-fixed-variant": "#842225",
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              "2xl": "1.5rem",
+              full: "9999px",
+            },
+            fontFamily: {
+              headline: ["Inter"],
+              display: ["Inter"],
+              body: ["Inter"],
+              label: ["Inter"],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .glass-effect {
+        background: rgba(28, 31, 42, 0.6);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+      }
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+      }
+      .bg-auth-pattern {
+        background-image: radial-gradient(
+          circle at 2px 2px,
+          rgba(78, 222, 163, 0.05) 1px,
+          transparent 0
+        );
+        background-size: 32px 32px;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-background text-on-surface font-body min-h-screen selection:bg-primary-container selection:text-on-primary-container"
+  >
+    <main class="flex min-h-screen overflow-hidden">
+      <section
+        class="hidden lg:flex w-1/2 relative bg-surface-container-lowest items-center justify-center p-16 overflow-hidden"
+      >
+        <div class="absolute inset-0 bg-auth-pattern opacity-40"></div>
+        <div class="absolute top-0 left-0 w-full h-full">
+          <div
+            class="absolute top-1/4 -left-20 w-96 h-96 bg-primary/10 blur-[120px] rounded-full"
+          ></div>
+          <div
+            class="absolute bottom-1/4 -right-20 w-96 h-96 bg-secondary/10 blur-[120px] rounded-full"
+          ></div>
+        </div>
+        <div class="relative z-10 max-w-xl">
+          <div class="mb-12 flex items-center gap-3">
+            <div
+              class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center shadow-lg shadow-primary/20"
+            >
+              <span
+                class="material-symbols-outlined text-on-primary text-3xl"
+                style="font-variation-settings: &quot;FILL&quot; 1"
+                >account_balance</span
+              >
+            </div>
+            <h1
+              class="text-3xl font-extrabold tracking-tighter text-on-surface"
+            >
+              Obsidian Ledger
+            </h1>
+          </div>
+          <div class="space-y-12">
+            <div class="group">
+              <h2
+                class="text-4xl font-bold tracking-tight text-on-surface mb-6 leading-tight"
+              >
+                Precision management for
+                <span class="text-primary">refined wealth.</span>
+              </h2>
+              <p
+                class="text-lg text-on-surface-variant leading-relaxed max-w-md"
+              >
+                Experience a higher standard of financial oversight. Quiet
+                Authority brings editorial precision to your personal expenses.
+              </p>
+            </div>
+            <div class="grid gap-6">
+              <div
+                class="flex gap-4 items-start p-6 rounded-2xl bg-surface-container-low transition-colors hover:bg-surface-container"
+              >
+                <div
+                  class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center flex-shrink-0"
+                >
+                  <span class="material-symbols-outlined text-primary text-xl"
+                    >query_stats</span
+                  >
+                </div>
+                <div>
+                  <h3 class="text-on-surface font-semibold mb-1">
+                    Architectural Insights
+                  </h3>
+                  <p class="text-sm text-on-surface-variant">
+                    Advanced visualization of capital flow without the noise of
+                    traditional trackers.
+                  </p>
+                </div>
+              </div>
+              <div
+                class="flex gap-4 items-start p-6 rounded-2xl bg-surface-container-low transition-colors hover:bg-surface-container"
+              >
+                <div
+                  class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center flex-shrink-0"
+                >
+                  <span class="material-symbols-outlined text-secondary text-xl"
+                    >shield</span
+                  >
+                </div>
+                <div>
+                  <h3 class="text-on-surface font-semibold mb-1">
+                    Institutional Security
+                  </h3>
+                  <p class="text-sm text-on-surface-variant">
+                    Bank-grade encryption protecting your most sensitive
+                    financial declarations.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section
+        class="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 md:p-24 relative overflow-y-auto"
+      >
+        <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+          <div
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[160px]"
+          ></div>
+        </div>
+        <div class="w-full max-w-md relative z-10">
+          <div class="lg:hidden mb-12 flex justify-center items-center gap-3">
+            <div
+              class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center"
+            >
+              <span
+                class="material-symbols-outlined text-on-primary text-2xl"
+                style="font-variation-settings: &quot;FILL&quot; 1"
+                >account_balance</span
+              >
+            </div>
+            <h1
+              class="text-2xl font-extrabold tracking-tighter text-on-surface"
+            >
+              Obsidian Ledger
+            </h1>
+          </div>
+          <div
+            class="glass-effect rounded-2xl p-8 md:p-10 shadow-[0_40px_100px_rgba(0,0,0,0.5)] border border-outline-variant/10"
+          >
+            <div class="mb-10 text-center lg:text-left">
+              <h2
+                class="text-3xl font-bold tracking-tight text-on-surface mb-2"
+              >
+                Create your account
+              </h2>
+              <p class="text-on-surface-variant">
+                Start your expense tracking journey with a secure account.
+              </p>
+            </div>
+            <form class="space-y-6" onsubmit="return false;">
+              <div class="space-y-1.5">
+                <label
+                  class="text-xs font-semibold uppercase tracking-widest text-on-surface-variant ml-1"
+                  for="email"
+                  >Email Address</label
+                >
+                <input
+                  class="w-full h-14 px-5 rounded-xl bg-surface-container-low border-none text-on-surface placeholder:text-on-surface-variant/40 focus:ring-2 focus:ring-secondary/30 transition-all outline-none"
+                  id="email"
+                  placeholder="name@company.com"
+                  type="email"
+                />
+              </div>
+              <div class="space-y-1.5">
+                <label
+                  class="text-xs font-semibold uppercase tracking-widest text-on-surface-variant ml-1"
+                  for="password"
+                  >Password</label
+                >
+                <input
+                  class="w-full h-14 px-5 rounded-xl bg-surface-container-low border-none text-on-surface placeholder:text-on-surface-variant/40 focus:ring-2 focus:ring-secondary/30 transition-all outline-none"
+                  id="password"
+                  placeholder="••••••••"
+                  type="password"
+                />
+              </div>
+              <div class="space-y-1.5">
+                <label
+                  class="text-xs font-semibold uppercase tracking-widest text-on-surface-variant ml-1"
+                  for="confirm_password"
+                  >Confirm Password</label
+                >
+                <input
+                  class="w-full h-14 px-5 rounded-xl bg-surface-container-low border-none text-on-surface placeholder:text-on-surface-variant/40 focus:ring-2 focus:ring-secondary/30 transition-all outline-none"
+                  id="confirm_password"
+                  placeholder="••••••••"
+                  type="password"
+                />
+              </div>
+              <div class="pt-2">
+                <button
+                  class="w-full h-14 rounded-xl bg-gradient-to-r from-primary to-primary-container text-on-primary font-bold tracking-tight shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
+                >
+                  Sign Up
+                </button>
+              </div>
+            </form>
+            <div class="mt-8 pt-8 border-t border-outline-variant/10 space-y-6">
+              <div class="flex items-start gap-3">
+                <span
+                  class="material-symbols-outlined text-secondary mt-0.5 text-lg"
+                  >info</span
+                >
+                <p class="text-xs leading-relaxed text-on-surface-variant">
+                  After signing up, you may be asked to verify your email before
+                  continuing.
+                </p>
+              </div>
+              <div class="text-center">
+                <p class="text-sm text-on-surface-variant">
+                  Already have an account?
+                  <a
+                    class="text-primary font-semibold ml-1 hover:underline underline-offset-4 decoration-primary/40"
+                    href="#"
+                    >Log in</a
+                  >
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="mt-12 flex justify-center gap-8">
+            <a
+              class="text-[10px] uppercase tracking-widest font-medium text-on-surface-variant/60 hover:text-on-surface transition-colors"
+              href="#"
+              >Privacy Policy</a
+            >
+            <a
+              class="text-[10px] uppercase tracking-widest font-medium text-on-surface-variant/60 hover:text-on-surface transition-colors"
+              href="#"
+              >Terms of Service</a
+            >
+            <a
+              class="text-[10px] uppercase tracking-widest font-medium text-on-surface-variant/60 hover:text-on-surface transition-colors"
+              href="#"
+              >Security</a
+            >
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
