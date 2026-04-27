@@ -1,502 +1,610 @@
-<body class="text-on-surface antialiased overflow-hidden">
-  <!-- SideNavBar (from JSON) -->
-  <aside
-    class="fixed left-0 top-0 h-screen w-72 bg-slate-950/80 backdrop-blur-3xl flex flex-col p-6 gap-8 shadow-[20px_0_40px_rgba(0,0,0,0.4)] z-50"
-  >
-    <div class="flex flex-col gap-1">
-      <h1 class="text-lg font-black tracking-tighter text-emerald-500">
-        Obsidian Ledger
-      </h1>
-      <p
-        class="text-xs uppercase tracking-widest text-on-surface-variant/50 font-semibold"
-      >
-        Private Banking
-      </p>
-    </div>
-    <nav class="flex flex-col gap-2">
-      <a
-        class="flex items-center gap-3 px-4 py-3 bg-emerald-500/10 text-emerald-400 rounded-xl font-semibold transition-all duration-300 ease-in-out active:scale-95"
-        href="#"
-      >
-        <span class="material-symbols-outlined">dashboard</span>
-        <span>Dashboard</span>
-      </a>
-      <a
-        class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-200 transition-all duration-300 ease-in-out active:scale-95 hover:bg-slate-800/40"
-        href="#"
-      >
-        <span class="material-symbols-outlined">receipt_long</span>
-        <span>Transactions</span>
-      </a>
-      <a
-        class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-200 transition-all duration-300 ease-in-out active:scale-95 hover:bg-slate-800/40"
-        href="#"
-      >
-        <span class="material-symbols-outlined">account_balance_wallet</span>
-        <span>Accounts</span>
-      </a>
-      <a
-        class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-200 transition-all duration-300 ease-in-out active:scale-95 hover:bg-slate-800/40"
-        href="#"
-      >
-        <span class="material-symbols-outlined">settings</span>
-        <span>Settings</span>
-      </a>
-    </nav>
-    <div class="mt-auto">
-      <div
-        class="p-4 rounded-2xl bg-surface-container-low flex items-center gap-3"
-      >
-        <img
-          alt="User Portrait"
-          class="w-10 h-10 rounded-full object-cover grayscale opacity-80"
-          data-alt="portrait of a professional man in a dark turtleneck against a neutral studio background with soft cinematic lighting"
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuCiXydInkl_nu_cx55_CleJ1qr3truRjPhzVw15FFb5RHqosuS-QrS0mtJavLq8pXaWGzV7ZQ_GLIBbGJyUWQb7qdIpi6Z7XKxvwdoTn4LuAciEFZeyGmIYlRgvj0KwOK4ocq6AcRoUDdhj8fkaHXKKrdeSDfCzLY_r9Flfwn9i3ATMVU3vX3SEIPD0NeTw1o32UHbdlMQ9qGKjbr2rt7hlnNV5ZeJ8rUTGCLRQN7yY_uk0-h__Dbgjtn9_1o110JrmWngxVsSmdyUQ"
-        />
-        <div class="overflow-hidden">
-          <p class="text-sm font-bold truncate">Elias Sterling</p>
-          <p class="text-xs text-on-surface-variant truncate">Premium Member</p>
-        </div>
-      </div>
-    </div>
-  </aside>
-  <!-- Main Content Area -->
-  <main class="ml-72 h-screen overflow-y-auto bg-surface text-on-surface">
-    <!-- TopAppBar (from JSON) -->
-    <header
-      class="sticky top-0 z-40 bg-slate-950/40 backdrop-blur-md flex justify-between items-center px-12 h-24 no-border bg-gradient-to-b from-slate-900/20 to-transparent"
+<!doctype html>
+
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Obsidian Ledger | Dashboard</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-variant": "#313540",
+              "tertiary-fixed": "#ffdad7",
+              "on-primary": "#003824",
+              "tertiary-fixed-dim": "#ffb3af",
+              secondary: "#adc6ff",
+              background: "#0f131d",
+              "surface-container-low": "#171b26",
+              "error-container": "#93000a",
+              "outline-variant": "#3c4a42",
+              "on-surface": "#dfe2f1",
+              "inverse-surface": "#dfe2f1",
+              "on-surface-variant": "#bbcabf",
+              "on-tertiary-fixed": "#410005",
+              "on-primary-fixed-variant": "#005236",
+              "tertiary-container": "#fc7c78",
+              tertiary: "#ffb3af",
+              "surface-bright": "#353944",
+              "primary-fixed-dim": "#4edea3",
+              error: "#ffb4ab",
+              "on-primary-fixed": "#002113",
+              "on-secondary-fixed-variant": "#004395",
+              "primary-fixed": "#6ffbbe",
+              "on-background": "#dfe2f1",
+              "inverse-primary": "#006c49",
+              "on-secondary-fixed": "#001a42",
+              "secondary-container": "#0566d9",
+              "on-tertiary-fixed-variant": "#842225",
+              "surface-dim": "#0f131d",
+              "surface-container-lowest": "#0a0e18",
+              primary: "#4edea3",
+              "on-tertiary-container": "#711419",
+              "surface-tint": "#4edea3",
+              "on-error-container": "#ffdad6",
+              "surface-container": "#1c1f2a",
+              "on-error": "#690005",
+              "on-tertiary": "#650911",
+              "on-secondary": "#002e6a",
+              "secondary-fixed": "#d8e2ff",
+              "surface-container-high": "#262a35",
+              "surface-container-highest": "#313540",
+              surface: "#0f131d",
+              "secondary-fixed-dim": "#adc6ff",
+              "on-primary-container": "#00422b",
+              "primary-container": "#10b981",
+              outline: "#86948a",
+              "inverse-on-surface": "#2c303b",
+              "on-secondary-container": "#e6ecff",
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              "2xl": "1rem",
+              "3xl": "1.5rem",
+              full: "9999px",
+            },
+            fontFamily: {
+              headline: ["Inter"],
+              body: ["Inter"],
+              label: ["Inter"],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+      }
+      body {
+        background-color: #0f131d;
+        font-family: "Inter", sans-serif;
+      }
+      .glass-card {
+        background: rgba(23, 27, 38, 0.7);
+        backdrop-filter: blur(24px);
+      }
+    </style>
+  </head>
+  <body class="text-on-surface antialiased overflow-hidden">
+    <!-- SideNavBar (from JSON) -->
+    <aside
+      class="fixed left-0 top-0 h-screen w-72 bg-slate-950/80 backdrop-blur-3xl flex flex-col p-6 gap-8 shadow-[20px_0_40px_rgba(0,0,0,0.4)] z-50"
     >
-      <div>
-        <h2 class="text-3xl font-bold tracking-tight text-slate-100">
-          Dashboard
-        </h2>
-        <p class="text-sm text-on-surface-variant">
-          Track your spending, income, and financial habits
+      <div class="flex flex-col gap-1">
+        <h1 class="text-lg font-black tracking-tighter text-emerald-500">
+          Obsidian Ledger
+        </h1>
+        <p
+          class="text-xs uppercase tracking-widest text-on-surface-variant/50 font-semibold"
+        >
+          Private Banking
         </p>
       </div>
-      <div class="flex items-center gap-6">
-        <button
-          class="bg-gradient-to-r from-primary to-primary-container text-on-primary px-6 py-2.5 rounded-xl font-bold text-sm tracking-tight active:scale-[0.98] transition-transform flex items-center gap-2"
+      <nav class="flex flex-col gap-2">
+        <a
+          class="flex items-center gap-3 px-4 py-3 bg-emerald-500/10 text-emerald-400 rounded-xl font-semibold transition-all duration-300 ease-in-out active:scale-95"
+          href="#"
         >
-          <span
-            class="material-symbols-outlined text-sm"
-            style="font-variation-settings: &quot;wght&quot; 700"
-            >sync</span
-          >
-          Sync Bank
-        </button>
+          <span class="material-symbols-outlined">dashboard</span>
+          <span>Dashboard</span>
+        </a>
+        <a
+          class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-200 transition-all duration-300 ease-in-out active:scale-95 hover:bg-slate-800/40"
+          href="#"
+        >
+          <span class="material-symbols-outlined">receipt_long</span>
+          <span>Transactions</span>
+        </a>
+        <a
+          class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-200 transition-all duration-300 ease-in-out active:scale-95 hover:bg-slate-800/40"
+          href="#"
+        >
+          <span class="material-symbols-outlined">account_balance_wallet</span>
+          <span>Accounts</span>
+        </a>
+        <a
+          class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-200 transition-all duration-300 ease-in-out active:scale-95 hover:bg-slate-800/40"
+          href="#"
+        >
+          <span class="material-symbols-outlined">settings</span>
+          <span>Settings</span>
+        </a>
+      </nav>
+      <div class="mt-auto">
         <div
-          class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
+          class="p-4 rounded-2xl bg-surface-container-low flex items-center gap-3"
         >
-          <span class="material-symbols-outlined text-on-surface-variant"
-            >notifications</span
-          >
+          <img
+            alt="User Portrait"
+            class="w-10 h-10 rounded-full object-cover grayscale opacity-80"
+            data-alt="portrait of a professional man in a dark turtleneck against a neutral studio background with soft cinematic lighting"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCiXydInkl_nu_cx55_CleJ1qr3truRjPhzVw15FFb5RHqosuS-QrS0mtJavLq8pXaWGzV7ZQ_GLIBbGJyUWQb7qdIpi6Z7XKxvwdoTn4LuAciEFZeyGmIYlRgvj0KwOK4ocq6AcRoUDdhj8fkaHXKKrdeSDfCzLY_r9Flfwn9i3ATMVU3vX3SEIPD0NeTw1o32UHbdlMQ9qGKjbr2rt7hlnNV5ZeJ8rUTGCLRQN7yY_uk0-h__Dbgjtn9_1o110JrmWngxVsSmdyUQ"
+          />
+          <div class="overflow-hidden">
+            <p class="text-sm font-bold truncate">Elias Sterling</p>
+            <p class="text-xs text-on-surface-variant truncate">
+              Premium Member
+            </p>
+          </div>
         </div>
       </div>
-    </header>
-    <div class="px-12 pb-12 pt-4">
-      <!-- Summary Cards Grid -->
-      <section class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-        <!-- Card 1 -->
-        <div
-          class="bg-surface-container-low p-6 rounded-2xl relative overflow-hidden group"
-        >
-          <div
-            class="absolute -right-4 -top-4 w-24 h-24 bg-tertiary-container/10 rounded-full blur-3xl group-hover:bg-tertiary-container/20 transition-all"
-          ></div>
-          <p
-            class="text-xs font-semibold text-on-surface-variant uppercase tracking-widest mb-2"
-          >
-            This Month Spending
+    </aside>
+    <!-- Main Content Area -->
+    <main class="ml-72 h-screen overflow-y-auto bg-surface text-on-surface">
+      <!-- TopAppBar (from JSON) -->
+      <header
+        class="sticky top-0 z-40 bg-slate-950/40 backdrop-blur-md flex justify-between items-center px-12 h-24 no-border bg-gradient-to-b from-slate-900/20 to-transparent"
+      >
+        <div>
+          <h2 class="text-3xl font-bold tracking-tight text-slate-100">
+            Dashboard
+          </h2>
+          <p class="text-sm text-on-surface-variant">
+            Track your spending, income, and financial habits
           </p>
-          <p class="text-3xl font-bold text-tertiary tracking-tighter">
-            $1,240.55
-          </p>
-          <div
-            class="mt-4 flex items-center gap-2 text-xs text-on-surface-variant"
+        </div>
+        <div class="flex items-center gap-6">
+          <button
+            class="bg-gradient-to-r from-primary to-primary-container text-on-primary px-6 py-2.5 rounded-xl font-bold text-sm tracking-tight active:scale-[0.98] transition-transform flex items-center gap-2"
           >
-            <span class="text-tertiary font-bold">↑ 12%</span> vs last month
+            <span
+              class="material-symbols-outlined text-sm"
+              style="font-variation-settings: &quot;wght&quot; 700"
+              >sync</span
+            >
+            Sync Bank
+          </button>
+          <div
+            class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
+          >
+            <span class="material-symbols-outlined text-on-surface-variant"
+              >notifications</span
+            >
           </div>
         </div>
-        <!-- Card 2 -->
-        <div
-          class="bg-surface-container-low p-6 rounded-2xl relative overflow-hidden group"
-        >
+      </header>
+      <div class="px-12 pb-12 pt-4">
+        <!-- Summary Cards Grid -->
+        <section class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+          <!-- Card 1 -->
           <div
-            class="absolute -right-4 -top-4 w-24 h-24 bg-yellow-400/5 rounded-full blur-3xl group-hover:bg-yellow-400/10 transition-all"
-          ></div>
-          <p
-            class="text-xs font-semibold text-on-surface-variant uppercase tracking-widest mb-2"
+            class="bg-surface-container-low p-6 rounded-2xl relative overflow-hidden group"
           >
-            Today
-          </p>
-          <p class="text-3xl font-bold text-yellow-400/90 tracking-tighter">
-            $42.00
-          </p>
-          <div
-            class="mt-4 flex items-center gap-2 text-xs text-on-surface-variant"
-          >
-            <span class="text-yellow-400/90 font-bold">↓ 4%</span> vs average
+            <div
+              class="absolute -right-4 -top-4 w-24 h-24 bg-tertiary-container/10 rounded-full blur-3xl group-hover:bg-tertiary-container/20 transition-all"
+            ></div>
+            <p
+              class="text-xs font-semibold text-on-surface-variant uppercase tracking-widest mb-2"
+            >
+              This Month Spending
+            </p>
+            <p class="text-3xl font-bold text-tertiary tracking-tighter">
+              $1,240.55
+            </p>
+            <div
+              class="mt-4 flex items-center gap-2 text-xs text-on-surface-variant"
+            >
+              <span class="text-tertiary font-bold">↑ 12%</span> vs last month
+            </div>
           </div>
-        </div>
-        <!-- Card 3 -->
-        <div
-          class="bg-surface-container-low p-6 rounded-2xl relative overflow-hidden group"
-        >
+          <!-- Card 2 -->
           <div
-            class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-all"
-          ></div>
-          <p
-            class="text-xs font-semibold text-on-surface-variant uppercase tracking-widest mb-2"
+            class="bg-surface-container-low p-6 rounded-2xl relative overflow-hidden group"
           >
-            Monthly Income
-          </p>
-          <p class="text-3xl font-bold text-primary tracking-tighter">
-            $5,200.00
-          </p>
-          <div
-            class="mt-4 flex items-center gap-2 text-xs text-on-surface-variant"
-          >
-            On track for <span class="text-primary font-bold">Q3 Goal</span>
+            <div
+              class="absolute -right-4 -top-4 w-24 h-24 bg-yellow-400/5 rounded-full blur-3xl group-hover:bg-yellow-400/10 transition-all"
+            ></div>
+            <p
+              class="text-xs font-semibold text-on-surface-variant uppercase tracking-widest mb-2"
+            >
+              Today
+            </p>
+            <p class="text-3xl font-bold text-yellow-400/90 tracking-tighter">
+              $42.00
+            </p>
+            <div
+              class="mt-4 flex items-center gap-2 text-xs text-on-surface-variant"
+            >
+              <span class="text-yellow-400/90 font-bold">↓ 4%</span> vs average
+            </div>
           </div>
-        </div>
-        <!-- Card 4 -->
-        <div
-          class="bg-surface-container-low p-6 rounded-2xl relative overflow-hidden group"
-        >
+          <!-- Card 3 -->
           <div
-            class="absolute -right-4 -top-4 w-24 h-24 bg-secondary/10 rounded-full blur-3xl group-hover:bg-secondary/20 transition-all"
-          ></div>
-          <p
-            class="text-xs font-semibold text-on-surface-variant uppercase tracking-widest mb-2"
+            class="bg-surface-container-low p-6 rounded-2xl relative overflow-hidden group"
           >
-            Recent Activity
-          </p>
-          <p class="text-3xl font-bold text-secondary tracking-tighter">
-            12 items
-          </p>
-          <div
-            class="mt-4 flex items-center gap-2 text-xs text-on-surface-variant"
-          >
-            <span class="text-secondary font-bold">8 transactions</span>
-            pending
+            <div
+              class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-all"
+            ></div>
+            <p
+              class="text-xs font-semibold text-on-surface-variant uppercase tracking-widest mb-2"
+            >
+              Monthly Income
+            </p>
+            <p class="text-3xl font-bold text-primary tracking-tighter">
+              $5,200.00
+            </p>
+            <div
+              class="mt-4 flex items-center gap-2 text-xs text-on-surface-variant"
+            >
+              On track for <span class="text-primary font-bold">Q3 Goal</span>
+            </div>
           </div>
-        </div>
-      </section>
-      <div class="flex flex-col lg:flex-row gap-8">
-        <!-- Main Area (Left Column) -->
-        <div class="flex-grow flex flex-col gap-8 lg:w-2/3">
-          <!-- Large Spending Overview Card -->
+          <!-- Card 4 -->
           <div
-            class="bg-surface-container-low rounded-3xl p-8 relative overflow-hidden"
+            class="bg-surface-container-low p-6 rounded-2xl relative overflow-hidden group"
           >
-            <div class="flex justify-between items-center mb-10">
-              <div>
+            <div
+              class="absolute -right-4 -top-4 w-24 h-24 bg-secondary/10 rounded-full blur-3xl group-hover:bg-secondary/20 transition-all"
+            ></div>
+            <p
+              class="text-xs font-semibold text-on-surface-variant uppercase tracking-widest mb-2"
+            >
+              Recent Activity
+            </p>
+            <p class="text-3xl font-bold text-secondary tracking-tighter">
+              12 items
+            </p>
+            <div
+              class="mt-4 flex items-center gap-2 text-xs text-on-surface-variant"
+            >
+              <span class="text-secondary font-bold">8 transactions</span>
+              pending
+            </div>
+          </div>
+        </section>
+        <div class="flex flex-col lg:flex-row gap-8">
+          <!-- Main Area (Left Column) -->
+          <div class="flex-grow flex flex-col gap-8 lg:w-2/3">
+            <!-- Large Spending Overview Card -->
+            <div
+              class="bg-surface-container-low rounded-3xl p-8 relative overflow-hidden"
+            >
+              <div class="flex justify-between items-center mb-10">
+                <div>
+                  <h3 class="text-xl font-bold text-slate-100">
+                    Spending Overview
+                  </h3>
+                  <p class="text-sm text-on-surface-variant">
+                    Cash flow analysis for October 2023
+                  </p>
+                </div>
+                <div class="flex gap-4">
+                  <div
+                    class="flex items-center gap-2 text-xs text-on-surface-variant"
+                  >
+                    <span class="w-2 h-2 rounded-full bg-tertiary"></span>
+                    Spending
+                  </div>
+                  <div
+                    class="flex items-center gap-2 text-xs text-on-surface-variant"
+                  >
+                    <span class="w-2 h-2 rounded-full bg-primary"></span> Income
+                  </div>
+                </div>
+              </div>
+              <!-- Pulse Sparkline Placeholder -->
+              <div
+                class="h-64 w-full relative flex items-end justify-between gap-1 overflow-hidden"
+              >
+                <div
+                  class="absolute inset-0 bg-gradient-to-t from-surface-container-low to-transparent z-10 pointer-events-none"
+                ></div>
+                <!-- Visualizing an abstract line chart -->
+                <svg class="w-full h-full opacity-60" viewbox="0 0 1000 200">
+                  <path
+                    class="drop-shadow-[0_0_8px_rgba(78,222,163,0.4)]"
+                    d="M0,150 Q100,50 200,120 T400,80 T600,140 T800,60 T1000,100"
+                    fill="none"
+                    stroke="#4edea3"
+                    stroke-width="3"
+                  ></path>
+                  <path
+                    class="drop-shadow-[0_0_8px_rgba(255,179,175,0.4)]"
+                    d="M0,180 Q150,140 300,170 T600,130 T900,160 T1000,180"
+                    fill="none"
+                    stroke="#ffb3af"
+                    stroke-width="3"
+                  ></path>
+                </svg>
+              </div>
+            </div>
+            <!-- Recent Transactions Card -->
+            <div class="bg-surface-container-low rounded-3xl p-8">
+              <div class="flex justify-between items-center mb-8">
                 <h3 class="text-xl font-bold text-slate-100">
-                  Spending Overview
+                  Recent Transactions
                 </h3>
-                <p class="text-sm text-on-surface-variant">
-                  Cash flow analysis for October 2023
+                <button
+                  class="text-sm text-primary font-semibold hover:opacity-80"
+                >
+                  See All
+                </button>
+              </div>
+              <div class="flex flex-col gap-6">
+                <!-- Row 1: Expense -->
+                <div
+                  class="flex items-center justify-between group cursor-pointer hover:bg-white/5 p-2 -mx-2 rounded-xl transition-colors"
+                >
+                  <div class="flex items-center gap-4">
+                    <div
+                      class="w-12 h-12 rounded-2xl bg-surface-container-highest flex items-center justify-center transition-all group-hover:bg-surface-variant"
+                    >
+                      <span
+                        class="material-symbols-outlined text-on-surface-variant"
+                        >local_cafe</span
+                      >
+                    </div>
+                    <div>
+                      <p class="font-bold text-slate-100">Starbucks</p>
+                      <p class="text-xs text-on-surface-variant">
+                        Food &amp; Drink • Oct 24, 2023
+                      </p>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <p class="font-bold text-tertiary">-$6.45</p>
+                    <p
+                      class="text-[10px] text-on-surface-variant uppercase tracking-tighter font-semibold"
+                    >
+                      Approved
+                    </p>
+                  </div>
+                </div>
+                <!-- Row 2: Expense -->
+                <div
+                  class="flex items-center justify-between group cursor-pointer hover:bg-white/5 p-2 -mx-2 rounded-xl transition-colors"
+                >
+                  <div class="flex items-center gap-4">
+                    <div
+                      class="w-12 h-12 rounded-2xl bg-surface-container-highest flex items-center justify-center transition-all group-hover:bg-surface-variant"
+                    >
+                      <span
+                        class="material-symbols-outlined text-on-surface-variant"
+                        >devices</span
+                      >
+                    </div>
+                    <div>
+                      <p class="font-bold text-slate-100">Apple Store</p>
+                      <p class="text-xs text-on-surface-variant">
+                        Subscriptions • Oct 22, 2023
+                      </p>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <p class="font-bold text-tertiary">-$14.99</p>
+                    <p
+                      class="text-[10px] text-on-surface-variant uppercase tracking-tighter font-semibold"
+                    >
+                      Recurring
+                    </p>
+                  </div>
+                </div>
+                <!-- Row 3: Income -->
+                <div
+                  class="flex items-center justify-between group cursor-pointer hover:bg-white/5 p-2 -mx-2 rounded-xl transition-colors"
+                >
+                  <div class="flex items-center gap-4">
+                    <div
+                      class="w-12 h-12 rounded-2xl bg-primary-container/20 flex items-center justify-center transition-all group-hover:bg-primary-container/30"
+                    >
+                      <span class="material-symbols-outlined text-primary"
+                        >payments</span
+                      >
+                    </div>
+                    <div>
+                      <p class="font-bold text-slate-100">Salary</p>
+                      <p class="text-xs text-on-surface-variant">
+                        Income • Oct 20, 2023
+                      </p>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <p class="font-bold text-primary">+$2,500.00</p>
+                    <p
+                      class="text-[10px] text-on-surface-variant uppercase tracking-tighter font-semibold"
+                    >
+                      Cleared
+                    </p>
+                  </div>
+                </div>
+                <!-- Row 4: Expense -->
+                <div
+                  class="flex items-center justify-between group cursor-pointer hover:bg-white/5 p-2 -mx-2 rounded-xl transition-colors"
+                >
+                  <div class="flex items-center gap-4">
+                    <div
+                      class="w-12 h-12 rounded-2xl bg-surface-container-highest flex items-center justify-center transition-all group-hover:bg-surface-variant"
+                    >
+                      <span
+                        class="material-symbols-outlined text-on-surface-variant"
+                        >shopping_bag</span
+                      >
+                    </div>
+                    <div>
+                      <p class="font-bold text-slate-100">Zara Fashion</p>
+                      <p class="text-xs text-on-surface-variant">
+                        Lifestyle • Oct 19, 2023
+                      </p>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <p class="font-bold text-tertiary">-$89.00</p>
+                    <p
+                      class="text-[10px] text-on-surface-variant uppercase tracking-tighter font-semibold"
+                    >
+                      Approved
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Sidebar (Right Column) -->
+          <div class="lg:w-1/3 flex flex-col gap-8">
+            <!-- Category Breakdown -->
+            <div class="bg-surface-container-low rounded-3xl p-8">
+              <h3 class="text-xl font-bold text-slate-100 mb-8">
+                Category Breakdown
+              </h3>
+              <div class="space-y-8">
+                <!-- Category 1 -->
+                <div>
+                  <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm font-semibold text-slate-300"
+                      >Food &amp; Drink</span
+                    >
+                    <span class="text-xs text-on-surface-variant"
+                      >$450 / $600</span
+                    >
+                  </div>
+                  <div
+                    class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden"
+                  >
+                    <div
+                      class="h-full bg-primary rounded-full"
+                      style="width: 75%"
+                    ></div>
+                  </div>
+                </div>
+                <!-- Category 2 -->
+                <div>
+                  <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm font-semibold text-slate-300"
+                      >Transport</span
+                    >
+                    <span class="text-xs text-on-surface-variant"
+                      >$120 / $200</span
+                    >
+                  </div>
+                  <div
+                    class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden"
+                  >
+                    <div
+                      class="h-full bg-secondary rounded-full"
+                      style="width: 60%"
+                    ></div>
+                  </div>
+                </div>
+                <!-- Category 3 -->
+                <div>
+                  <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm font-semibold text-slate-300"
+                      >Entertainment</span
+                    >
+                    <span class="text-xs text-on-surface-variant"
+                      >$380 / $300</span
+                    >
+                  </div>
+                  <div
+                    class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden"
+                  >
+                    <div
+                      class="h-full bg-tertiary rounded-full"
+                      style="width: 100%"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Smart Insights Card -->
+            <div
+              class="bg-gradient-to-br from-surface-container-low to-surface-container-lowest rounded-3xl p-8 border border-white/5"
+            >
+              <div class="flex items-center gap-3 mb-6">
+                <span
+                  class="material-symbols-outlined text-primary"
+                  style="font-variation-settings: &quot;FILL&quot; 1"
+                  >auto_awesome</span
+                >
+                <h3 class="text-lg font-bold text-slate-100">Smart Insights</h3>
+              </div>
+              <ul class="space-y-4">
+                <li class="flex gap-3 text-sm text-on-surface-variant">
+                  <span class="text-primary mt-1">•</span>
+                  <span
+                    >You spent
+                    <span class="text-slate-100 font-semibold">15% more</span>
+                    today than your daily average.</span
+                  >
+                </li>
+                <li class="flex gap-3 text-sm text-on-surface-variant">
+                  <span class="text-primary mt-1">•</span>
+                  <span
+                    >Subscription to
+                    <span class="text-slate-100 font-semibold">Apple</span> is
+                    due in 3 days.</span
+                  >
+                </li>
+                <li class="flex gap-3 text-sm text-on-surface-variant">
+                  <span class="text-primary mt-1">•</span>
+                  <span
+                    >You've saved
+                    <span class="text-primary font-semibold">$320</span> more
+                    than last month. Great job!</span
+                  >
+                </li>
+              </ul>
+            </div>
+            <!-- Financial Identity Promo (Bento Fragment) -->
+            <div class="relative rounded-3xl h-48 overflow-hidden group">
+              <img
+                alt="Texture"
+                class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                data-alt="abstract 3D liquid waves in emerald green and deep charcoal with metallic sheen and soft focus"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDctTChyTGoRChpjF7jJLgG8NTDhR98GKWBMAmQHNaZng1RuUWWhC5YQ4Na9OZdiN9nOfVhRuIrl9aLGIOd9D-iS1Lok6wjpy5QomC9LfOxFzCA5oq2nLdX9huMiel_HQdBleDI89ZGRhuKnj0HJAivh0S_PUW15nj4XcUZK_XVaK1_dQROmUibg_JXX-fy5mtBenGFOV4-XjSm-AksY-lm73-VoeeY2a_RSvtsknVOwz40XADhz0kJ-tnpvQMDr5gTjpNod-WRPJIK"
+              />
+              <div
+                class="absolute inset-0 bg-slate-950/60 backdrop-blur-[2px] flex flex-col justify-end p-6"
+              >
+                <p class="text-white font-bold text-lg leading-tight mb-1">
+                  Secure Vault
+                </p>
+                <p class="text-white/70 text-xs">
+                  Manage your private encryption keys and storage.
                 </p>
               </div>
-              <div class="flex gap-4">
-                <div
-                  class="flex items-center gap-2 text-xs text-on-surface-variant"
-                >
-                  <span class="w-2 h-2 rounded-full bg-tertiary"></span>
-                  Spending
-                </div>
-                <div
-                  class="flex items-center gap-2 text-xs text-on-surface-variant"
-                >
-                  <span class="w-2 h-2 rounded-full bg-primary"></span> Income
-                </div>
-              </div>
-            </div>
-            <!-- Pulse Sparkline Placeholder -->
-            <div
-              class="h-64 w-full relative flex items-end justify-between gap-1 overflow-hidden"
-            >
-              <div
-                class="absolute inset-0 bg-gradient-to-t from-surface-container-low to-transparent z-10 pointer-events-none"
-              ></div>
-              <!-- Visualizing an abstract line chart -->
-              <svg class="w-full h-full opacity-60" viewbox="0 0 1000 200">
-                <path
-                  class="drop-shadow-[0_0_8px_rgba(78,222,163,0.4)]"
-                  d="M0,150 Q100,50 200,120 T400,80 T600,140 T800,60 T1000,100"
-                  fill="none"
-                  stroke="#4edea3"
-                  stroke-width="3"
-                ></path>
-                <path
-                  class="drop-shadow-[0_0_8px_rgba(255,179,175,0.4)]"
-                  d="M0,180 Q150,140 300,170 T600,130 T900,160 T1000,180"
-                  fill="none"
-                  stroke="#ffb3af"
-                  stroke-width="3"
-                ></path>
-              </svg>
-            </div>
-          </div>
-          <!-- Recent Transactions Card -->
-          <div class="bg-surface-container-low rounded-3xl p-8">
-            <div class="flex justify-between items-center mb-8">
-              <h3 class="text-xl font-bold text-slate-100">
-                Recent Transactions
-              </h3>
-              <button
-                class="text-sm text-primary font-semibold hover:opacity-80"
-              >
-                View Statement
-              </button>
-            </div>
-            <div class="flex flex-col gap-6">
-              <!-- Row 1 -->
-              <div
-                class="flex items-center justify-between group cursor-pointer"
-              >
-                <div class="flex items-center gap-4">
-                  <div
-                    class="w-12 h-12 rounded-2xl bg-surface-container-highest flex items-center justify-center transition-all group-hover:bg-surface-variant"
-                  >
-                    <span
-                      class="material-symbols-outlined text-on-surface-variant"
-                      >local_cafe</span
-                    >
-                  </div>
-                  <div>
-                    <p class="font-bold text-slate-100">Starbucks</p>
-                    <p class="text-xs text-on-surface-variant">
-                      Food &amp; Drink • Oct 24, 2023
-                    </p>
-                  </div>
-                </div>
-                <div class="text-right">
-                  <p class="font-bold text-tertiary">-$6.45</p>
-                  <p
-                    class="text-[10px] text-on-surface-variant uppercase tracking-tighter"
-                  >
-                    Approved
-                  </p>
-                </div>
-              </div>
-              <!-- Row 2 -->
-              <div
-                class="flex items-center justify-between group cursor-pointer"
-              >
-                <div class="flex items-center gap-4">
-                  <div
-                    class="w-12 h-12 rounded-2xl bg-surface-container-highest flex items-center justify-center transition-all group-hover:bg-surface-variant"
-                  >
-                    <span
-                      class="material-symbols-outlined text-on-surface-variant"
-                      >devices</span
-                    >
-                  </div>
-                  <div>
-                    <p class="font-bold text-slate-100">Apple Store</p>
-                    <p class="text-xs text-on-surface-variant">
-                      Subscriptions • Oct 22, 2023
-                    </p>
-                  </div>
-                </div>
-                <div class="text-right">
-                  <p class="font-bold text-tertiary">-$14.99</p>
-                  <p
-                    class="text-[10px] text-on-surface-variant uppercase tracking-tighter"
-                  >
-                    Recurring
-                  </p>
-                </div>
-              </div>
-              <!-- Row 3 -->
-              <div
-                class="flex items-center justify-between group cursor-pointer"
-              >
-                <div class="flex items-center gap-4">
-                  <div
-                    class="w-12 h-12 rounded-2xl bg-primary-container/20 flex items-center justify-center transition-all group-hover:bg-primary-container/30"
-                  >
-                    <span class="material-symbols-outlined text-primary"
-                      >payments</span
-                    >
-                  </div>
-                  <div>
-                    <p class="font-bold text-slate-100">Salary</p>
-                    <p class="text-xs text-on-surface-variant">
-                      Income • Oct 20, 2023
-                    </p>
-                  </div>
-                </div>
-                <div class="text-right">
-                  <p class="font-bold text-primary">+$2,500.00</p>
-                  <p
-                    class="text-[10px] text-on-surface-variant uppercase tracking-tighter"
-                  >
-                    Cleared
-                  </p>
-                </div>
-              </div>
-              <!-- Row 4 -->
-              <div
-                class="flex items-center justify-between group cursor-pointer"
-              >
-                <div class="flex items-center gap-4">
-                  <div
-                    class="w-12 h-12 rounded-2xl bg-surface-container-highest flex items-center justify-center transition-all group-hover:bg-surface-variant"
-                  >
-                    <span
-                      class="material-symbols-outlined text-on-surface-variant"
-                      >shopping_bag</span
-                    >
-                  </div>
-                  <div>
-                    <p class="font-bold text-slate-100">Zara Fashion</p>
-                    <p class="text-xs text-on-surface-variant">
-                      Lifestyle • Oct 19, 2023
-                    </p>
-                  </div>
-                </div>
-                <div class="text-right">
-                  <p class="font-bold text-tertiary">-$89.00</p>
-                  <p
-                    class="text-[10px] text-on-surface-variant uppercase tracking-tighter"
-                  >
-                    Approved
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- Sidebar (Right Column) -->
-        <div class="lg:w-1/3 flex flex-col gap-8">
-          <!-- Category Breakdown -->
-          <div class="bg-surface-container-low rounded-3xl p-8">
-            <h3 class="text-xl font-bold text-slate-100 mb-8">
-              Category Breakdown
-            </h3>
-            <div class="space-y-8">
-              <!-- Category 1 -->
-              <div>
-                <div class="flex justify-between items-center mb-2">
-                  <span class="text-sm font-semibold text-slate-300"
-                    >Food &amp; Drink</span
-                  >
-                  <span class="text-xs text-on-surface-variant"
-                    >$450 / $600</span
-                  >
-                </div>
-                <div
-                  class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden"
-                >
-                  <div
-                    class="h-full bg-primary rounded-full"
-                    style="width: 75%"
-                  ></div>
-                </div>
-              </div>
-              <!-- Category 2 -->
-              <div>
-                <div class="flex justify-between items-center mb-2">
-                  <span class="text-sm font-semibold text-slate-300"
-                    >Transport</span
-                  >
-                  <span class="text-xs text-on-surface-variant"
-                    >$120 / $200</span
-                  >
-                </div>
-                <div
-                  class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden"
-                >
-                  <div
-                    class="h-full bg-secondary rounded-full"
-                    style="width: 60%"
-                  ></div>
-                </div>
-              </div>
-              <!-- Category 3 -->
-              <div>
-                <div class="flex justify-between items-center mb-2">
-                  <span class="text-sm font-semibold text-slate-300"
-                    >Entertainment</span
-                  >
-                  <span class="text-xs text-on-surface-variant"
-                    >$380 / $300</span
-                  >
-                </div>
-                <div
-                  class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden"
-                >
-                  <div
-                    class="h-full bg-tertiary rounded-full"
-                    style="width: 100%"
-                  ></div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- Smart Insights Card -->
-          <div
-            class="bg-gradient-to-br from-surface-container-low to-surface-container-lowest rounded-3xl p-8 border border-white/5"
-          >
-            <div class="flex items-center gap-3 mb-6">
-              <span
-                class="material-symbols-outlined text-primary"
-                style="font-variation-settings: &quot;FILL&quot; 1"
-                >auto_awesome</span
-              >
-              <h3 class="text-lg font-bold text-slate-100">Smart Insights</h3>
-            </div>
-            <ul class="space-y-4">
-              <li class="flex gap-3 text-sm text-on-surface-variant">
-                <span class="text-primary mt-1">•</span>
-                <span
-                  >You spent
-                  <span class="text-slate-100 font-semibold">15% more</span>
-                  today than your daily average.</span
-                >
-              </li>
-              <li class="flex gap-3 text-sm text-on-surface-variant">
-                <span class="text-primary mt-1">•</span>
-                <span
-                  >Subscription to
-                  <span class="text-slate-100 font-semibold">Apple</span> is due
-                  in 3 days.</span
-                >
-              </li>
-              <li class="flex gap-3 text-sm text-on-surface-variant">
-                <span class="text-primary mt-1">•</span>
-                <span
-                  >You've saved
-                  <span class="text-primary font-semibold">$320</span> more than
-                  last month. Great job!</span
-                >
-              </li>
-            </ul>
-          </div>
-          <!-- Financial Identity Promo (Bento Fragment) -->
-          <div class="relative rounded-3xl h-48 overflow-hidden group">
-            <img
-              alt="Texture"
-              class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-              data-alt="abstract 3D liquid waves in emerald green and deep charcoal with metallic sheen and soft focus"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDctTChyTGoRChpjF7jJLgG8NTDhR98GKWBMAmQHNaZng1RuUWWhC5YQ4Na9OZdiN9nOfVhRuIrl9aLGIOd9D-iS1Lok6wjpy5QomC9LfOxFzCA5oq2nLdX9huMiel_HQdBleDI89ZGRhuKnj0HJAivh0S_PUW15nj4XcUZK_XVaK1_dQROmUibg_JXX-fy5mtBenGFOV4-XjSm-AksY-lm73-VoeeY2a_RSvtsknVOwz40XADhz0kJ-tnpvQMDr5gTjpNod-WRPJIK"
-            />
-            <div
-              class="absolute inset-0 bg-slate-950/60 backdrop-blur-[2px] flex flex-col justify-end p-6"
-            >
-              <p class="text-white font-bold text-lg leading-tight mb-1">
-                Secure Vault
-              </p>
-              <p class="text-white/70 text-xs">
-                Manage your private encryption keys and storage.
-              </p>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </main>
-</body>
+    </main>
+  </body>
+</html>

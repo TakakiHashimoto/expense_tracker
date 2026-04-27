@@ -24,6 +24,8 @@ export type DashboardData =
         name: string;
         amount: number;
         date: string;
+        categoryName: string;
+        categoryKind: string;
       }[];
     }
   | { ok: false; error: string };

@@ -157,6 +157,27 @@ async function getTotalMonthlyExpenses(
   return data ?? 0;
 }
 
+export async function getCategory({
+  categId,
+  user,
+  supabase,
+}: {
+  categId: string;
+  user: User;
+  supabase: SupabaseClient;
+}): Promise<{ name: string; kind: string }> {
+  const { data: categData, error: categError } = await supabase
+    .from("categories")
+    .select("name, kind")
+    .eq("user_id", user.id)
+    .eq("id", categId)
+    .single();
+
+  if (!categData || categError) throw new Error("Failed to fetch category");
+
+  return categData;
+}
+
 // TODO: make sure to specify return value
 export async function getDashboardData(): Promise<DashboardData> {
   const supabase = await createClient();
@@ -211,11 +232,21 @@ export async function getDashboardData(): Promise<DashboardData> {
       todayTotal: todayTotal,
       recentActivities: recentTransactions.length,
     },
-    recentTransactions: recentTransactions.map((tran) => ({
-      id: tran.id,
-      name: tran.merchant,
-      amount: tran.amount,
-      date: tran.posted_at,
-    })),
+    recentTransactions: recentTransactions.map(async (tran) => {
+      const categData = await getCategory({
+        user,
+        supabase,
+        categId: tran.category_id,
+      });
+
+      return {
+        id: tran.id,
+        name: tran.merchant,
+        amount: tran.amount,
+        date: tran.posted_at,
+        categoryName: categData.name,
+        categoryKind: categData.kind,
+      };
+    }),
   };
 }
