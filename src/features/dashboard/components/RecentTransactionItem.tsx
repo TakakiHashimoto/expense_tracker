@@ -5,26 +5,82 @@
 type RecentTransactionItemPorp = {
   shop: string;
   category: string | null;
+  categoryKind: "income" | "expense" | null;
   date: string;
   amount: number;
 };
 
+const categoryIcons: Record<string, string> = {
+  Bills: "receipt_long",
+  Entertainment: "movie",
+  Food: "local_cafe",
+  Groceries: "local_grocery_store",
+  Refund: "undo",
+  Salary: "payments",
+  Shopping: "shopping_bag",
+  Transport: "directions_car",
+};
+
+function formatTransactionDate(date: string) {
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(new Date(date));
+}
+
+function formatAmount(amount: number) {
+  return new Intl.NumberFormat("en", {
+    style: "currency",
+    currency: "USD",
+  }).format(Math.abs(amount));
+}
+
 function RecentTransactionItem({
   shop,
   category,
+  categoryKind,
   date,
   amount,
 }: RecentTransactionItemPorp) {
+  const isIncome = categoryKind === "income" || amount > 0;
+  const icon = category ? categoryIcons[category] : null;
+
   return (
-    <div className="flex justify-between">
-      <div className="flex flex-col ">
-        <h2>{shop}</h2>
-        <p>
-          <span>{category}</span>•<span>{date}</span>
-        </p>
+    <div className="flex items-center justify-between group cursor-pointer hover:bg-white/5 p-2 -mx-2 rounded-xl transition-colors">
+      <div className="flex items-center gap-4 min-w-0">
+        <div
+          className={`w-12 h-12 rounded-2xl flex shrink-0 items-center justify-center transition-all ${
+            isIncome
+              ? "bg-primary-container/20 group-hover:bg-primary-container/30"
+              : "bg-surface-container-highest group-hover:bg-surface-container-high"
+          }`}
+        >
+          <span
+            className={`material-symbols-outlined ${
+              isIncome ? "text-primary" : "text-on-surface-variant"
+            }`}
+          >
+            {isIncome ? "payments" : (icon ?? "receipt_long")}
+          </span>
+        </div>
+        <div className="min-w-0">
+          <p className="font-bold text-slate-100 truncate">{shop}</p>
+          <p className="text-xs text-on-surface-variant truncate">
+            {category ?? "Uncategorized"} • {formatTransactionDate(date)}
+          </p>
+        </div>
       </div>
-      <div>
-        <p>{amount}</p>
+      <div className="text-right shrink-0 pl-4">
+        <p
+          className={`font-bold ${isIncome ? "text-primary" : "text-tertiary"}`}
+        >
+          {isIncome ? "+" : "-"}
+          {formatAmount(amount)}
+        </p>
+        <p className="text-[10px] text-on-surface-variant uppercase tracking-tighter font-semibold">
+          Approved
+        </p>
       </div>
     </div>
   );
