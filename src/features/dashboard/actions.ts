@@ -8,7 +8,11 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { SupabaseClient, type User } from "@supabase/supabase-js";
-import { type Transaction, type DashboardData } from "./type";
+import {
+  type Transaction,
+  type DashboardData,
+  type TransactionRow,
+} from "./type";
 
 export async function grabUser(supabase: SupabaseClient): Promise<User> {
   const {
@@ -80,21 +84,25 @@ async function getThisMonthIncome(
   return income ?? [];
 }
 
+// get recent transactions
 async function getRecentTransactions(
   user: User,
   supabase: SupabaseClient,
   firstDayOfMonth: Date,
   firstDayOfNextMonth: Date,
-): Promise<Transaction[]> {
+): Promise<TransactionRow[]> {
   const { data: recentTransactions, error } = await supabase
     .from("transactions")
-    .select("id, account_id, category_id, posted_at, amount, merchant, note")
+    .select(
+      "id, account_id, category_id, posted_at, amount, merchant, note,category:categories (name, kind)",
+    )
     .eq("user_id", user.id)
-    .gte("posted_at", firstDayOfMonth.toISOString())
-    .lt("posted_at", firstDayOfNextMonth.toISOString())
     .order("posted_at", { ascending: false })
     .limit(20);
 
+  // later add
+  // .gte("posted_at", firstDayOfMonth.toISOString())
+  // .lt("posted_at", firstDayOfNextMonth.toISOString())
   if (error) {
     throw new Error("Failed to fetch recent transactions");
   }
@@ -102,6 +110,7 @@ async function getRecentTransactions(
   return recentTransactions ?? [];
 }
 
+// get today's expenses
 async function getTodayExpenses(
   user: User,
   supabase: SupabaseClient,
@@ -128,6 +137,7 @@ async function getTodayExpenses(
   return data;
 }
 
+// get total monthly expenses
 async function getTotalMonthlyExpenses(
   user: User,
   supabase: SupabaseClient,
@@ -157,27 +167,6 @@ async function getTotalMonthlyExpenses(
   return data ?? 0;
 }
 
-export async function getCategory({
-  categId,
-  user,
-  supabase,
-}: {
-  categId: string;
-  user: User;
-  supabase: SupabaseClient;
-}): Promise<{ name: string; kind: string }> {
-  const { data: categData, error: categError } = await supabase
-    .from("categories")
-    .select("name, kind")
-    .eq("user_id", user.id)
-    .eq("id", categId)
-    .single();
-
-  if (!categData || categError) throw new Error("Failed to fetch category");
-
-  return categData;
-}
-
 // TODO: make sure to specify return value
 export async function getDashboardData(): Promise<DashboardData> {
   const supabase = await createClient();
@@ -192,7 +181,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     return { ok: false, error: plaidItemsError.message };
   }
 
-  if ((count ?? 0) < 0) {
+  if ((count ?? 0) === 0) {
     return { ok: true, hasPlaidItems: false };
   }
 
@@ -232,20 +221,14 @@ export async function getDashboardData(): Promise<DashboardData> {
       todayTotal: todayTotal,
       recentActivities: recentTransactions.length,
     },
-    recentTransactions: recentTransactions.map(async (tran) => {
-      const categData = await getCategory({
-        user,
-        supabase,
-        categId: tran.category_id,
-      });
-
+    recentTransactions: recentTransactions.map((tran) => {
       return {
         id: tran.id,
-        name: tran.merchant,
+        name: tran.merchant ?? "Unknown Merchant",
         amount: tran.amount,
         date: tran.posted_at,
-        categoryName: categData.name,
-        categoryKind: categData.kind,
+        categoryName: tran.category?.[0]?.name ?? null,
+        categoryKind: tran.category?.[0]?.kind ?? null,
       };
     }),
   };

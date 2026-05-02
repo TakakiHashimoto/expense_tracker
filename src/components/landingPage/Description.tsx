@@ -6,7 +6,7 @@ function Description({ icon, alt, title, description }: props) {
   return (
     <div>
       <Image src={icon} alt={alt} width={9} height={9} />
-      <div>
+      <div className="">
         <h3>{title}</h3>
         <p>{description}</p>
       </div>

@@ -2,6 +2,7 @@ import { type DashboardData } from "../type";
 import DashboardStats from "./DashboardStats";
 import { formatValue } from "@/lib/formatValue";
 import Link from "next/link";
+import RecentTransactions from "./RecentTransactions";
 
 type Props = { initialValue: DashboardData };
 
@@ -56,6 +57,9 @@ export default function DashboardClient({ initialValue }: Props) {
           value={formatValue(initialValue.stats.recentActivities, "count")}
           type="recent-activities"
         />
+      </section>
+      <section>
+        <RecentTransactions transactions={initialValue.recentTransactions} />
       </section>
     </div>
   );

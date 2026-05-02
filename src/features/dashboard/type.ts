@@ -1,11 +1,24 @@
 export type Transaction = {
   id: string;
   account_id: string;
-  category_id: string;
+  category_id: string | null;
   posted_at: string;
   amount: number;
-  merchant: string;
-  note: string;
+  merchant: string | null;
+  note: string | null;
+};
+
+export type TransactionRow = Transaction & {
+  category: { name: string; kind: "income" | "expense" }[] | null;
+};
+
+export type RecentTransaction = {
+  id: string;
+  name: string;
+  amount: number;
+  date: string;
+  categoryName: string | null;
+  categoryKind: "income" | "expense" | null;
 };
 
 export type DashboardData =
@@ -19,13 +32,6 @@ export type DashboardData =
         todayTotal: number;
         recentActivities: number;
       };
-      recentTransactions: {
-        id: string;
-        name: string;
-        amount: number;
-        date: string;
-        categoryName: string;
-        categoryKind: string;
-      }[];
+      recentTransactions: RecentTransaction[];
     }
   | { ok: false; error: string };

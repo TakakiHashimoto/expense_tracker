@@ -4,9 +4,9 @@
 
 type RecentTransactionItemPorp = {
   shop: string;
-  category: string;
+  category: string | null;
   date: string;
-  amount: string;
+  amount: number;
 };
 
 function RecentTransactionItem({

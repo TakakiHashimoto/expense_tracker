@@ -60,14 +60,17 @@ export default function ConnectBank() {
         });
 
         if (!syncRes.ok) {
+          const errorBody = await syncRes.json().catch(() => null);
+          console.log(`Sync failed: ${errorBody}`);
           throw new Error("Failed to sync transactions");
         }
 
         const syncResult = await syncRes.json();
         console.log(syncResult);
         router.push("/dashboard");
+        router.refresh();
       } catch (e) {
-        console.log(e);
+        console.log(`Plaid connect flow failed: ${e}`);
       }
     },
   });
