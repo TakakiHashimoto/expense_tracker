@@ -1,21 +1,30 @@
+"use client";
+
+import { useState } from "react";
 import { type RecentTransaction } from "../type";
 import RecentTransactionItem from "./RecentTransactionItem";
 
 type TransactionsType = { transactions: RecentTransaction[] };
 
 function RecentTransactions({ transactions }: TransactionsType) {
+  const [showAll, setIsShowAll] = useState(false);
+
+  const displayTransactions = showAll ? transactions : transactions.slice(0, 5);
   return (
     <div className="bg-surface-container-low rounded-3xl p-8">
       <div className="flex justify-between items-center mb-8">
         <h3 className="text-xl font-bold text-slate-100">
           Recent Transactions
         </h3>
-        <button className="text-sm text-primary font-semibold hover:opacity-80 transition-opacity">
-          See All
+        <button
+          className="text-sm text-primary font-semibold hover:opacity-80 transition-opacity"
+          onClick={() => setIsShowAll((prev) => !prev)}
+        >
+          {showAll ? "Show less" : "Show All"}
         </button>
       </div>
       <div className="flex flex-col gap-6">
-        {transactions.map((t) => (
+        {displayTransactions.map((t) => (
           <RecentTransactionItem
             key={t.id}
             shop={t.name}
