@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
     // add those transaction data to database
     // redirect to dashboard
   } catch (e) {
-    console.log(e);
+    console.error("Failed to connect bank account:", e);
     return NextResponse.json(
       { error: { message: "Failed to connect bank account" } },
       { status: 500 },

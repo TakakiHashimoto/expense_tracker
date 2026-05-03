@@ -33,6 +33,7 @@ export default function ConnectBank() {
       const passData = { public_token, metadata };
       // change the public token to access token request for server
       try {
+        // connecting bank phase
         const res = await fetch(`/api/plaid/exchange`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -53,6 +54,7 @@ export default function ConnectBank() {
           throw new Error("plaid item uuid not found");
         }
 
+        // syncing bank phase
         const syncRes = await fetch(`/api/plaid/sync-transactions`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -70,6 +72,7 @@ export default function ConnectBank() {
         router.push("/dashboard");
         router.refresh();
       } catch (e) {
+        // if above failed, what should I do?
         console.log(`Plaid connect flow failed: ${e}`);
       }
     },

@@ -13,18 +13,18 @@ const plaidEnv = process.env.PLAID_ENV || "sandbox";
 const plaidSecret = process.env.PLAID_SECRET;
 
 export async function POST(request: NextRequest) {
-  const supabase = await createClient();
-  const user = await grabUser(supabase);
-  const { plaid_item_uuid } = await request.json(); // This is internal DB plaid_items_id
-
-  if (!plaid_item_uuid) {
-    return NextResponse.json(
-      { error: "Missing plaid item uuid" },
-      { status: 400 },
-    );
-  }
-
   try {
+    const supabase = await createClient();
+    const user = await grabUser(supabase);
+    const { plaid_item_uuid } = await request.json(); // This is internal DB plaid_items_id
+
+    if (!plaid_item_uuid) {
+      return NextResponse.json(
+        { error: "Missing plaid item uuid" },
+        { status: 400 },
+      );
+    }
+
     const { data: cursorData, error: cursorError } = await supabase
       .from("plaid_items")
       .select("id, transactions_cursor")
@@ -83,6 +83,7 @@ export async function POST(request: NextRequest) {
       modifiedCount: modified.length,
     });
   } catch (e) {
+    console.error("Sync transactions failed", e);
     return NextResponse.json(
       { error: "Failed to sync transactions" },
       { status: 500 },

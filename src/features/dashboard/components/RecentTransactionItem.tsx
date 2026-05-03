@@ -1,6 +1,7 @@
 // this page is for each recent transaction item, such "starbuck foods -$4"
 
 // how to get category ?
+import { formatAmount } from "@/lib/formatValue";
 
 type RecentTransactionItemPorp = {
   shop: string;
@@ -27,13 +28,6 @@ function formatTransactionDate(date: string) {
     day: "numeric",
     year: "numeric",
   }).format(new Date(date));
-}
-
-function formatAmount(amount: number) {
-  return new Intl.NumberFormat("en", {
-    style: "currency",
-    currency: "USD",
-  }).format(Math.abs(amount));
 }
 
 function RecentTransactionItem({

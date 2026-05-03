@@ -9,7 +9,7 @@ export type Transaction = {
 };
 
 export type TransactionRow = Transaction & {
-  category: { name: string; kind: "income" | "expense" }[] | null;
+  category: { name: string; kind: "income" | "expense" } | null;
 };
 
 export type RecentTransaction = {

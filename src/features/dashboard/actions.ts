@@ -97,6 +97,7 @@ async function getRecentTransactions(
       "id, account_id, category_id, posted_at, amount, merchant, note,category:categories (name, kind)",
     )
     .eq("user_id", user.id)
+    .or("is_removed.is.null,is_removed.eq.false")
     .order("posted_at", { ascending: false })
     .limit(20);
 
@@ -107,7 +108,9 @@ async function getRecentTransactions(
     throw new Error("Failed to fetch recent transactions");
   }
 
-  return recentTransactions ?? [];
+  console.log("recent transaction sample:", recentTransactions?.[0]);
+
+  return (recentTransactions ?? []) as unknown as TransactionRow[];
 }
 
 // get today's expenses
@@ -227,8 +230,8 @@ export async function getDashboardData(): Promise<DashboardData> {
         name: tran.merchant ?? "Unknown Merchant",
         amount: tran.amount,
         date: tran.posted_at,
-        categoryName: tran.category?.[0]?.name ?? null,
-        categoryKind: tran.category?.[0]?.kind ?? null,
+        categoryName: tran.category?.name ?? null,
+        categoryKind: tran.category?.kind ?? null,
       };
     }),
   };
