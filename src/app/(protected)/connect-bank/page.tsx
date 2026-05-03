@@ -10,6 +10,8 @@ import { usePlaidLink } from "react-plaid-link";
 
 export default function ConnectBank() {
   const [linkToken, setLinkToken] = useState<string | null>(null);
+  const [frontError, setFrontError] = useState<string | null>(null);
+
   const router = useRouter();
 
   async function linkTokenRequest() {
@@ -74,6 +76,11 @@ export default function ConnectBank() {
       } catch (e) {
         // if above failed, what should I do?
         console.log(`Plaid connect flow failed: ${e}`);
+        setFrontError(
+          e instanceof Error
+            ? e.message
+            : "Failed to connect or sync your bank",
+        );
       }
     },
   });
@@ -97,13 +104,21 @@ export default function ConnectBank() {
         </div>
         <div className="flex flex-col gap-6">
           <button
-            className="w-fit bg-linear-to-r from-primary to-primary-container text-on-primary px-10 py-5 rounded-xl font-bold text-lg active:scale-95 transition-transform shadow-[0_0_20px_rgba(78,222,163,0.15)] flex items-center gap-3"
+            className="w-fit bg-linear-to-r from-primary to-primary-container text-on-primary px-10 py-5 rounded-xl font-bold text-lg active:scale-95 transition-transform shadow-[0_0_20px_rgba(78,222,163,0.15)] flex items-center gap-3 cursor-pointer"
             onClick={handleClick}
             disabled={!ready}
           >
             Connect Bank
             <Landmark />
           </button>
+          {frontError && (
+            <div className="bg-tertiary">
+              <h3>
+                Error occured while trying to connect your abank.{" "}
+                <span>Try again</span>
+              </h3>
+            </div>
+          )}
           <div className="flex items-center gap-3 py-2 px-4 bg-surface-container-low rounded-lg w-fit">
             <span
               className="material-symbols-outlined text-primary text-sm"
@@ -144,7 +159,6 @@ export default function ConnectBank() {
             </span>
           </div>
         </div>
-        {/*api request*/}
 
         {
           error && <p>Error</p>

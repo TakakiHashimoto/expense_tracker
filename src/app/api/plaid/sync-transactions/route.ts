@@ -14,6 +14,12 @@ const plaidSecret = process.env.PLAID_SECRET;
 
 export async function POST(request: NextRequest) {
   try {
+    if (!plaidClientId || !plaidSecret) {
+      return NextResponse.json(
+        { error: "Missing Plaid Credentials" },
+        { status: 500 },
+      );
+    }
     const supabase = await createClient();
     const user = await grabUser(supabase);
     const { plaid_item_uuid } = await request.json(); // This is internal DB plaid_items_id

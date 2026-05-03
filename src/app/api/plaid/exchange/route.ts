@@ -19,19 +19,27 @@ type PlaidLinkAccount = {
 };
 
 export async function POST(request: NextRequest) {
-  const supabase = await createClient();
-  const config = new Configuration({
-    basePath: PlaidEnvironments[plaidEnv],
-    baseOptions: {
-      headers: {
-        "PLAID-CLIENT-ID": plaidClientId,
-        "PLAID-SECRET": plaidSecret,
-      },
-    },
-  });
-
-  const client = new PlaidApi(config);
   try {
+    if (!plaidClientId || !plaidSecret) {
+      return NextResponse.json(
+        { error: "Missing Plaid Credentials" },
+        { status: 500 },
+      );
+    }
+
+    const supabase = await createClient();
+    const config = new Configuration({
+      basePath: PlaidEnvironments[plaidEnv],
+      baseOptions: {
+        headers: {
+          "PLAID-CLIENT-ID": plaidClientId,
+          "PLAID-SECRET": plaidSecret,
+        },
+      },
+    });
+
+    const client = new PlaidApi(config);
+
     const user = await grabUser(supabase);
 
     const { count, error: existingError } = await supabase
@@ -71,7 +79,7 @@ export async function POST(request: NextRequest) {
 
     const institutionName = metadata?.institution?.name ?? null;
     const institutionId = metadata?.institution?.institution_id ?? null;
-    const accounts = metadata?.accounts ?? [];
+    const accounts: PlaidLinkAccount[] = metadata?.accounts ?? [];
 
     // fill up the plaid_item database
     const { data, error } = await supabase
