@@ -42,6 +42,15 @@ export async function POST(request: NextRequest) {
 
     const user = await grabUser(supabase);
 
+    const { public_token, metadata } = await request.json();
+
+    if (!public_token) {
+      return NextResponse.json(
+        { error: "public_token is not provided" },
+        { status: 400 },
+      );
+    }
+
     const { count, error: existingError } = await supabase
       .from("plaid_items")
       .select("id", { count: "exact", head: true })
@@ -58,15 +67,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "User already have their banks connected" },
         { status: 409 },
-      );
-    }
-
-    const { public_token, metadata } = await request.json();
-
-    if (!public_token) {
-      return NextResponse.json(
-        { error: "public_token is not provided" },
-        { status: 400 },
       );
     }
 
@@ -101,36 +101,48 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // database id for plaid_items
     const plaidItemUuid = data.id;
 
     // add access_token and item_id to database
-    const { error: plaidSecretsError } = await supabase
-      .from("plaid_item_secrets")
-      .insert({ access_token: access_token, plaid_item_id: plaidItemUuid });
+    try {
+      const { error: plaidSecretsError } = await supabase
+        .from("plaid_item_secrets")
+        .insert({ access_token: access_token, plaid_item_id: plaidItemUuid });
 
-    if (plaidSecretsError) {
-      throw plaidSecretsError;
-    }
+      if (plaidSecretsError) {
+        throw plaidSecretsError;
+      }
 
-    // add accounts to database
-    for (const account of accounts) {
-      // TD checking, TD savings
+      // add accounts to database
+      const addAccounts = accounts.map((account) => ({
+        user_id: user.id,
+        type: account.type,
+        name: account.name,
+        is_active: true,
+        plaid_item_id: plaidItemUuid,
+        plaid_account_id: account.id,
+        mask: account.mask,
+        subtype: account.subtype,
+      }));
+
       const { error: accountError } = await supabase
         .from("accounts")
-        .insert({
-          user_id: user.id,
-          type: account.type,
-          name: account.name,
-          is_active: true,
-          plaid_item_id: plaidItemUuid,
-          plaid_account_id: account.id,
-          mask: account.mask,
-          subtype: account.subtype,
-        });
+        .insert(addAccounts);
 
       if (accountError) {
         throw accountError;
       }
+    } catch (writeError) {
+      console.error("Rolling back failed Plaid exchange writes:", writeError);
+
+      await supabase
+        .from("plaid_items")
+        .delete()
+        .eq("id", plaidItemUuid)
+        .eq("user_id", user.id);
+
+      throw writeError;
     }
 
     return NextResponse.json({ plaid_item_uuid: plaidItemUuid });
@@ -141,7 +153,7 @@ export async function POST(request: NextRequest) {
   } catch (e) {
     console.error("Failed to connect bank account:", e);
     return NextResponse.json(
-      { error: { message: "Failed to connect bank account" } },
+      { error: "Failed to connect bank account" },
       { status: 500 },
     );
   }
