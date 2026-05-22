@@ -35,7 +35,7 @@ export default function DashboardClient({ initialValue }: Props) {
   }
 
   return (
-    <div className="px-12 pb-12 pt-4">
+    <div className="px-4 md:px-8 xl:px-12 pb-12 pt-4">
       <section className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
         <DashboardStats
           title="THIS MONTH SPENDING"

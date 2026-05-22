@@ -1,6 +1,7 @@
 // this page is for each recent transaction item, such "starbuck foods -$4"
 
 // how to get category ?
+import formatTransactionDate from "@/lib/formatTransactionDate";
 import { formatAmount } from "@/lib/formatValue";
 
 type RecentTransactionItemPorp = {
@@ -21,14 +22,6 @@ const categoryIcons: Record<string, string> = {
   Shopping: "shopping_bag",
   Transport: "directions_car",
 };
-
-function formatTransactionDate(date: string) {
-  return new Intl.DateTimeFormat("en", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }).format(new Date(date));
-}
 
 function RecentTransactionItem({
   shop,
@@ -72,9 +65,10 @@ function RecentTransactionItem({
           {isIncome ? "+" : "-"}
           {formatAmount(amount)}
         </p>
-        <p className="text-[10px] text-on-surface-variant uppercase tracking-tighter font-semibold">
+        {/* Later will add if pending: "pending": "approved" */}
+        {/* <p className="text-[10px] text-on-surface-variant uppercase tracking-tighter font-semibold">
           Approved
-        </p>
+        </p> */}
       </div>
     </div>
   );

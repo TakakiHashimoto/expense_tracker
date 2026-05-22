@@ -30,12 +30,14 @@ function RecentTransactions({ transactions }: TransactionsType) {
         <h3 className="text-xl font-bold text-slate-100">
           Recent Transactions
         </h3>
-        <button
-          className="text-sm text-primary font-semibold hover:opacity-80 transition-opacity"
-          onClick={() => setIsShowAll((prev) => !prev)}
-        >
-          {showAll ? "Show less" : "Show All"}
-        </button>
+        {transactions.length > 5 && (
+          <button
+            className="text-sm text-primary font-semibold hover:opacity-80 transition-opacity"
+            onClick={() => setIsShowAll((prev) => !prev)}
+          >
+            {showAll ? "Show less" : "Show All"}
+          </button>
+        )}
       </div>
       <div className="flex flex-col gap-6">
         {displayTransactions.map((t) => (
