@@ -1,5 +1,5 @@
 import { getDashboardData } from "@/features/dashboard/actions";
-import DashboardClient from "@/features/dashboard/components/DashboardClient";
+import DashboardClient from "@/features/dashboard/pages/DashboardClient";
 import { DashboardData } from "@/features/dashboard/type";
 
 export default async function Dashboard() {

@@ -1,8 +1,9 @@
 import { type DashboardData } from "../type";
-import DashboardStats from "./DashboardStats";
+import DashboardStats from "../components/DashboardStats";
 import { formatValue } from "@/lib/formatValue";
 import Link from "next/link";
-import RecentTransactions from "./RecentTransactions";
+import RecentTransactions from "../components/RecentTransactions";
+import SpendingByCategory from "../components/SpendingByCategory";
 
 type Props = { initialValue: DashboardData };
 
@@ -56,6 +57,12 @@ export default function DashboardClient({ initialValue }: Props) {
           title="RECENT ACTIVITIES"
           value={formatValue(initialValue.stats.recentActivities, "count")}
           type="recent-activities"
+        />
+      </section>
+      {/* spendings by category */}
+      <section>
+        <SpendingByCategory
+          spendingByCategory={initialValue.spendingByCategory}
         />
       </section>
       <section>

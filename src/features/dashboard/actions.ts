@@ -173,13 +173,14 @@ async function getTotalMonthlyExpenses(
   return data ?? 0;
 }
 
+// Get spendings by category
 async function getSpendingByCategory(
   user: User,
   supabase: SupabaseClient,
   firstDayOfMonth: Date,
   firstDayOfNextMonth: Date,
 ) {
-  // { categoryName:string, amount: number, percentage: number }[]
+  // [ { categoryName:string, amount: number, percentage: number }...  ]
 
   // this return [] of TransactionRow
   // You only need this 1 db query
