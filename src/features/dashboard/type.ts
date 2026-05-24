@@ -21,6 +21,12 @@ export type RecentTransaction = {
   categoryKind: "income" | "expense" | null;
 };
 
+export type SpendingByCategory = {
+  categoryName: string;
+  amount: number;
+  percentage: number;
+};
+
 export type DashboardData =
   | { ok: true; hasPlaidItems: false }
   | {
@@ -33,5 +39,6 @@ export type DashboardData =
         recentActivities: number;
       };
       recentTransactions: RecentTransaction[];
+      spendingByCategory: SpendingByCategory[];
     }
   | { ok: false; error: string };

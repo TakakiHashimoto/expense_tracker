@@ -12,6 +12,7 @@ import {
   type Transaction,
   type DashboardData,
   type TransactionRow,
+  SpendingByCategory,
 } from "./type";
 
 export async function grabUser(supabase: SupabaseClient): Promise<User> {
@@ -43,11 +44,13 @@ async function getThisMonthExpenses(
   supabase: SupabaseClient,
   firstDayOfMonth: Date,
   firstDayOfNextMonth: Date,
-): Promise<Transaction[]> {
+): Promise<TransactionRow[]> {
   // get this month expenses
   const { data: transactions, error } = await supabase
     .from("transactions")
-    .select("id, account_id, category_id, posted_at, amount, merchant, note")
+    .select(
+      "id, account_id, category_id, posted_at, amount, merchant, note, category:categories(name, kind)",
+    )
     .eq("user_id", user.id)
     .lt("amount", 0)
     .gte("posted_at", firstDayOfMonth.toISOString())
@@ -59,7 +62,7 @@ async function getThisMonthExpenses(
     throw new Error("Failed to fetch monthly expenses");
   }
 
-  return transactions ?? []; // data cab be []
+  return (transactions ?? []) as unknown as TransactionRow[]; // data cab be []
 }
 
 async function getThisMonthIncome(
@@ -170,7 +173,52 @@ async function getTotalMonthlyExpenses(
   return data ?? 0;
 }
 
-// TODO: make sure to specify return value
+async function getSpendingByCategory(
+  user: User,
+  supabase: SupabaseClient,
+  firstDayOfMonth: Date,
+  firstDayOfNextMonth: Date,
+) {
+  // { categoryName:string, amount: number, percentage: number }[]
+
+  // this return [] of TransactionRow
+  // You only need this 1 db query
+  const thisMonthSpendings = await getThisMonthExpenses(
+    user,
+    supabase,
+    firstDayOfMonth,
+    firstDayOfNextMonth,
+  );
+
+  const categAmountMap = new Map<string, number>();
+
+  // creating a map for each category: { "Food", 40... } etc
+  for (const spending of thisMonthSpendings) {
+    const categName = spending.category?.name ?? "uncategorized";
+
+    const currentAmount = categAmountMap.get(categName) ?? 0;
+
+    categAmountMap.set(categName, currentAmount + spending.amount);
+  }
+
+  const totalThisMonthSpendingAmount = Array.from(
+    categAmountMap.values(),
+  ).reduce((sum, cur) => sum + cur, 0);
+
+  const result = Array.from(categAmountMap.entries())
+    .map(([categName, amount]) => ({
+      categoryName: categName,
+      amount: amount,
+      percentage:
+        totalThisMonthSpendingAmount === 0
+          ? 0
+          : Math.round((amount / totalThisMonthSpendingAmount) * 100),
+    }))
+    .sort((a, b) => a.amount - b.amount);
+
+  return result;
+}
+
 export async function getDashboardData(): Promise<DashboardData> {
   const supabase = await createClient();
   const user = await grabUser(supabase);
@@ -202,6 +250,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     recentTransactions,
     monthlyTotoal,
     todayTotal,
+    spendingByCategory,
   ] = await Promise.all([
     getThisMonthExpenses(user, supabase, firstDayOfMonth, firstDayOfNextMonth),
     getThisMonthIncome(user, supabase, firstDayOfMonth, firstDayOfNextMonth),
@@ -213,6 +262,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       firstDayOfNextMonth,
     ),
     getTodayExpenses(user, supabase, today),
+    getSpendingByCategory(user, supabase, firstDayOfMonth, firstDayOfNextMonth),
   ]);
 
   return {
@@ -234,5 +284,6 @@ export async function getDashboardData(): Promise<DashboardData> {
         categoryKind: tran.category?.kind ?? null,
       };
     }),
+    spendingByCategory,
   };
 }
