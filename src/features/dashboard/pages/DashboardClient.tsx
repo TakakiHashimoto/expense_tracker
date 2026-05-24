@@ -4,6 +4,7 @@ import { formatValue } from "@/lib/formatValue";
 import Link from "next/link";
 import RecentTransactions from "../components/RecentTransactions";
 import SpendingByCategory from "../components/SpendingByCategory";
+import DashboardSidebar from "../components/DashboardSidebar";
 
 type Props = { initialValue: DashboardData };
 
@@ -36,38 +37,44 @@ export default function DashboardClient({ initialValue }: Props) {
   }
 
   return (
-    <div className="px-4 md:px-8 xl:px-12 pb-12 pt-4">
-      <section className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-        <DashboardStats
-          title="THIS MONTH SPENDING"
-          value={formatValue(initialValue.stats.monthlySpending, "money")}
-          type="monthly-spending"
-        />
-        <DashboardStats
-          title="TODAY"
-          value={formatValue(initialValue.stats.todayTotal, "money")}
-          type="today-total"
-        />
-        <DashboardStats
-          title="MONTHLY INCOME"
-          value={formatValue(initialValue.stats.monthlyIncome, "money")}
-          type="monthly-income"
-        />
-        <DashboardStats
-          title="RECENT ACTIVITIES"
-          value={formatValue(initialValue.stats.recentActivities, "count")}
-          type="recent-activities"
-        />
-      </section>
-      {/* spendings by category */}
-      <section>
-        <SpendingByCategory
-          spendingByCategory={initialValue.spendingByCategory}
-        />
-      </section>
-      <section>
-        <RecentTransactions transactions={initialValue.recentTransactions} />
-      </section>
+    <div className="flex gap-2">
+      <DashboardSidebar />
+      <div className="flex flex-col gap-3 px-4 md:px-8 xl:px-12 pb-12 pt-4 ml-72">
+        <section className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+          <DashboardStats
+            title="THIS MONTH SPENDING"
+            value={formatValue(initialValue.stats.monthlySpending, "money")}
+            type="monthly-spending"
+          />
+          <DashboardStats
+            title="TODAY"
+            value={formatValue(initialValue.stats.todayTotal, "money")}
+            type="today-total"
+          />
+          <DashboardStats
+            title="MONTHLY INCOME"
+            value={formatValue(initialValue.stats.monthlyIncome, "money")}
+            type="monthly-income"
+          />
+          <DashboardStats
+            title="RECENT ACTIVITIES"
+            value={formatValue(initialValue.stats.recentActivities, "count")}
+            type="recent-activities"
+          />
+        </section>
+
+        {/* spendings by category */}
+        <section>
+          <SpendingByCategory
+            spendingByCategory={initialValue.spendingByCategory}
+          />
+        </section>
+
+        {/* Recent transactions */}
+        <section>
+          <RecentTransactions transactions={initialValue.recentTransactions} />
+        </section>
+      </div>
     </div>
   );
 }
