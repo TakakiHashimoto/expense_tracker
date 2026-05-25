@@ -4,7 +4,7 @@
 import formatTransactionDate from "@/lib/formatTransactionDate";
 import { formatAmount } from "@/lib/formatValue";
 
-type RecentTransactionItemPorp = {
+type RecentTransactionItemProp = {
   shop: string;
   category: string | null;
   categoryKind: "income" | "expense" | null;
@@ -29,7 +29,7 @@ function RecentTransactionItem({
   categoryKind,
   date,
   amount,
-}: RecentTransactionItemPorp) {
+}: RecentTransactionItemProp) {
   const isIncome = categoryKind === "income" || amount > 0;
   const icon = category ? categoryIcons[category] : null;
 

@@ -12,7 +12,7 @@ import {
   type Transaction,
   type DashboardData,
   type TransactionRow,
-  SpendingByCategory,
+  type SpendingByCategory,
 } from "./type";
 
 export async function grabUser(supabase: SupabaseClient): Promise<User> {
@@ -46,6 +46,7 @@ async function getThisMonthExpenses(
   firstDayOfNextMonth: Date,
 ): Promise<TransactionRow[]> {
   // get this month expenses
+  // I am supposed to put .gte("posted_at", firstDayOfMonth.toISOString()) but for demonstrorate purpose
   const { data: transactions, error } = await supabase
     .from("transactions")
     .select(
@@ -53,7 +54,7 @@ async function getThisMonthExpenses(
     )
     .eq("user_id", user.id)
     .lt("amount", 0)
-    .gte("posted_at", firstDayOfMonth.toISOString())
+    .gte("posted_at", "2026-04-23 00:00:00+00")
     .lt("posted_at", firstDayOfNextMonth.toISOString())
     .order("posted_at", { ascending: false });
 
@@ -179,7 +180,7 @@ async function getSpendingByCategory(
   supabase: SupabaseClient,
   firstDayOfMonth: Date,
   firstDayOfNextMonth: Date,
-) {
+): Promise<SpendingByCategory[]> {
   // [ { categoryName:string, amount: number, percentage: number }...  ]
 
   // this return [] of TransactionRow
@@ -195,11 +196,11 @@ async function getSpendingByCategory(
 
   // creating a map for each category: { "Food", 40... } etc
   for (const spending of thisMonthSpendings) {
-    const categName = spending.category?.name ?? "uncategorized";
+    const categName = spending.category?.name ?? "Uncategorized";
 
     const currentAmount = categAmountMap.get(categName) ?? 0;
 
-    categAmountMap.set(categName, currentAmount + spending.amount);
+    categAmountMap.set(categName, currentAmount + Math.abs(spending.amount));
   }
 
   const totalThisMonthSpendingAmount = Array.from(
@@ -215,7 +216,7 @@ async function getSpendingByCategory(
           ? 0
           : Math.round((amount / totalThisMonthSpendingAmount) * 100),
     }))
-    .sort((a, b) => a.amount - b.amount);
+    .sort((a, b) => b.amount - a.amount);
 
   return result;
 }
@@ -246,14 +247,12 @@ export async function getDashboardData(): Promise<DashboardData> {
   );
 
   const [
-    monthlyExpenses,
     monthlyIncome,
     recentTransactions,
-    monthlyTotoal,
+    monthlyTotal,
     todayTotal,
     spendingByCategory,
   ] = await Promise.all([
-    getThisMonthExpenses(user, supabase, firstDayOfMonth, firstDayOfNextMonth),
     getThisMonthIncome(user, supabase, firstDayOfMonth, firstDayOfNextMonth),
     getRecentTransactions(user, supabase, firstDayOfMonth, firstDayOfNextMonth),
     getTotalMonthlyExpenses(
@@ -270,7 +269,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     ok: true,
     hasPlaidItems: true,
     stats: {
-      monthlySpending: monthlyTotoal,
+      monthlySpending: monthlyTotal,
       monthlyIncome: monthlyIncome.reduce((acc, cur) => acc + cur.amount, 0),
       todayTotal: todayTotal,
       recentActivities: recentTransactions.length,

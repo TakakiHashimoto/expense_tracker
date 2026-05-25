@@ -10,11 +10,16 @@ function SpendingByCategory({ spendingByCategory }: Props) {
         Category Breakdown
       </h3>
       {spendingByCategory.length === 0 ? (
-        <div>No data to show for this month</div>
+        <div>
+          <p className="text-sm text-on-surface-variant">
+            No category spending found for this month.
+          </p>
+        </div>
       ) : (
         <div className="space-y-6">
           {spendingByCategory.map((item) => (
             <CategoryBreakdownItem
+              key={item.categoryName}
               categoryName={item.categoryName}
               amount={item.amount}
               percentage={item.percentage}

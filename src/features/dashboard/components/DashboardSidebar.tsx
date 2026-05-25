@@ -1,4 +1,10 @@
-import { LayoutDashboard, Receipt, Settings, Wallet } from "lucide-react";
+import {
+  CircleUserRound,
+  LayoutDashboard,
+  Receipt,
+  Settings,
+  Wallet,
+} from "lucide-react";
 import Link from "next/link";
 
 function DashboardSidebar() {
@@ -27,29 +33,24 @@ function DashboardSidebar() {
           <Receipt className="material-symbols-outlined" />
           <span>Transactions</span>
         </Link>
-        <a
+        <Link
           className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-200 transition-all duration-300 ease-in-out active:scale-95 hover:bg-slate-800/40"
           href="#"
         >
           <Wallet className="material-symbols-outlined" />
           <span>Accounts</span>
-        </a>
-        <a
+        </Link>
+        <Link
           className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-200 transition-all duration-300 ease-in-out active:scale-95 hover:bg-slate-800/40"
           href="#"
         >
           <Settings className="material-symbols-outlined" />
           <span>Settings</span>
-        </a>
+        </Link>
       </nav>
       <div className="mt-auto">
         <div className="p-4 rounded-2xl bg-surface-container-low flex items-center gap-3">
-          <img
-            alt="User Portrait"
-            className="w-10 h-10 rounded-full object-cover grayscale opacity-80"
-            data-alt="portrait of a professional man in a dark turtleneck against a neutral studio background with soft cinematic lighting"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCiXydInkl_nu_cx55_CleJ1qr3truRjPhzVw15FFb5RHqosuS-QrS0mtJavLq8pXaWGzV7ZQ_GLIBbGJyUWQb7qdIpi6Z7XKxvwdoTn4LuAciEFZeyGmIYlRgvj0KwOK4ocq6AcRoUDdhj8fkaHXKKrdeSDfCzLY_r9Flfwn9i3ATMVU3vX3SEIPD0NeTw1o32UHbdlMQ9qGKjbr2rt7hlnNV5ZeJ8rUTGCLRQN7yY_uk0-h__Dbgjtn9_1o110JrmWngxVsSmdyUQ"
-          />
+          <CircleUserRound className="w-10 h-10 rounded-full object-cover grayscale opacity-80" />
           <div className="overflow-hidden">
             <p className="text-sm font-bold truncate">Elias Sterling</p>
             <p className="text-xs text-on-surface-variant truncate">
