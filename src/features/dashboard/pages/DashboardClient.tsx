@@ -5,6 +5,7 @@ import Link from "next/link";
 import RecentTransactions from "../components/RecentTransactions";
 import SpendingByCategory from "../components/SpendingByCategory";
 import DashboardSidebar from "../components/DashboardSidebar";
+import Spinner from "@/components/common/Spinner";
 
 type Props = { initialValue: DashboardData };
 
@@ -39,7 +40,8 @@ export default function DashboardClient({ initialValue }: Props) {
   return (
     <div className="flex gap-2">
       <DashboardSidebar />
-      <div className="flex flex-col gap-3 px-4 md:px-8 xl:px-12 pb-12 pt-4 ml-72">
+
+      <div className="flex flex-col gap-3 px-4 md:px-8 xl:px-12 pb-12 pt-4 ml-72 min-h-screen w-[calc(100%-18rem)]">
         <section className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
           <DashboardStats
             title="THIS MONTH SPENDING"

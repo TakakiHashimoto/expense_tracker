@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { grabUser } from "../dashboard/actions";
+import { redirect } from "next/navigation";
 
 type OnboardingState =
   | { ok: true; hasPlaidItems: boolean }
@@ -28,4 +29,17 @@ async function getUserOnboardingState() {
   }
 }
 
-export { getUserOnboardingState };
+async function logoutUser() {
+  const supabase = await createClient();
+
+  const { error } = await supabase.auth.signOut();
+
+  if (error) {
+    console.error("Failed to logout user", error);
+    redirect("/dashboard?error=logout_failed");
+  }
+
+  redirect("/login");
+}
+
+export { getUserOnboardingState, logoutUser };
