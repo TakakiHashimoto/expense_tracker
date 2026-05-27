@@ -13,7 +13,7 @@ import {
   type DashboardData,
   type TransactionRow,
   type SpendingByCategory,
-  type DashboardAccounts,
+  type DashboardAccount,
 } from "./type";
 import { DashboardDateRange, getDashboardDateRange } from "@/lib/dateRanges";
 
@@ -61,7 +61,7 @@ async function getThisMonthExpenses(
     .order("posted_at", { ascending: false });
 
   if (error) {
-    console.log(error); // 'time zone "gmt-0800" not recognized'
+    console.error(error); // 'time zone "gmt-0800" not recognized'
     throw new Error("Failed to fetch monthly expenses");
   }
 
@@ -113,8 +113,6 @@ async function getRecentTransactions(
     throw new Error("Failed to fetch recent transactions");
   }
 
-  console.log("recent transaction sample:", recentTransactions?.[0]);
-
   return (recentTransactions ?? []) as unknown as TransactionRow[];
 }
 
@@ -136,7 +134,7 @@ async function getTodayExpenses(
   //   .gte("posted_at", midnight);
 
   if (error) {
-    console.log(error);
+    console.error(error);
     throw new Error("Failed to fetch today's expenses");
   }
 
@@ -216,7 +214,7 @@ async function getSpendingByCategory(
 async function getDashboardAccounts(
   user: User,
   supabase: SupabaseClient,
-): Promise<DashboardAccounts[]> {
+): Promise<DashboardAccount[]> {
   type AccountRow = {
     id: string;
     name: string | null;
@@ -240,8 +238,6 @@ async function getDashboardAccounts(
   }
 
   const accountRows = (accountsData ?? []) as unknown as AccountRow[];
-
-  console.log(JSON.stringify(accountsData?.[0], null, 2));
 
   const result = accountRows.map((account) => ({
     id: account.id,

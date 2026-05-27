@@ -1,11 +1,27 @@
 import Link from "next/link";
-import { DashboardAccounts } from "../type";
+import { DashboardAccount } from "../type";
 import AccountItem from "./AccountItem";
 
-type Props = { accounts: DashboardAccounts[] };
+type Props = { accounts: DashboardAccount[] };
 
 function ConnectedAccounts({ accounts }: Props) {
   const activeAccounts = accounts.filter((a) => a.isActive);
+
+  if (accounts.length === 0) {
+    return (
+      <section className="space-y-4">
+        <div className="space-y-1 px-2">
+          <h3 className="text-2xl font-bold tracking-tight">
+            Connected Accounts
+          </h3>
+          <p className="text-sm text-on-surface-variant">
+            No connected accounts were found.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="space-y-6">
       <div className="flex items-end justify-between px-2">
