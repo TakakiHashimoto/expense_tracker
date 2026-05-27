@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     }
     const supabase = await createClient();
     const user = await grabUser(supabase);
-    const { plaid_item_uuid } = await request.json(); // This is internal DB plaid_items_id
+    const { plaid_item_uuid } = await request.json(); // This is internal DB plaid_items_id = plaid_items.id
 
     if (!plaid_item_uuid) {
       return NextResponse.json(
