@@ -27,6 +27,16 @@ export type SpendingByCategory = {
   percentage: number;
 };
 
+export type DashboardAccounts = {
+  id: string;
+  name: string;
+  type: string | null;
+  subtype: string | null;
+  mask: string | null;
+  institutionName: string | null;
+  isActive: boolean;
+};
+
 export type DashboardData =
   | { ok: true; hasPlaidItems: false }
   | {
@@ -40,5 +50,6 @@ export type DashboardData =
       };
       recentTransactions: RecentTransaction[];
       spendingByCategory: SpendingByCategory[];
+      accounts: DashboardAccounts[];
     }
   | { ok: false; error: string };

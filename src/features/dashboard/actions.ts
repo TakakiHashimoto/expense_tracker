@@ -13,6 +13,7 @@ import {
   type DashboardData,
   type TransactionRow,
   type SpendingByCategory,
+  type DashboardAccounts,
 } from "./type";
 import { DashboardDateRange, getDashboardDateRange } from "@/lib/dateRanges";
 
@@ -212,6 +213,47 @@ async function getSpendingByCategory(
   return result;
 }
 
+async function getDashboardAccounts(
+  user: User,
+  supabase: SupabaseClient,
+): Promise<DashboardAccounts[]> {
+  type AccountRow = {
+    id: string;
+    name: string | null;
+    type: string | null;
+    subtype: string | null;
+    is_active: boolean;
+    mask: string | null;
+    plaid_item: { institution_name: string | null }[];
+  };
+
+  const { data: accountsData, error: accountsError } = await supabase
+    .from("accounts")
+    .select(
+      "id, name, type, subtype, is_active, mask, plaid_item:plaid_items(institution_name)",
+    )
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (accountsError) {
+    throw new Error("Failed to fetch accounts");
+  }
+
+  const accountRows = (accountsData ?? []) as AccountRow[];
+
+  const result = accountRows.map((account) => ({
+    id: account.id,
+    name: account.name ?? "Unknown account",
+    type: account.type,
+    subtype: account.subtype,
+    mask: account.mask,
+    isActive: account.is_active,
+    institutionName: account.plaid_item[0]?.institution_name ?? null,
+  }));
+
+  return result;
+}
+
 export async function getDashboardData(): Promise<DashboardData> {
   const supabase = await createClient();
   const user = await grabUser(supabase);
@@ -237,12 +279,14 @@ export async function getDashboardData(): Promise<DashboardData> {
     monthlyTotal,
     todayTotal,
     spendingByCategory,
+    dashboardAccounts,
   ] = await Promise.all([
     getThisMonthIncome(user, supabase, range),
     getRecentTransactions(user, supabase, range),
     getTotalMonthlyExpenses(user, supabase, range),
     getTodayExpenses(user, supabase, range),
     getSpendingByCategory(user, supabase, range),
+    getDashboardAccounts(user, supabase),
   ]);
 
   return {
@@ -265,5 +309,6 @@ export async function getDashboardData(): Promise<DashboardData> {
       };
     }),
     spendingByCategory,
+    accounts: dashboardAccounts,
   };
 }
