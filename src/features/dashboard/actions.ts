@@ -14,6 +14,7 @@ import {
   type TransactionRow,
   type SpendingByCategory,
 } from "./type";
+import { DashboardDateRange, getDashboardDateRange } from "@/lib/dateRanges";
 
 export async function grabUser(supabase: SupabaseClient): Promise<User> {
   const {
@@ -42,8 +43,7 @@ export async function grabUser(supabase: SupabaseClient): Promise<User> {
 async function getThisMonthExpenses(
   user: User,
   supabase: SupabaseClient,
-  firstDayOfMonth: Date,
-  firstDayOfNextMonth: Date,
+  range: DashboardDateRange,
 ): Promise<TransactionRow[]> {
   // get this month expenses
   // I am supposed to put .gte("posted_at", firstDayOfMonth.toISOString()) but for demonstrorate purpose
@@ -53,9 +53,10 @@ async function getThisMonthExpenses(
       "id, account_id, category_id, posted_at, amount, merchant, note, category:categories(name, kind)",
     )
     .eq("user_id", user.id)
+    .or("is_removed.is.null,is_removed.eq.false")
     .lt("amount", 0)
     .gte("posted_at", "2026-04-23 00:00:00+00")
-    .lt("posted_at", firstDayOfNextMonth.toISOString())
+    .lt("posted_at", range.nextMonthStartIso)
     .order("posted_at", { ascending: false });
 
   if (error) {
@@ -69,16 +70,16 @@ async function getThisMonthExpenses(
 async function getThisMonthIncome(
   user: User,
   supabase: SupabaseClient,
-  firstDayOfMonth: Date,
-  firstDayOfNextMonth: Date,
+  range: DashboardDateRange,
 ): Promise<Transaction[]> {
   const { data: income, error } = await supabase
     .from("transactions")
     .select("id, account_id, category_id, posted_at, amount, merchant, note")
     .eq("user_id", user.id)
+    .or("is_removed.is.null,is_removed.eq.false")
     .gt("amount", 0)
-    .gte("posted_at", firstDayOfMonth.toISOString())
-    .lt("posted_at", firstDayOfNextMonth.toISOString())
+    .gte("posted_at", range.monthStartIso)
+    .lt("posted_at", range.nextMonthStartIso)
     .order("posted_at", { ascending: false });
 
   if (error) {
@@ -92,8 +93,7 @@ async function getThisMonthIncome(
 async function getRecentTransactions(
   user: User,
   supabase: SupabaseClient,
-  firstDayOfMonth: Date,
-  firstDayOfNextMonth: Date,
+  range: DashboardDateRange,
 ): Promise<TransactionRow[]> {
   const { data: recentTransactions, error } = await supabase
     .from("transactions")
@@ -106,8 +106,8 @@ async function getRecentTransactions(
     .limit(20);
 
   // later add
-  // .gte("posted_at", firstDayOfMonth.toISOString())
-  // .lt("posted_at", firstDayOfNextMonth.toISOString())
+  // .gte("posted_at", range.monthStartIso)
+  // .lt("posted_at", range.nextMonthStartIso)
   if (error) {
     throw new Error("Failed to fetch recent transactions");
   }
@@ -121,12 +121,10 @@ async function getRecentTransactions(
 async function getTodayExpenses(
   user: User,
   supabase: SupabaseClient,
-  today: Date,
+  range: DashboardDateRange,
 ) {
-  const midnight = new Date(today);
-  midnight.setHours(0, 0, 0, 0);
   const { data, error } = await supabase.rpc("get_daily_expenses", {
-    start_ts: midnight.toISOString(),
+    start_ts: range.todayStartIso,
   });
   console.log(data);
   // const { data: todayExpensesArr, error } = await supabase
@@ -148,14 +146,13 @@ async function getTodayExpenses(
 async function getTotalMonthlyExpenses(
   user: User,
   supabase: SupabaseClient,
-  firstDayOfMonth: Date,
-  firstDayOfNextMonth: Date,
+  range: DashboardDateRange,
 ): Promise<number> {
   // here rpc is created and calling that rpc
-  console.log(firstDayOfMonth.toISOString(), firstDayOfNextMonth.toISOString());
+
   const { data, error } = await supabase.rpc("get_monthly_expense_total", {
-    start_ts: firstDayOfMonth.toISOString(),
-    end_ts: firstDayOfNextMonth.toISOString(),
+    start_ts: range.monthStartIso,
+    end_ts: range.nextMonthStartIso,
   });
   // const { data: monthlyExpenses, error } = await supabase
   //   .from("transactions")
@@ -178,19 +175,13 @@ async function getTotalMonthlyExpenses(
 async function getSpendingByCategory(
   user: User,
   supabase: SupabaseClient,
-  firstDayOfMonth: Date,
-  firstDayOfNextMonth: Date,
+  range: DashboardDateRange,
 ): Promise<SpendingByCategory[]> {
   // [ { categoryName:string, amount: number, percentage: number }...  ]
 
   // this return [] of TransactionRow
   // You only need this 1 db query
-  const thisMonthSpendings = await getThisMonthExpenses(
-    user,
-    supabase,
-    firstDayOfMonth,
-    firstDayOfNextMonth,
-  );
+  const thisMonthSpendings = await getThisMonthExpenses(user, supabase, range);
 
   const categAmountMap = new Map<string, number>();
 
@@ -238,13 +229,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     return { ok: true, hasPlaidItems: false };
   }
 
-  const today = new Date(); // server time => What's wrong with server time?
-  const firstDayOfMonth = new Date(
-    Date.UTC(today.getFullYear(), today.getMonth(), 1),
-  );
-  const firstDayOfNextMonth = new Date(
-    Date.UTC(today.getFullYear(), today.getMonth() + 1, 1),
-  );
+  const range = getDashboardDateRange("America/Vancouver");
 
   const [
     monthlyIncome,
@@ -253,16 +238,11 @@ export async function getDashboardData(): Promise<DashboardData> {
     todayTotal,
     spendingByCategory,
   ] = await Promise.all([
-    getThisMonthIncome(user, supabase, firstDayOfMonth, firstDayOfNextMonth),
-    getRecentTransactions(user, supabase, firstDayOfMonth, firstDayOfNextMonth),
-    getTotalMonthlyExpenses(
-      user,
-      supabase,
-      firstDayOfMonth,
-      firstDayOfNextMonth,
-    ),
-    getTodayExpenses(user, supabase, today),
-    getSpendingByCategory(user, supabase, firstDayOfMonth, firstDayOfNextMonth),
+    getThisMonthIncome(user, supabase, range),
+    getRecentTransactions(user, supabase, range),
+    getTotalMonthlyExpenses(user, supabase, range),
+    getTodayExpenses(user, supabase, range),
+    getSpendingByCategory(user, supabase, range),
   ]);
 
   return {

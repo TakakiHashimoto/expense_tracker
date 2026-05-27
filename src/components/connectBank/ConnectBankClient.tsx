@@ -41,38 +41,37 @@ export default function ConnectBank() {
 
   const router = useRouter();
 
-  async function linkTokenRequest() {
-    try {
-      // set the status first
-      setStatus("loading_link_token");
-      setFrontError(null);
-
-      const res = await fetch(`/api/plaid/link-token`, { method: "POST" });
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(getErrorMessage(data, "Failed to get link_token"));
-      }
-
-      const { link_token } = data;
-      if (!link_token) {
-        throw new Error("Bank connection setup failed. Try again.");
-      }
-
-      setLinkToken(link_token);
-      setStatus("ready");
-    } catch (e) {
-      console.error("Failed to request Plaid link token", e);
-      setStatus("connect_error");
-      setFrontError(
-        e instanceof Error
-          ? e.message
-          : "Could not start bank connection. Please try again",
-      );
-    }
-  }
-
   useEffect(() => {
+    async function linkTokenRequest() {
+      try {
+        // set the status first
+        setStatus("loading_link_token");
+        setFrontError(null);
+
+        const res = await fetch(`/api/plaid/link-token`, { method: "POST" });
+
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(getErrorMessage(data, "Failed to get link_token"));
+        }
+
+        const { link_token } = data;
+        if (!link_token) {
+          throw new Error("Bank connection setup failed. Try again.");
+        }
+
+        setLinkToken(link_token);
+        setStatus("ready");
+      } catch (e) {
+        console.error("Failed to request Plaid link token", e);
+        setStatus("connect_error");
+        setFrontError(
+          e instanceof Error
+            ? e.message
+            : "Could not start bank connection. Please try again",
+        );
+      }
+    }
     linkTokenRequest();
   }, []);
 

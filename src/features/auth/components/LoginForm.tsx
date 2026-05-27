@@ -163,7 +163,7 @@ export default function LoginForm() {
           </form>
           <div className="mt-8 pt-8 border-t border-outline-variant/15 text-center">
             <p className="text-on-surface-variant text-sm">
-              Don't have an account?
+              Don&apos;t have an account?
               <Link
                 href="/signup"
                 className="text-primary font-bold ml-1 hover:underline underline-offset-4"

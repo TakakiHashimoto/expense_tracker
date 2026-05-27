@@ -5,7 +5,6 @@ import Link from "next/link";
 import RecentTransactions from "../components/RecentTransactions";
 import SpendingByCategory from "../components/SpendingByCategory";
 import DashboardSidebar from "../components/DashboardSidebar";
-import Spinner from "@/components/common/Spinner";
 
 type Props = { initialValue: DashboardData };
 
@@ -26,7 +25,7 @@ export default function DashboardClient({ initialValue }: Props) {
   if (!initialValue.hasPlaidItems) {
     return (
       <div className="">
-        <p>You don't have your account connected</p>
+        <p>You don&apos;t have your account connected</p>
         <Link
           href="/connect-bank"
           className="w-fit bg-linear-to-r from-primary to-primary-container text-on-primary px-10 py-5 rounded-xl font-bold text-lg active:scale-95 transition-transform shadow-[0_0_20px_rgba(78,222,163,0.15)] flex items-center gap-3"
