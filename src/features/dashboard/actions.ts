@@ -224,7 +224,7 @@ async function getDashboardAccounts(
     subtype: string | null;
     is_active: boolean;
     mask: string | null;
-    plaid_item: { institution_name: string | null }[];
+    plaid_item: { institution_name: string | null } | null;
   };
 
   const { data: accountsData, error: accountsError } = await supabase
@@ -239,7 +239,9 @@ async function getDashboardAccounts(
     throw new Error("Failed to fetch accounts");
   }
 
-  const accountRows = (accountsData ?? []) as AccountRow[];
+  const accountRows = (accountsData ?? []) as unknown as AccountRow[];
+
+  console.log(JSON.stringify(accountsData?.[0], null, 2));
 
   const result = accountRows.map((account) => ({
     id: account.id,
@@ -248,7 +250,7 @@ async function getDashboardAccounts(
     subtype: account.subtype,
     mask: account.mask,
     isActive: account.is_active,
-    institutionName: account.plaid_item[0]?.institution_name ?? null,
+    institutionName: account.plaid_item?.institution_name ?? null,
   }));
 
   return result;

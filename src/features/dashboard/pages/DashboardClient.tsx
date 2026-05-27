@@ -5,6 +5,7 @@ import Link from "next/link";
 import RecentTransactions from "../components/RecentTransactions";
 import SpendingByCategory from "../components/SpendingByCategory";
 import DashboardSidebar from "../components/DashboardSidebar";
+import ConnectedAccounts from "../components/ConnectedAccounts";
 
 type Props = { initialValue: DashboardData };
 
@@ -62,6 +63,10 @@ export default function DashboardClient({ initialValue }: Props) {
             value={formatValue(initialValue.stats.recentActivities, "count")}
             type="recent-activities"
           />
+        </section>
+
+        <section className="mb-4">
+          <ConnectedAccounts accounts={initialValue.accounts} />
         </section>
 
         {/* Recent transactions */}
