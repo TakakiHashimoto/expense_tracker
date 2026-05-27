@@ -56,7 +56,7 @@ async function getThisMonthExpenses(
     .eq("user_id", user.id)
     .or("is_removed.is.null,is_removed.eq.false")
     .lt("amount", 0)
-    .gte("posted_at", "2026-04-23 00:00:00+00")
+    .gte("posted_at", range.monthStartIso)
     .lt("posted_at", range.nextMonthStartIso)
     .order("posted_at", { ascending: false });
 
