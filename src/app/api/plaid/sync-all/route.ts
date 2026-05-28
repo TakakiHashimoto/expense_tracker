@@ -124,11 +124,14 @@ export async function POST() {
 
     const plaidError = getPlaidError(e);
     if (plaidError?.error_code === "ITEM_LOGIN_REQUIRED") {
-      return NextResponse.json({
-        error: "ITEM_LOGIN_REQUIRED",
-        message: "Your bank connection needs to be updated.",
-        plaidItemId: failedPlaidItemId,
-      });
+      return NextResponse.json(
+        {
+          error: "ITEM_LOGIN_REQUIRED",
+          message: "Your bank connection needs to be updated.",
+          plaidItemId: failedPlaidItemId,
+        },
+        { status: 409 },
+      );
     }
     return NextResponse.json(
       { error: "Failed to sync dashboard transactions" },
