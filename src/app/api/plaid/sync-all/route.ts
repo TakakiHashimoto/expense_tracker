@@ -10,7 +10,20 @@ const plaidClientId = process.env.PLAID_CLIENT_ID;
 const plaidEnv = process.env.PLAID_ENV || "sandbox";
 const plaidSecret = process.env.PLAID_SECRET;
 
+type PlaidErrorResponse = {
+  response?: { data?: { error_code?: string; error_message?: string } };
+};
+
+function getPlaidError(error: unknown) {
+  if (typeof error === "object" && error !== null && "response" in error) {
+    return (error as PlaidErrorResponse).response?.data ?? null;
+  }
+
+  return null;
+}
+
 export async function POST() {
+  let failedPlaidItemId: string | null = null;
   try {
     const supabase = await createClient();
 
@@ -69,8 +82,9 @@ export async function POST() {
     let removedCount = 0;
 
     for (const plaidItem of data) {
+      failedPlaidItemId = plaidItem.id;
       const { data: secret, error: secretError } = await supabase
-        .from("plaid_items_secrets")
+        .from("plaid_item_secrets")
         .select("access_token")
         .eq("plaid_item_id", plaidItem.id)
         .single();
@@ -78,6 +92,11 @@ export async function POST() {
       if (secretError || !secret?.access_token) {
         throw new Error("Failed to fetch Plaid access token");
       }
+
+      console.log({
+        plaidItemId: plaidItem.id,
+        hasCursor: Boolean(plaidItem.transactions_cursor),
+      });
 
       const { added, modified, removed, cursor } = await syncTransactions(
         secret.access_token,
@@ -99,6 +118,18 @@ export async function POST() {
     });
   } catch (e) {
     console.error("Sync all transactions failed", e);
+    if (e && typeof e === "object" && "response" in e) {
+      console.error((e as any).response?.data);
+    }
+
+    const plaidError = getPlaidError(e);
+    if (plaidError?.error_code === "ITEM_LOGIN_REQUIRED") {
+      return NextResponse.json({
+        error: "ITEM_LOGIN_REQUIRED",
+        message: "Your bank connection needs to be updated.",
+        plaidItemId: failedPlaidItemId,
+      });
+    }
     return NextResponse.json(
       { error: "Failed to sync dashboard transactions" },
       { status: 500 },
