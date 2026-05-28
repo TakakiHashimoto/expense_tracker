@@ -74,6 +74,7 @@ function SyncDashboardButton() {
         <button
           type="button"
           className="mt-2 text-xs font-bold text-primary underline underline-offset-4"
+          onClick={}
         >
           Update bank connection
         </button>
