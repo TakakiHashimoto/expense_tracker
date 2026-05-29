@@ -37,7 +37,7 @@ async function DashboardSidebar() {
         </Link>
         <Link
           className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-200 transition-all duration-300 ease-in-out active:scale-95 hover:bg-slate-800/40"
-          href="#"
+          href="/transactions"
         >
           <Receipt className="material-symbols-outlined" />
           <span>Transactions</span>

@@ -11,7 +11,7 @@ import { TransactionsPageData } from "./types";
 //   accountName: string | null;
 //   institutionName: string | null;
 
-export async function getRecentTransactions(): Promise<TransactionsPageData> {
+export async function getTransactionPageData(): Promise<TransactionsPageData> {
   const supabase = await createClient();
   const user = await grabUser(supabase);
   const { data: transactionData, error: transactionError } = await supabase
@@ -33,10 +33,10 @@ export async function getRecentTransactions(): Promise<TransactionsPageData> {
     name: t.merchant ?? "Unknown merchant",
     amount: Number(t.amount),
     date: t.posted_at,
-    categoryName: t.category[0]?.name ?? null,
-    categoryKind: t.category[0]?.kind ?? null,
-    accountName: t.account[0]?.name ?? null,
-    institutionName: t.account[0]?.plaid_item[0].institution_name ?? null,
+    categoryName: t.category?.name ?? null,
+    categoryKind: t.category?.kind ?? null,
+    accountName: t.account?.name ?? null,
+    institutionName: t.account?.plaid_item.institution_name ?? null,
   }));
 
   return { ok: true, transactions: result };
