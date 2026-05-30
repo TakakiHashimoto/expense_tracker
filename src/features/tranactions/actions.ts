@@ -11,6 +11,18 @@ import { TransactionsPageData } from "./types";
 //   accountName: string | null;
 //   institutionName: string | null;
 
+type TransactionQueryRowType = {
+  id: string;
+  merchant: string | null;
+  amount: number;
+  posted_at: string;
+  category: { name: string | null; kind: "income" | "expense" } | null;
+  account: {
+    name: string | null;
+    plaid_item: { institution_name: string | null } | null;
+  } | null;
+};
+
 export async function getTransactionPageData(): Promise<TransactionsPageData> {
   const supabase = await createClient();
   const user = await grabUser(supabase);
@@ -21,7 +33,8 @@ export async function getTransactionPageData(): Promise<TransactionsPageData> {
     )
     .eq("user_id", user.id)
     .order("posted_at", { ascending: false })
-    .limit(50);
+    .limit(50)
+    .returns<TransactionQueryRowType[]>();
 
   if (transactionError) {
     console.error("Failed to fetch transactions", transactionError);
@@ -36,7 +49,7 @@ export async function getTransactionPageData(): Promise<TransactionsPageData> {
     categoryName: t.category?.name ?? null,
     categoryKind: t.category?.kind ?? null,
     accountName: t.account?.name ?? null,
-    institutionName: t.account?.plaid_item.institution_name ?? null,
+    institutionName: t.account?.plaid_item?.institution_name ?? null,
   }));
 
   return { ok: true, transactions: result };
