@@ -1,6 +1,6 @@
-import { DashboardAccounts } from "../type";
+import { DashboardAccount } from "../type";
 
-type Props = { account: DashboardAccounts };
+type Props = { account: DashboardAccount };
 
 function AccountItem({ account }: Props) {
   const accountType = [account.type, account.subtype]

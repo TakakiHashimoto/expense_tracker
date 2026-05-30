@@ -45,14 +45,14 @@ function TransactionPageClient({ transactions }: Props) {
 
   function convertDate(date: string) {
     const extractedDate = date.split("T")[0];
-    const [_, monthNum, day] = extractedDate.split("-");
+    const [, monthNum, day] = extractedDate.split("-");
     const month = dateMonthMap[monthNum] ?? monthNum; // May
     return `${month}, ${day}`;
   }
 
   const transactionData = transactions.transactions;
 
-  const dateMap = new Map();
+  const dateMap = new Map<string, TransactionItem[]>();
 
   for (const transaction of transactionData) {
     const convertedDate = convertDate(transaction.date);
@@ -137,23 +137,34 @@ function TransactionPageClient({ transactions }: Props) {
           </button>
         </div>
       </section>
-      <section className="space-y-4">
-        {Array.from(dateMap.entries()).map(
-          ([key, value]) =>
-            value.length > 0 && (
-              <TransactionByDate
-                key={key}
-                convertedDate={key}
-                transactions={value}
-              />
-            ),
-        )}
-      </section>
-      <footer className="flex justify-center pt-10 pb-20">
-        <button className="px-10 py-4 bg-surface-container-low text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-all rounded-full text-sm font-bold active:scale-95">
-          View older activity
-        </button>
-      </footer>
+      {transactionData.length === 0 ? (
+        <section className="rounded-2xl bg-surface-container-low p-8">
+          <p className="text-on-surface-variant">
+            No transactions found yet. Try syncing your bank from the dashboard.
+          </p>
+        </section>
+      ) : (
+        <section className="space-y-4">
+          {Array.from(dateMap.entries()).map(
+            ([key, value]) =>
+              value.length > 0 && (
+                <TransactionByDate
+                  key={key}
+                  convertedDate={key}
+                  transactions={value}
+                />
+              ),
+          )}
+        </section>
+      )}
+
+      {transactionData.length > 0 && (
+        <footer className="flex justify-center pt-10 pb-20">
+          <button className="px-10 py-4 bg-surface-container-low text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-all rounded-full text-sm font-bold active:scale-95">
+            View older activity
+          </button>
+        </footer>
+      )}
     </div>
   );
 }

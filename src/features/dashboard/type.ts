@@ -27,7 +27,7 @@ export type SpendingByCategory = {
   percentage: number;
 };
 
-export type DashboardAccounts = {
+export type DashboardAccount = {
   id: string;
   name: string;
   type: string | null;
@@ -50,6 +50,6 @@ export type DashboardData =
       };
       recentTransactions: RecentTransaction[];
       spendingByCategory: SpendingByCategory[];
-      accounts: DashboardAccounts[];
+      accounts: DashboardAccount[];
     }
   | { ok: false; error: string };

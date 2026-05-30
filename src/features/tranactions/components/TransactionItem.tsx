@@ -21,15 +21,16 @@ function TransactionItemRow({ transaction }: Props) {
       </div>
       <div className="hidden md:block text-right">
         <p className="text-sm font-medium">
-          {" "}
           {transaction.institutionName ?? "Unknown institution"}
         </p>
         <p className="text-xs text-on-surface-variant">
-          {transaction.accountName}
+          {transaction.accountName ?? "Unkwon account"}
         </p>
       </div>
       <div className="text-right">
-        <p className="text-xl font-display font-bold text-tertiary">
+        <p
+          className={`text-xl font-display font-bold text-tertiary ${transaction.amount < 0 ? "text-tertiary" : "text-primary"}`}
+        >
           {formatAmount(transaction.amount)}
         </p>
       </div>

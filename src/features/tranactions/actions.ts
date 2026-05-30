@@ -14,9 +14,9 @@ import { TransactionsPageData } from "./types";
 type TransactionQueryRowType = {
   id: string;
   merchant: string | null;
-  amount: number;
+  amount: number | string;
   posted_at: string;
-  category: { name: string | null; kind: "income" | "expense" } | null;
+  category: { name: string | null; kind: "income" | "expense" | null } | null;
   account: {
     name: string | null;
     plaid_item: { institution_name: string | null } | null;
@@ -32,6 +32,7 @@ export async function getTransactionPageData(): Promise<TransactionsPageData> {
       "id, merchant, amount, posted_at, category: categories(name, kind), account: accounts(name, plaid_item: plaid_items(institution_name))",
     )
     .eq("user_id", user.id)
+    .eq("is_removed", false)
     .order("posted_at", { ascending: false })
     .limit(50)
     .returns<TransactionQueryRowType[]>();
