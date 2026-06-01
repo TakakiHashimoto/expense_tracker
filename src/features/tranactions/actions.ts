@@ -1,6 +1,6 @@
 import { grabUser } from "@/lib/getUser";
 import { createClient } from "@/lib/supabase/server";
-import { TransactionsPageData } from "./types";
+import { TransactionFilters, TransactionsPageData } from "./types";
 
 //   id: string;
 //   name: string;
@@ -16,6 +16,7 @@ type TransactionQueryRowType = {
   merchant: string | null;
   amount: number | string;
   posted_at: string;
+  category_id: string | null;
   category: { name: string | null; kind: "income" | "expense" | null } | null;
   account: {
     name: string | null;
@@ -23,13 +24,15 @@ type TransactionQueryRowType = {
   } | null;
 };
 
-export async function getTransactionPageData(): Promise<TransactionsPageData> {
+export async function getTransactionPageData(
+  filters: TransactionFilters,
+): Promise<TransactionsPageData> {
   const supabase = await createClient();
   const user = await grabUser(supabase);
   const { data: transactionData, error: transactionError } = await supabase
     .from("transactions")
     .select(
-      "id, merchant, amount, posted_at, category: categories(name, kind), account: accounts(name, plaid_item: plaid_items(institution_name))",
+      "id, merchant, amount, posted_at, category_id,  category: categories(name, kind), account: accounts(name, plaid_item: plaid_items(institution_name))",
     )
     .eq("user_id", user.id)
     .eq("is_removed", false)
@@ -42,7 +45,7 @@ export async function getTransactionPageData(): Promise<TransactionsPageData> {
     return { ok: false, error: "Failed to fetch transactiondata" };
   }
 
-  const result = transactionData.map((t) => ({
+  let result = transactionData.map((t) => ({
     id: t.id,
     name: t.merchant ?? "Unknown merchant",
     amount: Number(t.amount),
@@ -52,6 +55,19 @@ export async function getTransactionPageData(): Promise<TransactionsPageData> {
     accountName: t.account?.name ?? null,
     institutionName: t.account?.plaid_item?.institution_name ?? null,
   }));
+
+  // apply filters
+  if (filters.type === "income") {
+    result = result.filter((t) => t.categoryKind === "income");
+  }
+
+  if (filters.type === "expense") {
+    result = result.filter((t) => t.categoryKind === "expense");
+  }
+
+  if (filters.type === "uncategorized") {
+    result = result.filter((t) => t.categoryName === null);
+  }
 
   return { ok: true, transactions: result };
 }

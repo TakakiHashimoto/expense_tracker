@@ -1,9 +1,17 @@
 import { formatAmount } from "@/lib/formatValue";
-import { TransactionItem, TransactionsPageData } from "../types";
+import {
+  TransactionFilters,
+  TransactionItem,
+  TransactionsPageData,
+} from "../types";
 import TransactionStats from "../components/TransactionStats";
 import TransactionByDate from "../components/TransactionByDate";
+import Link from "next/link";
 
-type Props = { transactions: TransactionsPageData };
+type Props = {
+  transactions: TransactionsPageData;
+  filters: TransactionFilters;
+};
 
 // {
 //   id: string;
@@ -31,7 +39,7 @@ const dateMonthMap: Record<string, string> = {
   "12": "Dec",
 };
 
-function TransactionPageClient({ transactions }: Props) {
+function TransactionPageClient({ transactions, filters }: Props) {
   if (!transactions.ok) {
     return (
       <div className="pt-32 pb-20 px-10 max-w-7xl mx-auto">
@@ -123,18 +131,30 @@ function TransactionPageClient({ transactions }: Props) {
           />
         </div>
         <div className="flex items-center gap-2 bg-surface-container-low p-1.5 rounded-xl">
-          <button className="px-6 py-2 rounded-lg text-sm font-semibold bg-surface-container-highest text-primary transition-all">
+          <Link
+            href="/transactions"
+            className="px-6 py-2 rounded-lg text-sm font-semibold bg-surface-container-highest text-primary transition-all"
+          >
             All
-          </button>
-          <button className="px-6 py-2 rounded-lg text-sm font-semibold text-on-surface-variant hover:text-on-surface transition-all">
+          </Link>
+          <Link
+            href="/transactions?type=income"
+            className="px-6 py-2 rounded-lg text-sm font-semibold text-on-surface-variant hover:text-on-surface transition-all"
+          >
             Income
-          </button>
-          <button className="px-6 py-2 rounded-lg text-sm font-semibold text-on-surface-variant hover:text-on-surface transition-all">
+          </Link>
+          <Link
+            href="/transactions?type=expense"
+            className="px-6 py-2 rounded-lg text-sm font-semibold text-on-surface-variant hover:text-on-surface transition-all"
+          >
             Expenses
-          </button>
-          <button className="px-6 py-2 rounded-lg text-sm font-semibold text-on-surface-variant hover:text-on-surface transition-all">
+          </Link>
+          <Link
+            href="/transactions?type=uncategorized"
+            className="px-6 py-2 rounded-lg text-sm font-semibold text-on-surface-variant hover:text-on-surface transition-all"
+          >
             Uncategorized
-          </button>
+          </Link>
         </div>
       </section>
       {transactionData.length === 0 ? (
