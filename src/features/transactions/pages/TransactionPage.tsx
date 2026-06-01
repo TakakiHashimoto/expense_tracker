@@ -24,6 +24,10 @@ type Props = {
 //   institutionName: string | null;
 // };
 
+const activeFilterClass = "bg-surface-container-highest text-primary";
+
+const inactiveFilterClass = "text-on-surface-variant hover:text-on-surface";
+
 const dateMonthMap: Record<string, string> = {
   "01": "Jan",
   "02": "Feb",
@@ -133,25 +137,25 @@ function TransactionPageClient({ transactions, filters }: Props) {
         <div className="flex items-center gap-2 bg-surface-container-low p-1.5 rounded-xl">
           <Link
             href="/transactions"
-            className="px-6 py-2 rounded-lg text-sm font-semibold bg-surface-container-highest text-primary transition-all"
+            className={`px-6 py-2 rounded-lg text-sm font-semibold ${filters.type === "all" ? activeFilterClass : inactiveFilterClass} transition-all`}
           >
             All
           </Link>
           <Link
             href="/transactions?type=income"
-            className="px-6 py-2 rounded-lg text-sm font-semibold text-on-surface-variant hover:text-on-surface transition-all"
+            className={`px-6 py-2 rounded-lg text-sm font-semibold ${filters.type === "income" ? activeFilterClass : inactiveFilterClass} transition-all`}
           >
             Income
           </Link>
           <Link
             href="/transactions?type=expense"
-            className="px-6 py-2 rounded-lg text-sm font-semibold text-on-surface-variant hover:text-on-surface transition-all"
+            className={`px-6 py-2 rounded-lg text-sm font-semibold ${filters.type === "expense" ? activeFilterClass : inactiveFilterClass} transition-all`}
           >
             Expenses
           </Link>
           <Link
             href="/transactions?type=uncategorized"
-            className="px-6 py-2 rounded-lg text-sm font-semibold text-on-surface-variant hover:text-on-surface transition-all"
+            className={`px-6 py-2 rounded-lg text-sm font-semibold ${filters.type === "uncategorized" ? activeFilterClass : inactiveFilterClass} transition-all`}
           >
             Uncategorized
           </Link>

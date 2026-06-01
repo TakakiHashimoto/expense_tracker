@@ -1,10 +1,11 @@
-import { getTransactionPageData } from "@/features/tranactions/actions";
-import TransactionPageClient from "@/features/tranactions/pages/TransactionPage";
-import { parseTransactionTypeFilter } from "@/features/tranactions/types";
+import { getTransactionPageData } from "@/features/transactions/actions";
+import TransactionPageClient from "@/features/transactions/pages/TransactionPage";
+import { parseTransactionTypeFilter } from "@/features/transactions/types";
 
 type Props = { searchParams: Promise<{ type?: string }> };
 
 async function TransactionPage({ searchParams }: Props) {
+  // This is how Nexjs catches the params
   const params = await searchParams;
   const filters = { type: parseTransactionTypeFilter(params.type) };
 

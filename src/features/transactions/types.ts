@@ -3,6 +3,7 @@ export type TransactionItem = {
   name: string;
   amount: number;
   date: string;
+  categoryId: string | null;
   categoryName: string | null;
   categoryKind: "income" | "expense" | null;
   accountName: string | null;

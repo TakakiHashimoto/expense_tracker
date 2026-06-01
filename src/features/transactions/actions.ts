@@ -42,7 +42,7 @@ export async function getTransactionPageData(
 
   if (transactionError) {
     console.error("Failed to fetch transactions", transactionError);
-    return { ok: false, error: "Failed to fetch transactiondata" };
+    return { ok: false, error: "Failed to fetch transactions" };
   }
 
   let result = transactionData.map((t) => ({
@@ -50,6 +50,7 @@ export async function getTransactionPageData(
     name: t.merchant ?? "Unknown merchant",
     amount: Number(t.amount),
     date: t.posted_at,
+    categoryId: t.category_id,
     categoryName: t.category?.name ?? null,
     categoryKind: t.category?.kind ?? null,
     accountName: t.account?.name ?? null,
@@ -66,7 +67,7 @@ export async function getTransactionPageData(
   }
 
   if (filters.type === "uncategorized") {
-    result = result.filter((t) => t.categoryName === null);
+    result = result.filter((t) => t.categoryId === null);
   }
 
   return { ok: true, transactions: result };
