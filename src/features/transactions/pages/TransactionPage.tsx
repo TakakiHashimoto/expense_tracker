@@ -13,17 +13,6 @@ type Props = {
   filters: TransactionFilters;
 };
 
-// {
-//   id: string;
-//   name: string;
-//   amount: number;
-//   date: string;
-//   categoryName: string | null;
-//   categoryKind: "income" | "expense" | null;
-//   accountName: string | null;
-//   institutionName: string | null;
-// };
-
 const activeFilterClass = "bg-surface-container-highest text-primary";
 
 const inactiveFilterClass = "text-on-surface-variant hover:text-on-surface";
@@ -105,7 +94,8 @@ function TransactionPageClient({ transactions, filters }: Props) {
   ];
 
   return (
-    <div className="pt-32 pb-20 px-10 max-w-7xl mx-auto space-y-10">
+    <div className="pt-15 pb-20 px-10 max-w-7xl mx-auto space-y-10">
+      <Link href="/dashboard">GO BACK</Link>
       <section>
         <h1 className="text-4xl font-black tracking-tight text-on-surface">
           Transactions
