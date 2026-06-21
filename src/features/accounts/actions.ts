@@ -37,7 +37,9 @@ export async function getAccountPageData(): Promise<AccountPageData> {
     const plaidItemId = account.plaid_item?.id || "Unknown";
     const institutionName = account.plaid_item?.institution_name || "Unknown";
 
-    const reshaped: AccountPageInstitution = {
+    const existingInstitution = accountMap.get(plaidItemId);
+
+    const reshaped: AccountPageInstitution = existingInstitution ?? {
       plaidItemId,
       institutionName,
       status: account.plaid_item?.status || "unknown",

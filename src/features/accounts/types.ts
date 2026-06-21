@@ -13,6 +13,12 @@ export type AccountQueryRowType = {
   } | null;
 };
 
+export type HealthType =
+  | "Healthy"
+  | "need_update"
+  | "sync_failed"
+  | "never_synced";
+
 export type AccountPageAccount = {
   id: string;
   name: string;
