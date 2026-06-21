@@ -18,7 +18,7 @@ function AccountItem({ account }: Props) {
       </div>
       <div className="text-right">
         <p className="text-on-surface font-bold text-base">
-          ${account.currentBalance}
+          ${account.currentBalance ?? "-"}
         </p>
 
         <ChevronRight className="material-symbols-outlined text-on-surface-variant text-lg group-hover:translate-x-1 transition-transform" />
