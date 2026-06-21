@@ -1,6 +1,8 @@
 // Here, exchange public token to access token and store access token and plaid items to database
 
 import { grabUser } from "@/features/dashboard/actions";
+import { fetchPlaidAccounts } from "@/features/plaid/server/accounts";
+import { persistPlaidAccounts } from "@/features/plaid/server/persitstPlaidAccounts";
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { Configuration, PlaidApi, PlaidEnvironments } from "plaid";
@@ -8,15 +10,6 @@ import { Configuration, PlaidApi, PlaidEnvironments } from "plaid";
 const plaidClientId = process.env.PLAID_CLIENT_ID;
 const plaidEnv = process.env.PLAID_ENV || "sandbox";
 const plaidSecret = process.env.PLAID_SECRET;
-
-type PlaidLinkAccount = {
-  id: string;
-  name: string;
-  mask: string | null;
-  type: string; // you can tighten later to union if you want
-  subtype: string | null;
-  verification_status?: string | null;
-};
 
 export async function POST(request: NextRequest) {
   try {
@@ -42,6 +35,7 @@ export async function POST(request: NextRequest) {
 
     const user = await grabUser(supabase);
 
+    // destructure  client-sent publick_token, neccessary for exchanging access_token
     const { public_token, metadata } = await request.json();
 
     if (!public_token) {
@@ -51,6 +45,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // check for existing plaid_item
     const { count, error: existingError } = await supabase
       .from("plaid_items")
       .select("id", { count: "exact", head: true })
@@ -79,7 +74,9 @@ export async function POST(request: NextRequest) {
 
     const institutionName = metadata?.institution?.name ?? null;
     const institutionId = metadata?.institution?.institution_id ?? null;
-    const accounts: PlaidLinkAccount[] = metadata?.accounts ?? [];
+    // get authorative accounts from plaid
+    const accounts = await fetchPlaidAccounts(client, access_token);
+    const snapshotTime = new Date().toISOString();
 
     // fill up the plaid_item database
     const { data, error } = await supabase
@@ -90,6 +87,9 @@ export async function POST(request: NextRequest) {
         institution_id: institutionId,
         institution_name: institutionName,
         transactions_cursor: null,
+        status: "active",
+        last_sync_status: "never-synced",
+        last_sync_error: null,
       })
       .select("id")
       .single();
@@ -104,8 +104,8 @@ export async function POST(request: NextRequest) {
     // database id for plaid_items
     const plaidItemUuid = data.id;
 
-    // add access_token and item_id to database
     try {
+      // add access_token and item_id to database
       const { error: plaidSecretsError } = await supabase
         .from("plaid_item_secrets")
         .insert({ access_token: access_token, plaid_item_id: plaidItemUuid });
@@ -115,24 +115,13 @@ export async function POST(request: NextRequest) {
       }
 
       // add accounts to database
-      const addAccounts = accounts.map((account) => ({
-        user_id: user.id,
-        type: account.type,
-        name: account.name,
-        is_active: true,
-        plaid_item_id: plaidItemUuid,
-        plaid_account_id: account.id,
-        mask: account.mask,
-        subtype: account.subtype,
-      }));
-
-      const { error: accountError } = await supabase
-        .from("accounts")
-        .insert(addAccounts);
-
-      if (accountError) {
-        throw accountError;
-      }
+      await persistPlaidAccounts({
+        supabase,
+        userId: user.id,
+        plaidItemUuid,
+        accounts,
+        snapshotTime,
+      });
     } catch (writeError) {
       console.error("Rolling back failed Plaid exchange writes:", writeError);
 

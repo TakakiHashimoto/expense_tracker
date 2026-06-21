@@ -27,10 +27,6 @@ export async function persistSyncResult(
       kind: "income" | "expense";
       name: string;
     }) {
-      // 1. select category by user_id + kind + name
-      // 2. if found, return id
-      // 3. if not found, insert
-      // 4. return inserted id
       const { data, error } = await supabase
         .from("categories")
         .upsert(
@@ -110,6 +106,29 @@ export async function persistSyncResult(
 
       if (addedError) {
         throw new Error("Something went wrong");
+      }
+
+      // update plaid_items
+      const completedAt = new Date().toISOString();
+      const { data: updatedItem, error: updateError } = await supabase
+        .from("plaid_items")
+        .update({
+          transactions_cursor: cursor,
+          status: "active",
+          last_sync_status: "succeeded",
+          last_sync_error: null,
+          last_sync_at: completedAt,
+          updated_at: completedAt,
+        })
+        .eq("id", itemUuid)
+        .eq("user_id", user.id)
+        .select("id")
+        .single();
+
+      if (updateError || !updatedItem) {
+        throw new Error("Failed to save successful sync state", {
+          cause: updateError,
+        });
       }
     }
 
