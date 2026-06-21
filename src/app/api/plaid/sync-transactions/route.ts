@@ -7,6 +7,8 @@ import { persistSyncResult } from "@/features/plaid/server/db";
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { Configuration, PlaidApi, PlaidEnvironments } from "plaid";
+import { fetchPlaidAccounts } from "@/features/plaid/server/accounts";
+import { persistPlaidAccounts } from "@/features/plaid/server/persitstPlaidAccounts";
 
 const plaidClientId = process.env.PLAID_CLIENT_ID;
 const plaidEnv = process.env.PLAID_ENV || "sandbox";
@@ -79,6 +81,16 @@ export async function POST(request: NextRequest) {
       transactionCursor,
       client,
     );
+
+    const accounts = await fetchPlaidAccounts(client, access_token);
+    const snapshotTime = new Date().toISOString();
+    await persistPlaidAccounts({
+      supabase,
+      userId: user.id,
+      plaidItemUuid: plaid_item_uuid,
+      accounts,
+      snapshotTime,
+    });
 
     await persistSyncResult(added, modified, removed, cursor, plaid_item_uuid);
     // add those item to database.
