@@ -9,6 +9,11 @@ function AccountPageClient({ accounts }: Props) {
     0,
   );
 
+  const healthyAccounts = accounts.filter((acc) => acc.health === "healthy");
+  const actionRequiredAccounts = accounts.filter(
+    (acc) => acc.health === "needs_update",
+  );
+
   return (
     <main className="mt-24 px-6 space-y-10">
       <section className="flex justify-between items-end gap-4 py-4">
@@ -38,9 +43,13 @@ function AccountPageClient({ accounts }: Props) {
           </div>
           <div className="text-on-surface-variant font-label text-[11px] space-y-0.5">
             <div className="flex items-center justify-end gap-2">
-              <span className="text-primary">1 Healthy</span>
+              <span className="text-primary">
+                {healthyAccounts.length} Healthy
+              </span>
               <span className="w-1 h-1 rounded-full bg-outline-variant"></span>
-              <span className="text-tertiary">1 Action Required</span>
+              <span className="text-tertiary">
+                {actionRequiredAccounts.length} Action Required
+              </span>
             </div>
             <div className="text-[10px] opacity-60">Last Synced:</div>
           </div>
