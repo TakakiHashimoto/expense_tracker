@@ -7,17 +7,24 @@ export type AccountQueryRowType = {
   mask: string | null;
   plaid_item: {
     id: string;
-    institution_name: string | null;
-    last_sync_at: string | null;
-    status: string;
-  } | null;
+    institution_name: string;
+    last_sync_status: SyncStatus;
+    last_sync_error: string;
+    last_sync_at: string;
+    status: ConnectionStatus;
+  };
 };
 
-export type HealthType =
-  | "Healthy"
-  | "need_update"
+export type ConnectionStatus = "active" | "needs_update" | "disconnected";
+
+export type SyncStatus = "never_synced" | "syncing" | "succeeded" | "failed";
+
+export type ConnectionHealth =
+  | "healthy"
+  | "needs_update"
   | "sync_failed"
-  | "never_synced";
+  | "never_synced"
+  | "disconnected";
 
 export type AccountPageAccount = {
   id: string;
@@ -31,7 +38,10 @@ export type AccountPageAccount = {
 export type AccountPageInstitution = {
   plaidItemId: string;
   institutionName: string;
-  status: string;
+  connectionStatus: ConnectionStatus;
+  syncStatus: SyncStatus;
+  health: ConnectionHealth;
+  lastSyncError: string | null;
   lastSyncedAt: string | null;
   accounts: AccountPageAccount[];
 };

@@ -11,7 +11,7 @@ interface ArgTypes {
   plaidClient: PlaidApi;
   plaidItemUuid: string;
   accessToken: string;
-  transactionCursor: string;
+  transactionCursor: string | null;
   refreshAccount: boolean;
 }
 
@@ -22,7 +22,7 @@ export async function syncPlaidItem({
   plaidItemUuid,
   accessToken,
   transactionCursor,
-  refreshAccount = true,
+  refreshAccount,
 }: ArgTypes) {
   const { added, modified, removed, cursor } = await syncTransactions(
     accessToken,
@@ -30,18 +30,22 @@ export async function syncPlaidItem({
     plaidClient,
   );
 
-  const accounts = await fetchPlaidAccounts(plaidClient, accessToken);
-  const snapshotTime = new Date().toISOString();
-
-  refreshAccount &&
-    (await persistPlaidAccounts({
+  if (refreshAccount) {
+    const accounts = await fetchPlaidAccounts(plaidClient, accessToken);
+    const snapshotTime = new Date().toISOString();
+    await persistPlaidAccounts({
       supabase,
       userId: userId,
       plaidItemUuid: plaidItemUuid,
       accounts,
       snapshotTime,
-    }));
+    });
+  }
 
   await persistSyncResult(added, modified, removed, cursor, plaidItemUuid);
-  // add those item to database.
+  return {
+    addedCount: added.length,
+    modifiedCount: modified.length,
+    removedCount: removed.length,
+  };
 }

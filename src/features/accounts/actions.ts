@@ -5,6 +5,7 @@ import {
   AccountPageData,
   AccountPageInstitution,
 } from "./types";
+import { deriveConnectionHealth } from "./lib/lib.accounts";
 
 export async function getAccountPageData(): Promise<AccountPageData> {
   const supabase = await createClient();
@@ -15,7 +16,7 @@ export async function getAccountPageData(): Promise<AccountPageData> {
   const { data: accountData, error: accountError } = await supabase
     .from("accounts")
     .select(
-      "id, type, subtype, name, current_balance , plaid_item: plaid_items(id, institution_name, last_sync_at, status), mask",
+      "id, type, subtype, name, current_balance , plaid_item: plaid_items!inner(id, institution_name,status,last_sync_status,last_sync_error,last_sync_at), mask",
     )
     .eq("user_id", user.id)
     .eq("is_active", true)
@@ -32,18 +33,28 @@ export async function getAccountPageData(): Promise<AccountPageData> {
   const accountMap = new Map<string, AccountPageInstitution>();
 
   // reshape returned data into AccountPageInstitution
-
   for (const account of accountData) {
     const plaidItemId = account.plaid_item?.id || "Unknown";
     const institutionName = account.plaid_item?.institution_name || "Unknown";
+    const syncStatus = account.plaid_item?.last_sync_status || "never_synced";
 
     const existingInstitution = accountMap.get(plaidItemId);
+
+    // define health: If last_sync_status === "succeed"
+    const health = deriveConnectionHealth({
+      connectionStatus: account.plaid_item.status,
+      syncStatus: syncStatus,
+      lastSyncedAt: account.plaid_item.last_sync_at,
+    });
 
     const reshaped: AccountPageInstitution = existingInstitution ?? {
       plaidItemId,
       institutionName,
-      status: account.plaid_item?.status || "unknown",
-      lastSyncedAt: account.plaid_item?.last_sync_at || "unknown",
+      connectionStatus: account.plaid_item.status,
+      syncStatus: syncStatus,
+      health: health,
+      lastSyncError: account.plaid_item.last_sync_error,
+      lastSyncedAt: account.plaid_item.last_sync_at,
       accounts: [],
     };
 

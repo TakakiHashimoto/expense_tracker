@@ -1,7 +1,6 @@
 // This page is for sync request from dashboard
-
-import { persistSyncResult } from "@/features/plaid/server/db";
-import { syncTransactions } from "@/features/plaid/server/sync";
+import { recordSyncFailure } from "@/features/plaid/server/recordSyncFailure";
+import { syncPlaidItem } from "@/features/plaid/server/syncPlaidItem";
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { Configuration, PlaidApi, PlaidEnvironments } from "plaid";
@@ -82,32 +81,65 @@ export async function POST() {
     let removedCount = 0;
 
     for (const plaidItem of data) {
-      failedPlaidItemId = plaidItem.id;
-      const { data: secret, error: secretError } = await supabase
-        .from("plaid_item_secrets")
-        .select("access_token")
-        .eq("plaid_item_id", plaidItem.id)
-        .single();
+      try {
+        failedPlaidItemId = plaidItem.id;
+        const { data: secret, error: secretError } = await supabase
+          .from("plaid_item_secrets")
+          .select("access_token")
+          .eq("plaid_item_id", plaidItem.id)
+          .single();
 
-      if (secretError || !secret?.access_token) {
-        throw new Error("Failed to fetch Plaid access token");
+        if (secretError || !secret?.access_token) {
+          throw new Error("Failed to fetch Plaid access token");
+        }
+
+        const result = await syncPlaidItem({
+          supabase: supabase,
+          plaidItemUuid: plaidItem.id,
+          plaidClient: client,
+          userId: user.id,
+          accessToken: secret.access_token,
+          transactionCursor: plaidItem.transactions_cursor,
+          refreshAccount: true,
+        });
+
+        addedCount += result.addedCount;
+        modifiedCount += result.modifiedCount;
+        removedCount += result.removedCount;
+      } catch (syncError) {
+        const plaidError = getPlaidError(syncError);
+        const errorCode = plaidError?.error_code ?? "SYNC_FAILED";
+        const requiresUpdate = errorCode === "ITEM_LOGIN_REQUIRED";
+        try {
+          await recordSyncFailure({
+            supabase,
+            userId: user.id,
+            plaidItemUuid: plaidItem.id,
+            errorCode,
+            requiresUpdate,
+          });
+        } catch (recordError) {
+          console.error("Failed to record sync failure", recordError);
+        }
+
+        if (requiresUpdate) {
+          return NextResponse.json(
+            {
+              error: "ITEM_LOGIN_REQUIRED",
+              message: "Your bank connection needs to be updated.",
+              plaidItemId: plaidItem.id,
+            },
+            { status: 409 },
+          );
+        }
+
+        console.error("Plaid Item synchronization failed", syncError);
+
+        return NextResponse.json(
+          { error: "Failed to sync transactions" },
+          { status: 500 },
+        );
       }
-
-      console.log({
-        plaidItemId: plaidItem.id,
-        hasCursor: Boolean(plaidItem.transactions_cursor),
-      });
-
-      const { added, modified, removed, cursor } = await syncTransactions(
-        secret.access_token,
-        plaidItem.transactions_cursor,
-        client,
-      );
-
-      await persistSyncResult(added, modified, removed, cursor, plaidItem.id);
-      addedCount += added.length;
-      modifiedCount += modified.length;
-      removedCount += removed.length;
     }
     return NextResponse.json({
       success: true,
@@ -118,21 +150,7 @@ export async function POST() {
     });
   } catch (e) {
     console.error("Sync all transactions failed", e);
-    if (e && typeof e === "object" && "response" in e) {
-      console.error((e as any).response?.data);
-    }
 
-    const plaidError = getPlaidError(e);
-    if (plaidError?.error_code === "ITEM_LOGIN_REQUIRED") {
-      return NextResponse.json(
-        {
-          error: "ITEM_LOGIN_REQUIRED",
-          message: "Your bank connection needs to be updated.",
-          plaidItemId: failedPlaidItemId,
-        },
-        { status: 409 },
-      );
-    }
     return NextResponse.json(
       { error: "Failed to sync dashboard transactions" },
       { status: 500 },

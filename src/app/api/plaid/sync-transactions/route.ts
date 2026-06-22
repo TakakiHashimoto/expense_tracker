@@ -1,15 +1,12 @@
 // here in this page syncs transactions data which is associated with access-token
 
 import { grabUser } from "@/features/dashboard/actions";
-import { syncTransactions } from "@/features/plaid/server/sync";
 
-import { persistSyncResult } from "@/features/plaid/server/db";
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { Configuration, PlaidApi, PlaidEnvironments } from "plaid";
-import { fetchPlaidAccounts } from "@/features/plaid/server/accounts";
-import { persistPlaidAccounts } from "@/features/plaid/server/persitstPlaidAccounts";
 import { recordSyncFailure } from "@/features/plaid/server/recordSyncFailure";
+import { syncPlaidItem } from "@/features/plaid/server/syncPlaidItem";
 
 const plaidClientId = process.env.PLAID_CLIENT_ID;
 const plaidEnv = process.env.PLAID_ENV || "sandbox";
@@ -90,35 +87,21 @@ export async function POST(request: NextRequest) {
     const client = new PlaidApi(config);
 
     try {
-      const { added, modified, removed, cursor } = await syncTransactions(
-        access_token,
-        transactionCursor,
-        client,
-      );
-
-      const accounts = await fetchPlaidAccounts(client, access_token);
-      const snapshotTime = new Date().toISOString();
-      await persistPlaidAccounts({
+      const data = await syncPlaidItem({
         supabase,
         userId: user.id,
+        plaidClient: client,
         plaidItemUuid: plaid_item_uuid,
-        accounts,
-        snapshotTime,
+        accessToken: access_token,
+        transactionCursor: transactionCursor,
+        refreshAccount: true,
       });
 
-      await persistSyncResult(
-        added,
-        modified,
-        removed,
-        cursor,
-        plaid_item_uuid,
-      );
-      // add those item to database.
       return NextResponse.json({
         success: true,
-        addedCount: added.length,
-        removedCount: removed.length,
-        modifiedCount: modified.length,
+        addedCount: data.addedCount,
+        removedCount: data.removedCount,
+        modifiedCount: data.modifiedCount,
       });
     } catch (syncError) {
       // When sycn failed, update sync status in plaid_items db
