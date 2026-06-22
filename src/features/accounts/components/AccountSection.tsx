@@ -63,7 +63,6 @@ const healthPresentation: Record<ConnectionHealth, HealthPresentation> = {
 function AccountSection({ institution }: Props) {
   const initialLetter = institution.institutionName.slice(0, 1);
   const presentation = healthPresentation[institution.health];
-  const requiresAttention = institution.health !== "healthy";
 
   return (
     <section className="space-y-4">

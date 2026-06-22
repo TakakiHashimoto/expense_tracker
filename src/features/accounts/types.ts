@@ -5,6 +5,7 @@ export type AccountQueryRowType = {
   current_balance: number | null;
   subtype: string | null;
   mask: string | null;
+  currency: string | null;
   plaid_item: {
     id: string;
     institution_name: string;
@@ -33,6 +34,7 @@ export type AccountPageAccount = {
   subtype: string | null;
   mask: string | null;
   currentBalance: number | null;
+  currency: string | null;
 };
 
 export type AccountPageInstitution = {

@@ -16,7 +16,7 @@ export async function getAccountPageData(): Promise<AccountPageData> {
   const { data: accountData, error: accountError } = await supabase
     .from("accounts")
     .select(
-      "id, type, subtype, name, current_balance , plaid_item: plaid_items!inner(id, institution_name,status,last_sync_status,last_sync_error,last_sync_at), mask",
+      "id, type, subtype, name,currency, current_balance , plaid_item: plaid_items!inner(id, institution_name,status,last_sync_status,last_sync_error,last_sync_at), mask",
     )
     .eq("user_id", user.id)
     .eq("is_active", true)
@@ -64,6 +64,7 @@ export async function getAccountPageData(): Promise<AccountPageData> {
       type: account.type,
       subtype: account.subtype,
       mask: account.mask,
+      currency: account.currency,
       currentBalance: account.current_balance,
     });
 

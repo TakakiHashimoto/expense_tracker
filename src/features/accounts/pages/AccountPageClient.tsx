@@ -53,7 +53,6 @@ function AccountPageClient({ accounts }: Props) {
                 {actionRequiredAccounts.length} Action Required
               </span>
             </div>
-            <div className="text-[15px] opacity-60">Last Synced:</div>
           </div>
         </div>
       </section>
