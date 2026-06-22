@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
         institution_name: institutionName,
         transactions_cursor: null,
         status: "active",
-        last_sync_status: "never_syncd",
+        last_sync_status: "never_synced",
         last_sync_error: null,
       })
       .select("id")

@@ -9,10 +9,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { Configuration, PlaidApi, PlaidEnvironments } from "plaid";
 import { fetchPlaidAccounts } from "@/features/plaid/server/accounts";
 import { persistPlaidAccounts } from "@/features/plaid/server/persitstPlaidAccounts";
+import { recordSyncFailure } from "@/features/plaid/server/recordSyncFailure";
 
 const plaidClientId = process.env.PLAID_CLIENT_ID;
 const plaidEnv = process.env.PLAID_ENV || "sandbox";
 const plaidSecret = process.env.PLAID_SECRET;
+
+type PlaidErrorResponse = {
+  response?: { data?: { error_code?: string; error_message?: string } };
+};
+
+function getPlaidError(error: unknown) {
+  if (typeof error === "object" && error !== null && "response" in error) {
+    return (error as PlaidErrorResponse).response?.data ?? null;
+  }
+
+  return null;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -76,30 +89,72 @@ export async function POST(request: NextRequest) {
 
     const client = new PlaidApi(config);
 
-    const { added, modified, removed, cursor } = await syncTransactions(
-      access_token,
-      transactionCursor,
-      client,
-    );
+    try {
+      const { added, modified, removed, cursor } = await syncTransactions(
+        access_token,
+        transactionCursor,
+        client,
+      );
 
-    const accounts = await fetchPlaidAccounts(client, access_token);
-    const snapshotTime = new Date().toISOString();
-    await persistPlaidAccounts({
-      supabase,
-      userId: user.id,
-      plaidItemUuid: plaid_item_uuid,
-      accounts,
-      snapshotTime,
-    });
+      const accounts = await fetchPlaidAccounts(client, access_token);
+      const snapshotTime = new Date().toISOString();
+      await persistPlaidAccounts({
+        supabase,
+        userId: user.id,
+        plaidItemUuid: plaid_item_uuid,
+        accounts,
+        snapshotTime,
+      });
 
-    await persistSyncResult(added, modified, removed, cursor, plaid_item_uuid);
-    // add those item to database.
-    return NextResponse.json({
-      success: true,
-      addedCount: added.length,
-      removedCount: removed.length,
-      modifiedCount: modified.length,
-    });
+      await persistSyncResult(
+        added,
+        modified,
+        removed,
+        cursor,
+        plaid_item_uuid,
+      );
+      // add those item to database.
+      return NextResponse.json({
+        success: true,
+        addedCount: added.length,
+        removedCount: removed.length,
+        modifiedCount: modified.length,
+      });
+    } catch (syncError) {
+      // When sycn failed, update sync status in plaid_items db
+      const plaidError = getPlaidError(syncError);
+      const errorCode = plaidError?.error_code ?? "SYNC_FAILED";
+      const requiresUpdate = errorCode === "ITEM_LOGIN_REQUIRED";
+      try {
+        await recordSyncFailure({
+          supabase,
+          userId: user.id,
+          plaidItemUuid: plaid_item_uuid,
+          errorCode,
+          requiresUpdate,
+        });
+      } catch (recordError) {
+        console.error("Failed to record sync failure", recordError);
+      }
+
+      if (requiresUpdate) {
+        return NextResponse.json(
+          {
+            error: "ITEM_LOGIN_REQUIRED",
+            message: "Your bank connection needs to be updated.",
+            plaidItemId: plaid_item_uuid,
+          },
+          { status: 409 },
+        );
+      }
+
+      console.error("Plaid Item synchronization failed", syncError);
+
+      return NextResponse.json(
+        { error: "Failed to sync transactions" },
+        { status: 500 },
+      );
+    }
   } catch (e) {
     console.error("Sync transactions failed", e);
     return NextResponse.json(

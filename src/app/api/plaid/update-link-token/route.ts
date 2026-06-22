@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
       { status: 200 },
     );
   } catch (e) {
-    console.error("Failed to create update link token", e);
+    console.error("Failed to create/update link token", e);
     return NextResponse.json(
       { error: "Failed to create update link token" },
       { status: 500 },
