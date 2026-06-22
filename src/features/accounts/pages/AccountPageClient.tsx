@@ -37,11 +37,13 @@ function AccountPageClient({ accounts }: Props) {
         <div className="flex flex-col items-end space-y-1.5 text-right pb-1">
           <div className="flex items-center gap-2 bg-surface-container-high px-3 py-1 rounded-full">
             <span className="text-primary text-[10px] font-bold">●</span>
-            <span className="text-on-surface-variant font-medium text-xs">
-              {accounts.length} Institutions
+            <span className="text-on-surface-variant font-medium text-sm">
+              {accounts.length === 1
+                ? `${accounts.length} Institution`
+                : `${accounts.length} Institutions`}
             </span>
           </div>
-          <div className="text-on-surface-variant font-label text-[11px] space-y-0.5">
+          <div className="text-on-surface-variant font-label text-[15px] space-y-0.5">
             <div className="flex items-center justify-end gap-2">
               <span className="text-primary">
                 {healthyAccounts.length} Healthy
@@ -51,7 +53,7 @@ function AccountPageClient({ accounts }: Props) {
                 {actionRequiredAccounts.length} Action Required
               </span>
             </div>
-            <div className="text-[10px] opacity-60">Last Synced:</div>
+            <div className="text-[15px] opacity-60">Last Synced:</div>
           </div>
         </div>
       </section>
