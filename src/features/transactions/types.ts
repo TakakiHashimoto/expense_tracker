@@ -1,6 +1,7 @@
 export type TransactionItem = {
   id: string;
   name: string;
+  merchant: string;
   amount: number;
   date: string;
   categoryId: string | null;

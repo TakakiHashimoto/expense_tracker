@@ -7,15 +7,13 @@ import {
 import TransactionStats from "../components/TransactionStats";
 import TransactionByDate from "../components/TransactionByDate";
 import Link from "next/link";
+import Search from "../components/Search";
+import TransactionTypeFilter from "../components/TransactionTypeFilter";
 
 type Props = {
   transactions: TransactionsPageData;
   filters: TransactionFilters;
 };
-
-const activeFilterClass = "bg-surface-container-highest text-primary";
-
-const inactiveFilterClass = "text-on-surface-variant hover:text-on-surface";
 
 const dateMonthMap: Record<string, string> = {
   "01": "Jan",
@@ -114,42 +112,8 @@ function TransactionPageClient({ transactions, filters }: Props) {
         ))}
       </section>
       <section className="flex flex-col md:flex-row gap-6 items-end justify-between">
-        <div className="flex items-center gap-4 bg-surface-container-lowest px-4 py-2 rounded-xl w-full max-w-md transition-all focus-within:bg-surface-container-low group">
-          <span className="material-symbols-outlined text-on-surface-variant group-focus-within:text-primary transition-colors">
-            search
-          </span>
-          <input
-            className="bg-transparent border-none focus:ring-0 text-sm text-on-surface w-full placeholder:text-on-surface-variant/40"
-            placeholder="Search merchants, categories, or amounts..."
-            type="text"
-          />
-        </div>
-        <div className="flex items-center gap-2 bg-surface-container-low p-1.5 rounded-xl">
-          <Link
-            href="/transactions"
-            className={`px-6 py-2 rounded-lg text-sm font-semibold ${filters.type === "all" ? activeFilterClass : inactiveFilterClass} transition-all`}
-          >
-            All
-          </Link>
-          <Link
-            href="/transactions?type=income"
-            className={`px-6 py-2 rounded-lg text-sm font-semibold ${filters.type === "income" ? activeFilterClass : inactiveFilterClass} transition-all`}
-          >
-            Income
-          </Link>
-          <Link
-            href="/transactions?type=expense"
-            className={`px-6 py-2 rounded-lg text-sm font-semibold ${filters.type === "expense" ? activeFilterClass : inactiveFilterClass} transition-all`}
-          >
-            Expenses
-          </Link>
-          <Link
-            href="/transactions?type=uncategorized"
-            className={`px-6 py-2 rounded-lg text-sm font-semibold ${filters.type === "uncategorized" ? activeFilterClass : inactiveFilterClass} transition-all`}
-          >
-            Uncategorized
-          </Link>
-        </div>
+        <Search placeholder="Search..." />
+        <TransactionTypeFilter filterType={filters.type} />
       </section>
       {transactionData.length === 0 ? (
         <section className="rounded-2xl bg-surface-container-low p-8">
