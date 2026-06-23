@@ -42,7 +42,7 @@ function ConnectedAccounts({ accounts }: Props) {
         </div>
         <Link
           className="text-primary text-sm font-bold hover:underline underline-offset-4"
-          href="#"
+          href="/accounts"
         >
           Manage Accounts
         </Link>

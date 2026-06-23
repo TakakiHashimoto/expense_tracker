@@ -1,3 +1,4 @@
+import Link from "next/link";
 import AccountSection from "../components/AccountSection";
 import { AccountPageInstitution } from "../types";
 
@@ -16,6 +17,7 @@ function AccountPageClient({ accounts }: Props) {
 
   return (
     <main className="mt-24 px-6 space-y-10">
+      <Link href="/dashboard">Go back</Link>
       <section className="flex justify-between items-end gap-4 py-4">
         <div className="flex flex-col">
           <span className="text-on-surface-variant font-label text-xs tracking-widest uppercase mb-1">
