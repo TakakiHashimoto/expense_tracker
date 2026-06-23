@@ -93,8 +93,7 @@ function TransactionPageClient({ transactions, filters }: Props) {
   ];
 
   return (
-    <div className="pt-15 pb-20 px-10 max-w-7xl mx-auto space-y-10">
-      <Link href="/dashboard">GO BACK</Link>
+    <div className="pt-15 pl-70 pb-20 px-10 max-w-7xl mx-auto space-y-10">
       <section>
         <h1 className="text-4xl font-black tracking-tight text-on-surface">
           Transactions
@@ -112,10 +111,12 @@ function TransactionPageClient({ transactions, filters }: Props) {
           />
         ))}
       </section>
-      <section className="flex flex-col md:flex-row gap-6 items-end justify-between">
+      <section className="flex flex-col gap-6 items-end justify-between">
         <Search placeholder="Search..." />
-        <TransactionSort sort={filters.sort} />
-        <TransactionTypeFilter filterType={filters.type} />
+        <div className="flex gap-2">
+          <TransactionSort sort={filters.sort} />
+          <TransactionTypeFilter filterType={filters.type} />
+        </div>
       </section>
       {transactionData.length === 0 ? (
         <section className="rounded-2xl bg-surface-container-low p-8">

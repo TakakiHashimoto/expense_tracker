@@ -16,9 +16,8 @@ function AccountPageClient({ accounts }: Props) {
   );
 
   return (
-    <main className="mt-24 px-6 space-y-10">
-      <Link href="/dashboard">Go back</Link>
-      <section className="flex justify-between items-end gap-4 py-4">
+    <main className="mt-24 px-6 space-y-10 pl-80">
+      <section className="flex justify-between items-end gap-4 py-4 pr-10">
         <div className="flex flex-col">
           <span className="text-on-surface-variant font-label text-xs tracking-widest uppercase mb-1">
             Total Assets
@@ -36,7 +35,7 @@ function AccountPageClient({ accounts }: Props) {
             </div>
           </div>
         </div>
-        <div className="flex flex-col items-end space-y-1.5 text-right pb-1">
+        <div className="flex flex-col items-end space-y-1.5 text-right pb-1 ">
           <div className="flex items-center gap-2 bg-surface-container-high px-3 py-1 rounded-full">
             <span className="text-primary text-[10px] font-bold">●</span>
             <span className="text-on-surface-variant font-medium text-sm">

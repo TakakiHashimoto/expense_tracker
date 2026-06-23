@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import DashboardSidebar from "@/features/dashboard/components/DashboardSidebar";
 
 export default async function AppLayout({
   children,
@@ -20,6 +21,7 @@ export default async function AppLayout({
 
   return (
     <>
+      <DashboardSidebar />
       {children}
       <ToastContainer
         position="top-center"
