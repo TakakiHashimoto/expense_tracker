@@ -76,7 +76,7 @@ function AccountSection({ institution }: Props) {
             <h2 className="font-headline font-bold text-lg text-on-surface">
               {institution.institutionName}
             </h2>
-            <p className="text-on-surface-variant text-[11px] font-medium tracking-wide">
+            <p className="text-on-surface-variant text-[15px] font-medium tracking-wide">
               last synced at: {formatLastSync(institution.lastSyncedAt)}
             </p>
           </div>

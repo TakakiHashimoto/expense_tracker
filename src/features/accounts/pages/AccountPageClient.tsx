@@ -16,13 +16,14 @@ function AccountPageClient({ accounts }: Props) {
   );
 
   return (
-    <main className="mt-24 px-6 space-y-10 pl-80">
-      <section className="flex justify-between items-end gap-4 py-4 pr-10">
+    <main className="mt-10 px-6 space-y-10 pl-80">
+      <h1 className="headline">Accounts</h1>
+      <section className="flex justify-between items-end gap-4 py-2 pr-10">
         <div className="flex flex-col">
           <span className="text-on-surface-variant font-label text-xs tracking-widest uppercase mb-1">
             Total Assets
           </span>
-          <div className="flex items-baseline gap-3">
+          <div className="flex items-end gap-3">
             <span className="text-8xl font-black text-on-surface leading-none tracking-tighter">
               {totalAccounts}
             </span>
