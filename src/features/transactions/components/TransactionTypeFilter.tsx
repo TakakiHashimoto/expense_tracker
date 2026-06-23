@@ -6,13 +6,6 @@ import type { TransactionTypeFilter } from "../types";
 const activeFilterClass = "bg-surface-container-highest text-primary";
 const inactiveFilterClass = "text-on-surface-variant hover:text-on-surface";
 
-const filters: { label: string; value: TransactionTypeFilter }[] = [
-  { label: "All", value: "all" },
-  { label: "Income", value: "income" },
-  { label: "Expenses", value: "expense" },
-  { label: "Uncategorized", value: "uncategorized" },
-];
-
 type Props = { filterType: TransactionTypeFilter };
 
 function buildHref({

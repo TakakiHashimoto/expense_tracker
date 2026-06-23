@@ -13,6 +13,18 @@ function Search({ placeholder }: { placeholder: string }) {
   const currentQuery = searchParams.get("q") ?? "";
   const [query, setQuery] = useState<string>(currentQuery);
 
+  function handleSearch(query: string) {
+    const params = new URLSearchParams(searchParams);
+
+    if (query) {
+      params.set("q", query);
+    } else {
+      params.delete("q");
+    }
+
+    replace(`${pathName}?${params.toString()}`);
+  }
+
   useEffect(() => {
     setQuery(currentQuery);
   }, [currentQuery]);
@@ -27,18 +39,6 @@ function Search({ placeholder }: { placeholder: string }) {
 
     return () => window.clearTimeout(setTimeoutId);
   }, [query, searchParams, pathName, replace]);
-
-  function handleSearch(query: string) {
-    const params = new URLSearchParams(searchParams);
-
-    if (query) {
-      params.set("q", query);
-    } else {
-      params.delete("q");
-    }
-
-    replace(`${pathName}?${params.toString()}`);
-  }
 
   return (
     <div className="flex items-center gap-4 bg-surface-container-lowest px-4 py-2 rounded-xl w-full max-w-md transition-all focus-within:bg-surface-container-low group">

@@ -9,6 +9,7 @@ import TransactionByDate from "../components/TransactionByDate";
 import Link from "next/link";
 import Search from "../components/Search";
 import TransactionTypeFilter from "../components/TransactionTypeFilter";
+import TransactionSort from "../components/TransactionSort";
 
 type Props = {
   transactions: TransactionsPageData;
@@ -113,6 +114,7 @@ function TransactionPageClient({ transactions, filters }: Props) {
       </section>
       <section className="flex flex-col md:flex-row gap-6 items-end justify-between">
         <Search placeholder="Search..." />
+        <TransactionSort sort={filters.sort} />
         <TransactionTypeFilter filterType={filters.type} />
       </section>
       {transactionData.length === 0 ? (

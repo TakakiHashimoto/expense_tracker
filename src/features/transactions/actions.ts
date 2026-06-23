@@ -25,22 +25,59 @@ type TransactionQueryRowType = {
   } | null;
 };
 
-type ArugementType = { filters: TransactionFilters; q: string };
+type ArgumentType = { filters: TransactionFilters; q: string };
 
 export async function getTransactionPageData({
   filters,
   q,
-}: ArugementType): Promise<TransactionsPageData> {
+}: ArgumentType): Promise<TransactionsPageData> {
   const supabase = await createClient();
   const user = await grabUser(supabase);
-  const { data: transactionData, error: transactionError } = await supabase
+
+  const shouldFilterCategoryKind =
+    filters.type === "income" || filters.type === "expense";
+
+  const categorySelect = shouldFilterCategoryKind
+    ? "category: categories!inner(name, kind)"
+    : "category: categories(name, kind)";
+
+  const sortColumnName =
+    filters.sort === "amount_asc" || filters.sort === "amount_desc"
+      ? "amount"
+      : "posted_at";
+  const sortOrder =
+    filters.sort === "amount_asc" || filters.sort === "date_asc"
+      ? { ascending: true }
+      : { ascending: false };
+
+  // shape the query first before actually fetching data
+  let query = supabase
     .from("transactions")
     .select(
-      "id, name, merchant, amount, posted_at, category_id,  category: categories(name, kind), account: accounts(name, plaid_item: plaid_items(institution_name))",
+      `id, name, merchant, amount, posted_at, category_id, ${categorySelect}, account: accounts(name, plaid_item: plaid_items(institution_name))`,
     )
     .eq("user_id", user.id)
-    .eq("is_removed", false)
-    .order("posted_at", { ascending: false })
+    .eq("is_removed", false);
+
+  if (q) {
+    query = query.or(`name.ilike.%${q}%,merchant.ilike.%${q}%`);
+  }
+
+  if (filters.type === "uncategorized") {
+    query = query.is("category_id", null);
+  }
+
+  if (filters.type === "income") {
+    query = query.eq("category.kind", "income");
+  }
+
+  if (filters.type === "expense") {
+    query = query.eq("category.kind", "expense");
+  }
+
+  const { data: transactionData, error: transactionError } = await query
+    .order(sortColumnName, sortOrder)
+    .limit(50)
     .returns<TransactionQueryRowType[]>();
 
   if (transactionError) {
@@ -48,7 +85,7 @@ export async function getTransactionPageData({
     return { ok: false, error: "Failed to fetch transactions" };
   }
 
-  let result = transactionData.map((t) => ({
+  const result = transactionData.map((t) => ({
     id: t.id,
     name: t.name ?? "Unknown",
     merchant: t.merchant ?? "Unknown merchant",
@@ -61,29 +98,5 @@ export async function getTransactionPageData({
     institutionName: t.account?.plaid_item?.institution_name ?? null,
   }));
 
-  // apply filters
-  if (filters.type === "income") {
-    result = result.filter((t) => t.categoryKind === "income");
-  }
-
-  if (filters.type === "expense") {
-    result = result.filter((t) => t.categoryKind === "expense");
-  }
-
-  if (filters.type === "uncategorized") {
-    result = result.filter((t) => t.categoryId === null);
-  }
-
-  if (q) {
-    result = result.filter((t) => {
-      return (
-        t.name.toLowerCase().includes(q) ||
-        t.merchant.toLowerCase().includes(q) ||
-        t.institutionName?.toLowerCase().includes(q) ||
-        t.categoryName?.toLowerCase().includes(q) ||
-        t.accountName?.toLowerCase().includes(q)
-      );
-    });
-  }
-  return { ok: true, transactions: result.slice(0, 50) };
+  return { ok: true, transactions: result };
 }

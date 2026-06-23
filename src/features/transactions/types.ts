@@ -22,7 +22,17 @@ export type TransactionTypeFilter =
   | "expense"
   | "uncategorized";
 
-export type TransactionFilters = { type: TransactionTypeFilter };
+// types for sorting
+export type TransactionSort =
+  | "date_desc"
+  | "date_asc"
+  | "amount_desc"
+  | "amount_asc";
+
+export type TransactionFilters = {
+  type: TransactionTypeFilter;
+  sort: TransactionSort;
+};
 
 export function parseTransactionTypeFilter(
   value: string | undefined,
@@ -32,4 +42,19 @@ export function parseTransactionTypeFilter(
   }
 
   return "all";
+}
+
+export function parseTransactionTypeSort(
+  value: string | undefined,
+): TransactionSort {
+  if (
+    value === "amount_desc" ||
+    value === "amount_asc" ||
+    value === "date_asc" ||
+    value === "date_desc"
+  ) {
+    return value;
+  }
+
+  return "date_desc";
 }

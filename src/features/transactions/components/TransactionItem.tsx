@@ -29,7 +29,7 @@ function TransactionItemRow({ transaction }: Props) {
       </div>
       <div className="text-right">
         <p
-          className={`text-xl font-display font-bold text-tertiary ${transaction.amount < 0 ? "text-tertiary" : "text-primary"}`}
+          className={`text-xl font-display font-bold ${transaction.categoryKind === "expense" ? "text-tertiary" : "text-primary"}`}
         >
           {formatAmount(transaction.amount)}
         </p>
