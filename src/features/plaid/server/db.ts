@@ -1,10 +1,12 @@
 import { grabUser } from "@/features/dashboard/actions";
 import { createClient } from "@/lib/supabase/server";
 import { normalizeCategory } from "@/lib/transactions.helper";
+import { SupabaseClient } from "@supabase/supabase-js";
 import { RemovedTransaction, Transaction } from "plaid";
 
 // take Plaid’s sync changes and apply those changes into your own database
 export async function persistSyncResult(
+  supabase: SupabaseClient,
   added: Transaction[],
   modified: Transaction[],
   removed: RemovedTransaction[],
@@ -12,7 +14,6 @@ export async function persistSyncResult(
   itemUuid: string,
 ) {
   try {
-    const supabase = await createClient();
     const user = await grabUser(supabase);
 
     // Plaid uses positive = money out, negative = money in.

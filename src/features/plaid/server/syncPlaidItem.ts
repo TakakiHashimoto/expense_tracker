@@ -42,7 +42,14 @@ export async function syncPlaidItem({
     });
   }
 
-  await persistSyncResult(added, modified, removed, cursor, plaidItemUuid);
+  await persistSyncResult(
+    supabase,
+    added,
+    modified,
+    removed,
+    cursor,
+    plaidItemUuid,
+  );
   return {
     addedCount: added.length,
     modifiedCount: modified.length,

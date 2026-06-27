@@ -12,7 +12,7 @@ const plaidClientId = process.env.PLAID_CLIENT_ID;
 const plaidEnv = process.env.PLAID_ENV || "sandbox";
 const plaidSecret = process.env.PLAID_SECRET;
 
-type PlaidErrorResponse = {
+export type PlaidErrorResponse = {
   response?: { data?: { error_code?: string; error_message?: string } };
 };
 
