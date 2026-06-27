@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PlaidWebhookBody } from "../type/plaidwebhook.type";
-import { createClient } from "@supabase/supabase-js";
 import { syncPlaidItem } from "@/features/plaid/server/syncPlaidItem";
 import { recordSyncFailure } from "@/features/plaid/server/recordSyncFailure";
 import { createPlaidClient, getPlaidError } from "../lib/plaid.helper";
@@ -93,17 +92,19 @@ export async function POST(req: NextRequest) {
       });
     } catch (recordError) {
       console.error("Failed to record sync failure", recordError);
+      return NextResponse.json(
+        { error: "Failed to record sync failure" },
+        { status: 500 },
+      );
     }
 
     if (requiresUpdate) {
-      return NextResponse.json(
-        {
-          error: "ITEM_LOGIN_REQUIRED",
-          message: "Your bank connection needs to be updated.",
-          plaidItemId: plaidItem.id,
-        },
-        { status: 409 },
-      );
+      return NextResponse.json({
+        ok: true,
+        error: "ITEM_LOGIN_REQUIRED",
+        message: "Your bank connection needs to be updated.",
+        plaidItemId: plaidItem.id,
+      });
     }
 
     console.error("Plaid Item synchronization failed", e);

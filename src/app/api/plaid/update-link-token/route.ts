@@ -1,12 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
-import {
-  Configuration,
-  CountryCode,
-  PlaidApi,
-  PlaidEnvironments,
-  Products,
-} from "plaid";
+import { CountryCode } from "plaid";
+import { createPlaidClient } from "../lib/plaid.helper";
 
 const plaidClientId = process.env.PLAID_CLIENT_ID;
 const plaidEnv = process.env.PLAID_ENV || "sandbox";
@@ -75,17 +70,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const config = new Configuration({
-      basePath: PlaidEnvironments[plaidEnv],
-      baseOptions: {
-        headers: {
-          "PLAID-CLIENT-ID": plaidClientId,
-          "PLAID-SECRET": plaidSecret,
-        },
-      },
-    });
-
-    const client = new PlaidApi(config);
+    const client = createPlaidClient();
 
     // setting the config to pass into link token request
     const linkTokenRequest = {
