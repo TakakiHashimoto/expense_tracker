@@ -22,7 +22,7 @@ export async function recordSyncFailure({
         last_sync_status: "failed",
         updated_at: new Date().toISOString(),
         last_sync_error: errorCode,
-        status: "needs_update",
+        status: "error",
       }
     : {
         last_sync_status: "failed",
@@ -37,7 +37,24 @@ export async function recordSyncFailure({
     .select("id")
     .single();
 
-  if (!data || error) {
+  if (error) {
+    console.error("recordSyncFailure Supabase error", {
+      error,
+      updateData,
+      userId,
+      plaidItemUuid,
+    });
+
+    throw new Error("Failed to record plaid_items failure");
+  }
+
+  if (!data) {
+    console.error("recordSyncFailure updated no rows", {
+      userId,
+      plaidItemUuid,
+      updateData,
+    });
+
     throw new Error("Failed to record plaid_items failure");
   }
 
