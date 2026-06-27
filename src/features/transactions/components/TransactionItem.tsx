@@ -1,11 +1,15 @@
 import { formatAmount } from "@/lib/formatValue";
 import { type TransactionItem } from "../types";
+import Link from "next/link";
 
 type Props = { transaction: TransactionItem };
 
 function TransactionItemRow({ transaction }: Props) {
   return (
-    <div className="group flex items-center justify-between p-4 hover:bg-white/5 rounded-2xl transition-all cursor-pointer">
+    <Link
+      href={`/transactions/${transaction.id}`}
+      className="group flex items-center justify-between p-4 hover:bg-white/5 rounded-2xl transition-all cursor-pointer"
+    >
       <div className="flex items-center gap-6">
         <div className="h-12 w-12 rounded-xl bg-surface-container-high flex items-center justify-center">
           <span className="material-symbols-outlined text-secondary">
@@ -34,7 +38,7 @@ function TransactionItemRow({ transaction }: Props) {
           {formatAmount(transaction.amount)}
         </p>
       </div>
-    </div>
+    </Link>
   );
 }
 

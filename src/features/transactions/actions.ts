@@ -100,3 +100,39 @@ export async function getTransactionPageData({
 
   return { ok: true, transactions: result };
 }
+
+type TransactionRowType = {
+  amount: number;
+  merchant: string | null;
+  note: string | null;
+  name: string | null;
+  created_at: string;
+  payment_channel: string | null;
+  pending: boolean;
+  category: { name: string | null; kind: string };
+  institutionName: { institution_name: string | null };
+  account: { name: string; type: string };
+};
+
+export async function getTransactionDetail(transactionId: string) {
+  const supabase = await createClient();
+  const user = await grabUser(supabase);
+
+  const { data: transactionData, error: transactionError } = await supabase
+    .from("transactions")
+    .select(
+      "amount, merchant, note, name, payment_channel,created_at,  pending, category: categories(name, kind), institutionName: plaid_items(institution_name), account: accounts(name, type)",
+    )
+    .eq("user_id", user.id)
+    .eq("id", transactionId)
+    .single()
+    .returns<TransactionRowType>();
+
+  if (!transactionData || transactionError) {
+    console.error("Failed to fetch transaction data", transactionError);
+    throw new Error("Failed to fetch transaction data");
+  }
+
+  console.log(transactionData);
+  return transactionData;
+}
