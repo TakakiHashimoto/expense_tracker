@@ -4,16 +4,18 @@ export function deriveConnectionHealth({
   connectionStatus,
   syncStatus,
   lastSyncedAt,
+  lastSyncError,
 }: {
   connectionStatus: ConnectionStatus;
   syncStatus: SyncStatus;
   lastSyncedAt: string | null;
+  lastSyncError: string | null;
 }): ConnectionHealth {
-  if (connectionStatus === "disconnected") {
+  if (connectionStatus === "revoked") {
     return "disconnected";
   }
 
-  if (connectionStatus === "needs_update") {
+  if (connectionStatus === "error" && lastSyncError === "ITEM_LOGIN_REQUIRED") {
     return "needs_update";
   }
 

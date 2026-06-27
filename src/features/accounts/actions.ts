@@ -45,6 +45,7 @@ export async function getAccountPageData(): Promise<AccountPageData> {
       connectionStatus: account.plaid_item.status,
       syncStatus: syncStatus,
       lastSyncedAt: account.plaid_item.last_sync_at,
+      lastSyncError: account.plaid_item.last_sync_error,
     });
 
     const reshaped: AccountPageInstitution = existingInstitution ?? {

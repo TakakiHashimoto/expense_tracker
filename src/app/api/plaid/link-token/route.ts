@@ -1,5 +1,20 @@
 // Here in this page, get request from client and exchange link-token with plaid api and return link-token to a client
 
+// TODO: Now:
+// - Keep webhook route implemented
+// - Keep manual sync + repair flow working
+// - Keep Accounts page reflecting stored DB truth
+
+// Before deployment:
+// - Add NEXT_PUBLIC_APP_URL or APP_BASE_URL
+// - Add webhook: `${APP_BASE_URL}/api/plaid/webhook` to /api/plaid/link-token
+// - Add Plaid webhook verification TODO
+// - Rotate pasted secrets
+
+// After deployment:
+// - Connect a fresh bank Item and confirm webhook is registered
+// - For old Items, optionally call /item/webhook/update
+
 import {
   PlaidApi,
   Configuration,

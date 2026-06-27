@@ -16,7 +16,7 @@ export type AccountQueryRowType = {
   };
 };
 
-export type ConnectionStatus = "active" | "needs_update" | "disconnected";
+export type ConnectionStatus = "active" | "error" | "revoked";
 
 export type SyncStatus = "never_synced" | "syncing" | "succeeded" | "failed";
 

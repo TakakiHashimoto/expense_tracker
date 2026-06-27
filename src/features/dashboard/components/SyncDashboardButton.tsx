@@ -159,25 +159,32 @@ function SyncDashboardButton() {
 
   return (
     <div className="flex min-w-64 flex-col items-end gap-2">
-      <button
-        className="inline-flex h-12 min-w-44 items-center justify-center gap-2 rounded-2xl bg-primary px-6 text-sm font-extrabold tracking-wide text-on-primary shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 hover:shadow-primary/30 active:translate-y-0 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-70"
-        onClick={handleSync}
-        disabled={
-          isSyncing ||
-          status === "creating_update_link_token" ||
-          status === "needs_repair"
-        }
-      >
-        <RefreshCw className={`h-4 w-4 ${isSyncing ? "animate-spin" : ""}`} />
-        {isSyncing ? (
-          <div>
-            <Spinner />
-            "Syncing..."
-          </div>
-        ) : (
-          "Sync bank"
+      {(status === "needs_repair" ||
+        status === "creating_update_link_token" ||
+        status === "ready_to_repair") &&
+        repairPlaidItemId && (
+          <button
+            className="inline-flex h-12 min-w-44 items-center justify-center gap-2 rounded-2xl bg-primary px-6 text-sm font-extrabold tracking-wide text-on-primary shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 hover:shadow-primary/30 active:translate-y-0 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-70"
+            onClick={handleSync}
+            disabled={
+              isSyncing ||
+              status === "creating_update_link_token" ||
+              status === "needs_repair"
+            }
+          >
+            <RefreshCw
+              className={`h-4 w-4 ${isSyncing ? "animate-spin" : ""}`}
+            />
+            {isSyncing ? (
+              <div>
+                <Spinner />
+                "Syncing..."
+              </div>
+            ) : (
+              "Sync bank"
+            )}
+          </button>
         )}
-      </button>
 
       {(status === "needs_repair" ||
         status === "creating_update_link_token" ||
