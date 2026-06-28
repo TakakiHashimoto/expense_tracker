@@ -111,7 +111,7 @@ type TransactionRowType = {
   pending: boolean;
   category: { name: string | null; kind: string };
   institutionName: { institution_name: string | null };
-  account: { name: string; type: string };
+  account: { name: string; type: string; mask: number };
 };
 
 export async function getTransactionDetail(transactionId: string) {
@@ -121,7 +121,7 @@ export async function getTransactionDetail(transactionId: string) {
   const { data: transactionData, error: transactionError } = await supabase
     .from("transactions")
     .select(
-      "amount, merchant, note, name, payment_channel,created_at,  pending, category: categories(name, kind), institutionName: plaid_items(institution_name), account: accounts(name, type)",
+      "amount, merchant, note, name, payment_channel,created_at,  pending, category: categories(name, kind), institutionName: plaid_items(institution_name), account: accounts(name, type, mask)",
     )
     .eq("user_id", user.id)
     .eq("id", transactionId)

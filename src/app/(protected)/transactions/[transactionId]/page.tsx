@@ -1,6 +1,6 @@
 import { getTransactionDetail } from "@/features/transactions/actions";
 import { formatAmount } from "@/lib/formatValue";
-import { MoveLeft } from "lucide-react";
+import { CreditCard, MoveLeft } from "lucide-react";
 import Link from "next/link";
 
 type Props = { params: Promise<{ transactionId: string }> };
@@ -10,6 +10,7 @@ async function page({ params }: Props) {
   const transaction = await getTransactionDetail(transactionId);
 
   const traSec = transaction.created_at.split("T")[1].split(".")[0].slice(0, 5);
+
   return (
     <main className="ml-64 p-12 min-h-screen">
       <div className="max-w-5xl mx-auto">
@@ -25,14 +26,14 @@ async function page({ params }: Props) {
             Transaction Detail
           </h2>
 
-          <button className="flex items-center px-6 py-3 rounded-full bg-gradient-to-r from-primary to-primary-container text-on-primary font-bold hover:opacity-90 transition-opacity shadow-[0_8px_32px_rgba(78,222,163,0.15)]">
+          <button className="flex items-center px-6 py-3 rounded-full bg-linear-to-r from-primary to-primary-container text-on-primary font-bold hover:opacity-90 transition-opacity shadow-[0_8px_32px_rgba(78,222,163,0.15)]">
             <span className="material-symbols-outlined mr-2 text-sm">
               download
             </span>
             Download Receipt
           </button>
         </header>
-        <section className="bg-surface-container-low rounded-[2rem] p-12 mb-12 flex flex-col md:flex-row justify-between items-start md:items-center relative overflow-hidden group hover:bg-surface-container transition-colors duration-500">
+        <section className="bg-surface-container-low rounded-4xl p-12 mb-12 flex flex-col md:flex-row justify-between items-start md:items-center relative overflow-hidden group hover:bg-surface-container transition-colors duration-500">
           <div className="z-10">
             <p className="text-on-surface-variant text-sm font-medium uppercase tracking-widest mb-3">
               Merchant
@@ -86,7 +87,7 @@ async function page({ params }: Props) {
               <span className="material-symbols-outlined mr-2 text-on-surface-variant text-xl">
                 devices
               </span>
-              Technology
+              {transaction.category.name}
             </div>
           </div>
           <div className="bg-surface-container-lowest p-8 rounded-2xl flex flex-col justify-center">
@@ -94,29 +95,30 @@ async function page({ params }: Props) {
               Funding Source
             </p>
             <p className="text-lg font-medium text-on-surface flex items-center">
-              <span className="material-symbols-outlined mr-2 text-secondary text-xl">
-                credit_card
-              </span>
-              Obsidian Black Visa
+              <CreditCard className="material-symbols-outlined mr-2 text-secondary text-xl" />
+              {transaction.account.name}
             </p>
             <p className="text-sm text-on-surface-variant mt-1">
-              Checking ...8842
+              {transaction.account.type} ...{transaction.account.mask}
             </p>
           </div>
           <div className="bg-surface-container-lowest p-8 rounded-2xl flex flex-col justify-center">
             <p className="text-on-surface-variant text-xs font-medium uppercase tracking-widest mb-2">
               Institution
             </p>
-            <p className="text-lg font-medium text-on-surface">Chase Bank</p>
+            <p className="text-lg font-medium text-on-surface">
+              {transaction.institutionName.institution_name}
+            </p>
           </div>
-          <div className="bg-surface-container-lowest p-8 rounded-2xl flex flex-col justify-center">
+          {/* <div className="bg-surface-container-lowest p-8 rounded-2xl flex flex-col justify-center">
             <p className="text-on-surface-variant text-xs font-medium uppercase tracking-widest mb-2">
               Network Status
             </p>
             <p className="text-lg font-medium text-on-surface">Cleared</p>
-          </div>
+          </div> */}
         </section>
-        <section className="bg-surface-container-low p-10 rounded-[2rem]">
+        {/* TODO: later implement following too (location ) */}
+        {/* <section className="bg-surface-container-low p-10 rounded-[2rem]">
           <h4 className="text-sm font-medium text-on-surface-variant uppercase tracking-widest mb-8 border-l-2 border-primary-container pl-4">
             Technical Metadata
           </h4>
@@ -156,7 +158,7 @@ async function page({ params }: Props) {
               </span>
             </div>
           </div>
-        </section>
+        </section> */}
       </div>
     </main>
   );
