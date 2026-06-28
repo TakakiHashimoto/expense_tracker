@@ -106,7 +106,7 @@ type TransactionRowType = {
   merchant: string | null;
   note: string | null;
   name: string | null;
-  created_at: string;
+  posted_at: string;
   payment_channel: string | null;
   pending: boolean;
   category: { name: string | null; kind: string };
@@ -121,10 +121,11 @@ export async function getTransactionDetail(transactionId: string) {
   const { data: transactionData, error: transactionError } = await supabase
     .from("transactions")
     .select(
-      "amount, merchant, note, name, payment_channel,created_at,  pending, category: categories(name, kind), institutionName: plaid_items(institution_name), account: accounts(name, type, mask)",
+      "amount, merchant, note, name, payment_channel, posted_at, pending, category: categories(name, kind), institutionName: plaid_items(institution_name), account: accounts(name, type, mask)",
     )
     .eq("user_id", user.id)
     .eq("id", transactionId)
+    .eq("is_removed", false)
     .single()
     .returns<TransactionRowType>();
 

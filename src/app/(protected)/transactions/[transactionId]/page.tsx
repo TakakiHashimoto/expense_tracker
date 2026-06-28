@@ -9,7 +9,7 @@ async function page({ params }: Props) {
   const { transactionId } = await params;
   const transaction = await getTransactionDetail(transactionId);
 
-  const traSec = transaction.created_at.split("T")[1].split(".")[0].slice(0, 5);
+  const traSec = transaction.posted_at.split("T")[1].split(".")[0].slice(0, 5);
 
   return (
     <main className="ml-64 p-12 min-h-screen">
@@ -43,7 +43,7 @@ async function page({ params }: Props) {
             </h3>
             <div className="inline-flex items-center px-3 py-1 rounded-full bg-surface-container-highest text-primary-fixed-dim text-xs font-bold uppercase tracking-wider">
               <span className="w-2 h-2 rounded-full bg-primary-container mr-2 animate-pulse"></span>
-              {transaction.pending ? "completed" : "pending"}
+              {transaction.pending ? "pending" : "completed"}
             </div>
           </div>
           <div className="z-10 mt-8 md:mt-0 text-right">
@@ -51,7 +51,7 @@ async function page({ params }: Props) {
               Amount
             </p>
             <div
-              className={`text-5xl font-display font-bold ${transaction.category.kind === "expense" ? "text-tertiary" : "text-primary"} tracking-tight`}
+              className={`text-5xl font-display font-bold ${transaction.category?.kind === "expense" ? "text-tertiary" : "text-primary"} tracking-tight`}
             >
               {formatAmount(transaction.amount)}
             </div>
@@ -75,7 +75,7 @@ async function page({ params }: Props) {
                 weekday: "long",
                 month: "long",
                 day: "numeric",
-              }).format(new Date(transaction.created_at))}
+              }).format(new Date(transaction.posted_at))}
             </p>
             <p className="text-sm text-on-surface-variant mt-1">{traSec}</p>
           </div>
@@ -87,7 +87,7 @@ async function page({ params }: Props) {
               <span className="material-symbols-outlined mr-2 text-on-surface-variant text-xl">
                 devices
               </span>
-              {transaction.category.name}
+              {transaction.category?.name ?? "Unknown"}
             </div>
           </div>
           <div className="bg-surface-container-lowest p-8 rounded-2xl flex flex-col justify-center">
