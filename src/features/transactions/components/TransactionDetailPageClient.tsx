@@ -7,19 +7,30 @@ import EditCategoryComponent, { CategoryType } from "./EditCategoryComponent";
 import { TransactionRowType } from "../types";
 import { useState } from "react";
 import { updateTransactionCategory } from "../server-actions";
+import { toast } from "sonner";
 
 type Props = { transaction: TransactionRowType; categories: CategoryType[] };
 
 function TransactionDetailPageClient({ transaction, categories }: Props) {
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
+  const [isUpdating, setIsUpdating] = useState<boolean>(false);
 
   const traSec = transaction.posted_at.split("T")[1].split(".")[0].slice(0, 5);
 
-  async function handleChangeCategory(categId: string) {
-    await updateTransactionCategory({
-      transactionId: transaction.id,
-      categoryId: categId,
-    });
+  async function handleChangeCategory(categId: string | null) {
+    try {
+      setIsUpdating(true);
+      await updateTransactionCategory({
+        transactionId: transaction.id,
+        categoryId: categId,
+      });
+      setIsEditModalOpen(false);
+      toast.success("Successfully updated category");
+    } catch (e) {
+      toast.error("Failed to update category");
+    } finally {
+      setIsUpdating(false);
+    }
   }
   return (
     <main className="ml-64 p-12 min-h-screen">
@@ -90,7 +101,7 @@ function TransactionDetailPageClient({ transaction, categories }: Props) {
             <p className="text-sm text-on-surface-variant mt-1">{traSec}</p>
           </div>
           <div className="bg-surface-container-lowest p-8 rounded-2xl flex flex-col justify-center">
-            <div className="flex justify-baseline items-center w-full">
+            <div className="flex justify-between items-center w-full">
               <p className="text-on-surface-variant text-xs font-medium uppercase tracking-widest mb-2">
                 Category
               </p>
@@ -102,7 +113,7 @@ function TransactionDetailPageClient({ transaction, categories }: Props) {
               <span className="material-symbols-outlined mr-2 text-on-surface-variant text-xl">
                 devices
               </span>
-              {transaction.category?.name ?? "Unknown"}
+              {transaction.category?.name ?? "Uncategorized"}
             </div>
 
             {isEditModalOpen && (
@@ -110,6 +121,7 @@ function TransactionDetailPageClient({ transaction, categories }: Props) {
                 categories={categories}
                 initialCetegId={transaction.category?.id || ""}
                 changeCategory={handleChangeCategory}
+                isUpdating={isUpdating}
               />
             )}
           </div>

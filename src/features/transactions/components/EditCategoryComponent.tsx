@@ -1,6 +1,5 @@
 "use client";
 
-import { Pencil } from "lucide-react";
 import { useState } from "react";
 
 export type CategoryType = {
@@ -12,16 +11,19 @@ export type CategoryType = {
 type Props = {
   categories: CategoryType[];
   initialCetegId: string;
-  changeCategory: (id: string) => void;
+  changeCategory: (id: string | null) => void;
+  isUpdating: boolean;
 };
 
 function EditCategoryComponent({
   categories,
   initialCetegId,
   changeCategory,
+  isUpdating,
 }: Props) {
-  const [selectedCategId, setSelectedCategId] =
-    useState<string>(initialCetegId);
+  const [selectedCategId, setSelectedCategId] = useState<string>(
+    initialCetegId ?? "",
+  );
 
   return (
     <div className="pt-4 border-t border-surface-variant/30">
@@ -45,7 +47,10 @@ function EditCategoryComponent({
       <button
         className="mt-4 w-full py-2 px-4 rounded-xl bg-linear-to-r from-primary to-primary-container text-on-primary font-bold text-xs uppercase tracking-wider hover:opacity-90 transition-opacity shadow-lg"
         type="button"
-        onClick={() => changeCategory(selectedCategId)}
+        onClick={() =>
+          changeCategory(selectedCategId === "" ? null : selectedCategId)
+        }
+        disabled={isUpdating}
       >
         Save Category
       </button>

@@ -9,7 +9,7 @@ export async function updateTransactionCategory({
   categoryId,
 }: {
   transactionId: string;
-  categoryId: string;
+  categoryId: string | null;
 }) {
   const supabase = await createClient();
   const user = await grabUser(supabase);
@@ -36,9 +36,11 @@ export async function updateTransactionCategory({
     .eq("is_removed", false);
 
   if (error) {
+    console.error("Failed to update transaction", error);
     throw new Error("Failed to update transaction category");
   }
 
   revalidatePath(`/transactions/${transactionId}`);
+  revalidatePath("/transactions");
   return { ok: true };
 }
