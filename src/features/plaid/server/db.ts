@@ -241,6 +241,7 @@ export async function persistSyncResult(
     return { success: true, message: "Successfully updated database" };
   } catch (e) {
     console.log(e);
-    throw new Error("Failed to persiste Plaind sync result");
+    console.error("Failed to persist plaid sync result", e);
+    throw new Error("Failed to persist Plaind sync result");
   }
 }

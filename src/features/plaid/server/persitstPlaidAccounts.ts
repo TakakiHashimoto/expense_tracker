@@ -37,6 +37,7 @@ export async function persistPlaidAccounts({
     .upsert(addAccounts, { onConflict: "plaid_item_id,plaid_account_id" });
 
   if (error) {
+    console.error("Failed to persist plaid accounts", error);
     throw new Error("Failed to persist Plaid accounts", { cause: error });
   }
 }

@@ -45,32 +45,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // check for existing plaid_item
-    const { count, error: existingError } = await supabase
-      .from("plaid_items")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", user.id);
-
-    if (existingError) {
-      return NextResponse.json(
-        { error: "Failed to check existing bank connection" },
-        { status: 500 },
-      );
-    }
-
-    if ((count ?? 0) > 0) {
-      return NextResponse.json(
-        { error: "User already have their banks connected" },
-        { status: 409 },
-      );
-    }
-
     // change the public token to access token
     const res = await client.itemPublicTokenExchange({
       public_token: public_token,
     });
     const { access_token, item_id } = res.data;
     // item_id = one item_id for one institution like TD
+
+    const { data: existingItem, error: existingItemError } = await supabase
+      .from("plaid_items")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("plaid_item_id", item_id)
+      .maybeSingle();
+
+    if (existingItemError) {
+      return NextResponse.json(
+        { error: "Failed to check existing bank connection" },
+        { status: 500 },
+      );
+    }
+
+    if (existingItem) {
+      return NextResponse.json(
+        { error: "This bank connection is already connected." },
+        { status: 409 },
+      );
+    }
 
     const institutionName = metadata?.institution?.name ?? null;
     const institutionId = metadata?.institution?.institution_id ?? null;
