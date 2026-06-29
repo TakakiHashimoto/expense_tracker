@@ -3,7 +3,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 function Search({ placeholder }: { placeholder: string }) {
   const searchParams = useSearchParams();
@@ -11,34 +11,46 @@ function Search({ placeholder }: { placeholder: string }) {
   const { replace } = useRouter();
 
   const currentQuery = searchParams.get("q") ?? "";
-  const [query, setQuery] = useState<string>(currentQuery);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  function handleSearch(query: string) {
-    const params = new URLSearchParams(searchParams);
+  const handleSearch = useCallback(
+    (query: string) => {
+      const params = new URLSearchParams(searchParams);
 
-    if (query) {
-      params.set("q", query);
-    } else {
-      params.delete("q");
-    }
+      if (query) {
+        params.set("q", query);
+      } else {
+        params.delete("q");
+      }
 
-    replace(`${pathName}?${params.toString()}`);
-  }
+      replace(`${pathName}?${params.toString()}`);
+    },
+    [searchParams, pathName, replace],
+  );
+
+  const handleChange = useCallback(
+    (nextQuery: string) => {
+      if (timeoutRef.current) {
+        window.clearTimeout(timeoutRef.current);
+      }
+
+      timeoutRef.current = setTimeout(() => {
+        const trimmedQuery = nextQuery.trim();
+
+        if (trimmedQuery === currentQuery) return;
+        handleSearch(nextQuery);
+      }, 400);
+    },
+    [currentQuery, handleSearch],
+  );
 
   useEffect(() => {
-    setQuery(currentQuery);
-  }, [currentQuery]);
-
-  useEffect(() => {
-    const setTimeoutId = setTimeout(() => {
-      const trimmedQuery = query.trim();
-
-      if (trimmedQuery === currentQuery) return;
-      handleSearch(query);
-    }, 400);
-
-    return () => window.clearTimeout(setTimeoutId);
-  }, [query, searchParams, pathName, replace]);
+    return () => {
+      if (timeoutRef.current) {
+        window.clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div className="flex items-center gap-4 bg-surface-container-lowest px-4 py-2 rounded-xl w-full max-w-md transition-all focus-within:bg-surface-container-low group">
@@ -49,8 +61,9 @@ function Search({ placeholder }: { placeholder: string }) {
         className="bg-transparent border-none focus:ring-0 text-sm text-on-surface w-full placeholder:text-on-surface-variant/40"
         placeholder={placeholder}
         type="text"
-        onChange={(e) => setQuery(e.target.value)}
-        value={query}
+        onChange={(e) => handleChange(e.target.value)}
+        defaultValue={currentQuery}
+        key={currentQuery}
       />
     </div>
   );

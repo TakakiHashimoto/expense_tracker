@@ -173,7 +173,7 @@ function SyncDashboardButton() {
           {isSyncing ? (
             <div>
               <Spinner />
-              "Syncing..."
+              Syncing...
             </div>
           ) : (
             "Sync bank"

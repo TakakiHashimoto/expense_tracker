@@ -4,16 +4,24 @@ import { syncPlaidItem } from "@/features/plaid/server/syncPlaidItem";
 import { recordSyncFailure } from "@/features/plaid/server/recordSyncFailure";
 import { createPlaidClient, getPlaidError } from "../lib/plaid.helper";
 import { createServerRoleClient } from "@/lib/supabase/server-role";
+import { verifyPlaidWebhook } from "./verifyWebhooks";
 
 // TODO production: verify Plaid-Verification header before trusting payload.
 
 export async function POST(req: NextRequest) {
-  let body: PlaidWebhookBody;
-  try {
-    body = await req.json();
-  } catch (e) {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  const rawBody = await req.text();
+  const isVerified = await verifyPlaidWebhook({
+    rawBody,
+    plaidVerificationHeader: req.headers.get("plaid-verification"),
+  });
+
+  if (!isVerified) {
+    return NextResponse.json(
+      { error: "Invalid Plaid webhook signature" },
+      { status: 401 },
+    );
   }
+  const body = JSON.parse(rawBody);
 
   if (!body.item_id) {
     return NextResponse.json({ error: "Missing item id" }, { status: 400 });
