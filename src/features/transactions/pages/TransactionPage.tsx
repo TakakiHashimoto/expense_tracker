@@ -6,7 +6,6 @@ import {
 } from "../types";
 import TransactionStats from "../components/TransactionStats";
 import TransactionByDate from "../components/TransactionByDate";
-import Link from "next/link";
 import Search from "../components/Search";
 import TransactionTypeFilter from "../components/TransactionTypeFilter";
 import TransactionSort from "../components/TransactionSort";

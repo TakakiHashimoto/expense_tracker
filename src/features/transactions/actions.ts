@@ -1,6 +1,10 @@
 import { grabUser } from "@/lib/getUser";
 import { createClient } from "@/lib/supabase/server";
-import { TransactionFilters, TransactionsPageData } from "./types";
+import {
+  TransactionFilters,
+  TransactionRowType,
+  TransactionsPageData,
+} from "./types";
 
 //   id: string;
 //   name: string;
@@ -101,19 +105,6 @@ export async function getTransactionPageData({
   return { ok: true, transactions: result };
 }
 
-type TransactionRowType = {
-  amount: number;
-  merchant: string | null;
-  note: string | null;
-  name: string | null;
-  posted_at: string;
-  payment_channel: string | null;
-  pending: boolean;
-  category: { name: string | null; kind: string };
-  institutionName: { institution_name: string | null };
-  account: { name: string; type: string; mask: number };
-};
-
 export async function getTransactionDetail(transactionId: string) {
   const supabase = await createClient();
   const user = await grabUser(supabase);
@@ -121,7 +112,7 @@ export async function getTransactionDetail(transactionId: string) {
   const { data: transactionData, error: transactionError } = await supabase
     .from("transactions")
     .select(
-      "amount, merchant, note, name, payment_channel, posted_at, pending, category: categories(name, kind), institutionName: plaid_items(institution_name), account: accounts(name, type, mask)",
+      "id, amount, merchant, note, name, payment_channel, posted_at, pending, category: categories(id, name, kind), institutionName: plaid_items(institution_name), account: accounts(name, type, mask)",
     )
     .eq("user_id", user.id)
     .eq("id", transactionId)
@@ -134,6 +125,17 @@ export async function getTransactionDetail(transactionId: string) {
     throw new Error("Failed to fetch transaction data");
   }
 
+  const { data: categData, error: categError } = await supabase
+    .from("categories")
+    .select("id, name, kind")
+    .eq("user_id", user.id);
+
+  if (!categData || categError) {
+    console.error("Failed to fetch categories", categError);
+    throw new Error("Failed to fetch categories");
+  }
+
   console.log(transactionData);
-  return transactionData;
+  console.log(categData);
+  return { transaction: transactionData, categories: categData };
 }
