@@ -68,6 +68,7 @@ export async function persistSyncResult(
       const normalizedAmount = normalizeAmount(item.amount);
 
       // normalize category
+
       const rowCategoryName = normalizeCategory({
         amount: normalizedAmount,
         rawCategory: item.personal_finance_category?.primary ?? "",
@@ -88,6 +89,7 @@ export async function persistSyncResult(
             user_id: user.id,
             account_id: accountId,
             category_id: categId,
+            category_source: "auto",
             posted_at: item.datetime ?? item.date,
             amount: normalizedAmount,
             merchant: item.merchant_name,
@@ -144,6 +146,28 @@ export async function persistSyncResult(
         userId: user.id,
       });
 
+      // if category is manually modified by user, keep that category
+      const { data: existingTransaction, error: existingTransactionError } =
+        await supabase
+          .from("transactions")
+          .select("category_id, category_source")
+          .eq("user_id", user.id)
+          .eq("plaid_item_id", itemUuid)
+          .eq("plaid_transaction_id", item.transaction_id)
+          .maybeSingle();
+
+      if (existingTransactionError) {
+        throw new Error("Failed to check existing transaction category");
+      }
+
+      const shouldUpdateCategory =
+        !existingTransaction ||
+        existingTransaction.category_source !== "manual";
+
+      const categoryFields = shouldUpdateCategory
+        ? { category_id: categId, category_source: "auto" }
+        : {};
+
       // upsert is to add if new and update if already exists. ==> the way to know is to have constraints in db
       const { error: modifiedError } = await supabase
         .from("transactions")
@@ -151,7 +175,7 @@ export async function persistSyncResult(
           {
             user_id: user.id,
             account_id: accountId,
-            category_id: categId,
+            ...categoryFields,
             posted_at: item.datetime ?? item.date,
             amount: normalizedAmount,
             merchant: item.merchant_name,

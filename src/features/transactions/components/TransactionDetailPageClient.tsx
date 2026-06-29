@@ -106,7 +106,7 @@ function TransactionDetailPageClient({ transaction, categories }: Props) {
                 Category
               </p>
               <button onClick={() => setIsEditModalOpen((prev) => !prev)}>
-                <Pencil className="flex items-center text-primary hover:text-primary-container transition-colors font-medium" />
+                <Pencil className="flex items-center text-primary hover:text-primary-container font-medium cursor-pointer hover:scale-105 transition-all" />
               </button>
             </div>
             <div className="flex items-center text-lg font-medium text-on-surface">

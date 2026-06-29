@@ -30,7 +30,7 @@ export async function updateTransactionCategory({
 
   const { error } = await supabase
     .from("transactions")
-    .update({ category_id: categoryId })
+    .update({ category_id: categoryId, category_source: "manual" })
     .eq("user_id", user.id)
     .eq("id", transactionId)
     .eq("is_removed", false);
