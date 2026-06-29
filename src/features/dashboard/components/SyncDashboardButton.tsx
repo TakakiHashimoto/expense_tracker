@@ -158,10 +158,10 @@ function SyncDashboardButton() {
   const isUpdatingLinkToken = status === "creating_update_link_token";
 
   return (
-    <div className="flex min-w-64 flex-col items-end gap-2">
+    <div className="flex flex-col items-end">
       {status !== "needs_repair" && (
         <button
-          className="inline-flex h-12 min-w-44 items-center justify-center gap-2 rounded-2xl bg-primary px-6 text-sm font-extrabold tracking-wide text-on-primary shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 hover:shadow-primary/30 active:translate-y-0 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-70"
+          className="btn-primary"
           onClick={handleSync}
           disabled={
             isSyncing ||

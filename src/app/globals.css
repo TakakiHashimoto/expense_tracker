@@ -26,10 +26,17 @@
   --primary-container: #10b981;
   --on-primary-container: #00422b;
 
+  --primary: #4edea3;
+  --on-primary: #04130d;
+
+  --primary-container: #10b981;
+  --on-primary-container: #00422b;
+
   --primary-fixed-dim: #4edea3;
 
   --secondary: #adc6ff;
   --tertiary: #ffb3af;
+  --on-tertiary: #fd544b;
 
   --outline: #86948a;
   --outline-variant: #3c4a42;
@@ -58,10 +65,17 @@
   --color-primary-container: var(--primary-container);
   --color-on-primary-container: var(--on-primary-container);
 
+  --color-primary: var(--primary);
+  --color-on-primary: var(--on-primary);
+
+  --color-primary-container: var(--primary-container);
+  --color-on-primary-container: var(--on-primary-container);
+
   --color-primary-fixed-dim: var(--primary-fixed-dim);
 
   --color-secondary: var(--secondary);
   --color-tertiary: var(--tertiary);
+  --color-on-tertiary: var(--on-tertiary);
 
   --color-outline: var(--outline);
   --color-outline-variant: var(--outline-variant);
@@ -132,7 +146,7 @@
 }
 
 @utility btn-primary {
-  @apply btn bg-gradient-to-r from-primary to-primary-container text-on-primary-container hover:shadow-[0_0_20px_rgba(78,222,163,0.3)];
+  @apply btn inline-flex h-12 min-w-44 items-center justify-center gap-2 rounded-2xl bg-primary px-6 text-sm font-extrabold tracking-wide text-on-primary shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 hover:shadow-primary/30 active:translate-y-0 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-70;
 }
 
 @utility btn-secondary {
