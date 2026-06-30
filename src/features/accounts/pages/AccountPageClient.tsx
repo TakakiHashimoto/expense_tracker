@@ -1,6 +1,7 @@
 import Link from "next/link";
 import AccountSection from "../components/AccountSection";
 import { AccountPageInstitution } from "../types";
+import { Plus, SquarePlus } from "lucide-react";
 
 type Props = { accounts: AccountPageInstitution[] };
 
@@ -17,7 +18,16 @@ function AccountPageClient({ accounts }: Props) {
 
   return (
     <main className="mt-10 px-6 space-y-10 pl-80">
-      <h1 className="headline">Accounts</h1>
+      <div className="flex justify-between mr-4">
+        <h1 className="headline">Accounts</h1>
+        <Link
+          href="/accounts/add-accounts"
+          className="btn-primary flex gap-1 items-center"
+        >
+          <Plus size={30} />
+          Add Account
+        </Link>
+      </div>
       <section className="flex justify-between items-end gap-4 py-2 pr-10">
         <div className="flex flex-col">
           <span className="text-on-surface-variant font-label text-xs tracking-widest uppercase mb-1">

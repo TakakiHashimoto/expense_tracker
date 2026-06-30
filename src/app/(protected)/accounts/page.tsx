@@ -3,7 +3,6 @@
 import { getAccountPageData } from "@/features/accounts/actions";
 import AccountPageClient from "@/features/accounts/pages/AccountPageClient";
 import { AccountPageData } from "@/features/accounts/types";
-import { X } from "lucide-react";
 
 async function AccountPage() {
   const data: AccountPageData = await getAccountPageData();

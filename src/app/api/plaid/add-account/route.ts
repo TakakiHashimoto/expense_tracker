@@ -16,9 +16,11 @@ export async function POST(req: NextRequest) {
   const user = await grabUser(supabase);
 
   // get hold of plaid item id user intends to add account to
-  const plaidItemId = req.body;
+  const { plaidItemUuid } = await req.json();
 
-  if (!plaidItemId) {
+  console.log(plaidItemUuid);
+
+  if (!plaidItemUuid) {
     return NextResponse.json(
       { error: "plaid item is not provided" },
       { status: 400 },
@@ -30,7 +32,7 @@ export async function POST(req: NextRequest) {
     .from("plaid_items")
     .select("id")
     .eq("user_id", user.id)
-    .eq("id", plaidItemId)
+    .eq("id", plaidItemUuid)
     .single();
 
   if (!plaidItem || plaidError) {
@@ -45,7 +47,7 @@ export async function POST(req: NextRequest) {
   const { data: accessToken, error: secretError } = await supabase
     .from("plaid_item_secrets")
     .select("access_token")
-    .eq("plaid_item_id", plaidItem)
+    .eq("plaid_item_id", plaidItem.id)
     .single();
 
   if (!accessToken || secretError) {
@@ -63,6 +65,7 @@ export async function POST(req: NextRequest) {
     country_codes: [CountryCode.Ca],
     language: "en",
     access_token: accessToken.access_token,
+    update: { account_selection_enabled: true },
     // webhook: "https://webhook.sample.com",
     // redirect_uri: "https://www.sample.com/redirect.html",
   };
