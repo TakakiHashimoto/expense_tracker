@@ -26,7 +26,7 @@ function AddAccountButton({ plaidItemUuid }: Props) {
 
   const router = useRouter();
 
-  const disabled = status !== "idle" || !plaidItemUuid;
+  const disabled = status !== "idle";
 
   async function obtainLinkToken() {
     try {
@@ -94,7 +94,10 @@ function AddAccountButton({ plaidItemUuid }: Props) {
 
   function handleClick() {
     if (!plaidItemUuid) {
-      toast.error("Select an institution first");
+      toast.error("Select an institution first", {
+        className:
+          "!bg-tertiary !text-on-tertiary border-tertiary !shadow-lg !text-lg",
+      });
       return;
     }
 

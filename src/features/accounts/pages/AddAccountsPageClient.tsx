@@ -34,6 +34,9 @@ function AddAccountsPageClient({ institutions }: Props) {
 
       <AddAccountButton plaidItemUuid={selectedPlaidItemUuid} />
       <section className="flex-1">
+        <p className="mb-3 px-3">
+          Choose your bank to which you would like to add accounts
+        </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {institutions.map((ins) => (
             <InstitutionSelectComponent
