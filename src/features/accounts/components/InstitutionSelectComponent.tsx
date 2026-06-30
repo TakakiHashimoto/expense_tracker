@@ -1,18 +1,20 @@
 type Props = {
   institutionName: string;
   plaidItemUuid: string;
+  selected: boolean;
   onClick: (id: string) => void;
 };
 
 function InstitutionSelectComponent({
   institutionName,
   plaidItemUuid,
+  selected,
   onClick,
 }: Props) {
   const initialLetter = institutionName.slice(0, 1);
   return (
     <button
-      className="group bg-surface-container-low p-8 rounded-3xl flex flex-col items-center justify-center gap-6 transition-all duration-300 hover:bg-surface-variant hover:-translate-y-1 cursor-pointer"
+      className={`group ${selected ? "bg-primary/50 border border-primary" : "bg-surface-container-low border border-transparent"} p-8 rounded-3xl flex flex-col items-center justify-center gap-6 transition-all duration-300 hover:bg-surface-variant hover:-translate-y-1 cursor-pointer`}
       onClick={() => onClick(plaidItemUuid)}
     >
       <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center p-3">

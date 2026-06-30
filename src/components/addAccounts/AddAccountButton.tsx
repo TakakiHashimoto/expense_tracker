@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { usePlaidLink } from "react-plaid-link";
 import { toast } from "sonner";
+import Spinner from "../common/Spinner";
 
 type Props = { plaidItemUuid: string | null };
 
@@ -25,7 +26,7 @@ function AddAccountButton({ plaidItemUuid }: Props) {
 
   const router = useRouter();
 
-  const disabled = status !== "idle";
+  const disabled = status !== "idle" || !plaidItemUuid;
 
   async function obtainLinkToken() {
     try {
@@ -106,10 +107,80 @@ function AddAccountButton({ plaidItemUuid }: Props) {
     }
   }, [open, ready, linkToken, status]);
 
+  if (frontError || error) {
+    return (
+      <div className="rounded-xl bg-tertiary border border-tertiary/30 p-4 text-sm text-on-tertiary absolute top-13 ">
+        <p className="font-semibold">Something went wrong</p>
+        <p>{frontError}</p>
+      </div>
+    );
+  }
+
+  if (status === "preparing_link") {
+    return (
+      <div className="flex gap-2 items-center">
+        <Spinner />
+        <button
+          className={
+            disabled
+              ? "btn-secondary my-3 cursor-not-allowed"
+              : "btn-primary my-3"
+          }
+          onClick={handleClick}
+          disabled={disabled}
+        >
+          Preparing Link...
+        </button>
+      </div>
+    );
+  }
+
+  if (status === "adding_account") {
+    return (
+      <div className="flex gap-2 items-center">
+        <Spinner />
+        <button
+          className={
+            disabled
+              ? "btn-secondary my-3 cursor-not-allowed"
+              : "btn-primary my-3"
+          }
+          onClick={handleClick}
+          disabled={disabled}
+        >
+          Adding Account...
+        </button>
+      </div>
+    );
+  }
+
+  if (status === "syncing") {
+    return (
+      <div className="flex gap-2 items-center">
+        <Spinner />
+        <button
+          className={
+            disabled
+              ? "btn-secondary my-3 cursor-not-allowed"
+              : "btn-primary my-3"
+          }
+          onClick={handleClick}
+          disabled={disabled}
+        >
+          Syncing...
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div>
       <button
-        className="btn-primary my-3"
+        className={
+          disabled
+            ? "btn-secondary my-3 cursor-not-allowed"
+            : "btn-primary my-3"
+        }
         onClick={handleClick}
         disabled={disabled}
       >

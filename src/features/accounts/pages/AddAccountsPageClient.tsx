@@ -5,6 +5,7 @@ import InstitutionSelectComponent from "../components/InstitutionSelectComponent
 import { AccountPageInstitution } from "../types";
 import AddAccountButton from "@/components/addAccounts/AddAccountButton";
 import { ChevronLeft } from "lucide-react";
+import Link from "next/link";
 
 type Props = { institutions: AccountPageInstitution[] };
 
@@ -17,9 +18,12 @@ function AddAccountsPageClient({ institutions }: Props) {
       <header className="mb-12">
         <div className="flex items-center gap-2 text-primary font-bold mb-6 group cursor-pointer w-fit">
           <ChevronLeft className="material-symbols-outlined text-[18px] transition-transform group-hover:-translate-x-1" />
-          <span className="font-body-md uppercase tracking-widest text-label-bold">
+          <Link
+            href="/accounts"
+            className="font-body-md uppercase tracking-widest text-label-bold"
+          >
             Back to Accounts
-          </span>
+          </Link>
         </div>
         <h2 className="text-5xl  text-on-surface mb-4">Add Account</h2>
         <p className="font-body-lg text-slate-muted max-w-2xl">
@@ -36,6 +40,7 @@ function AddAccountsPageClient({ institutions }: Props) {
               key={ins.plaidItemId}
               institutionName={ins.institutionName}
               plaidItemUuid={ins.plaidItemId}
+              selected={selectedPlaidItemUuid === ins.plaidItemId}
               onClick={(id: string) => setSelectedPlaidItemUuid(id)}
             />
           ))}
