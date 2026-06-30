@@ -33,6 +33,7 @@ function AddAccountsPageClient({ institutions }: Props) {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {institutions.map((ins) => (
             <InstitutionSelectComponent
+              key={ins.plaidItemId}
               institutionName={ins.institutionName}
               plaidItemUuid={ins.plaidItemId}
               onClick={(id: string) => setSelectedPlaidItemUuid(id)}
