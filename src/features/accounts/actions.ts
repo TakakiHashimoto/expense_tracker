@@ -6,6 +6,7 @@ import {
   AccountPageInstitution,
   AccountDetailDataRow,
   AccountDetailData,
+  AccountDetailPageData,
 } from "./types";
 import { deriveConnectionHealth } from "./lib/lib.accounts";
 
@@ -101,7 +102,16 @@ export async function getAccountDetailData(
       throw new Error("Failed to fetch account detail information");
     }
 
-    return { ok: true, account: accountData };
+    const health = deriveConnectionHealth({
+      connectionStatus: accountData.instituion.status,
+      syncStatus: accountData.instituion.last_sync_status,
+      lastSyncedAt: accountData.instituion.last_sync_at,
+      lastSyncError: accountData.instituion.last_sync_error,
+    });
+
+    const account = { ...accountData, health };
+
+    return { ok: true, account: account };
   } catch (e) {
     console.error("Server Error while fetch account detail info", e);
     return { ok: false, error: "Failed to fetch account detail information" };

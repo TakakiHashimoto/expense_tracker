@@ -5,9 +5,9 @@ type Props = { account: AccountDetailDataRow };
 function AccountDetailPageClient({ account }: Props) {
   return (
     <main className="ml-72 mt-24 p-12 w-full max-w-container-max relative overflow-x-hidden">
-      {/* <!-- Background Atmospheric effect --> */}
+      {/* Background Atmospheric effect */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-[120px] pointer-events-none -z-10"></div>
-      {/* <!-- Breadcrumb / Back Navigation (Contextual sub-page indicator) --> */}
+      {/* Breadcrumb / Back Navigation (Contextual sub-page indicator) */}
       <div className="mb-8 flex items-center gap-2 text-slate-muted hover:text-primary transition-colors cursor-pointer w-max group">
         <span className="material-symbols-outlined text-sm group-hover:-translate-x-1 transition-transform">
           arrow_back

@@ -7,7 +7,12 @@ async function page({ params }: Props) {
   const { accountId } = await params;
   const res = await getAccountDetailData(accountId);
   if (!res.ok) {
-    return <div></div>;
+    return (
+      <div>
+        <h1>Accounts</h1>
+        <p>{res.error}</p>
+      </div>
+    );
   }
 
   return <AccountDetailPageClient account={res.account} />;

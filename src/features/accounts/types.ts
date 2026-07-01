@@ -71,6 +71,10 @@ export type AccountDetailDataRow = {
   };
 };
 
+export type AccountDetailPageData = AccountDetailDataRow & {
+  health: ConnectionHealth;
+};
+
 export type AccountDetailData =
-  | { ok: true; account: AccountDetailDataRow }
+  | { ok: true; account: AccountDetailPageData }
   | { ok: false; error: string };
