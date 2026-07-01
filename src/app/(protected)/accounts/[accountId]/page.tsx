@@ -1,0 +1,16 @@
+import { getAccountDetailData } from "@/features/accounts/actions";
+import AccountDetailPageClient from "@/features/accounts/pages/AccountDetailPageClient";
+
+type Props = { params: Promise<{ accountId: string }> };
+
+async function page({ params }: Props) {
+  const { accountId } = await params;
+  const res = await getAccountDetailData(accountId);
+  if (!res.ok) {
+    return <div></div>;
+  }
+
+  return <AccountDetailPageClient account={res.account} />;
+}
+
+export default page;

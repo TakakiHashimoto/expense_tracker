@@ -4,6 +4,8 @@ import {
   AccountQueryRowType,
   AccountPageData,
   AccountPageInstitution,
+  AccountDetailDataRow,
+  AccountDetailData,
 } from "./types";
 import { deriveConnectionHealth } from "./lib/lib.accounts";
 
@@ -75,4 +77,33 @@ export async function getAccountPageData(): Promise<AccountPageData> {
   const institutions = Array.from(accountMap.values());
 
   return { ok: true, institutions };
+}
+
+export async function getAccountDetailData(
+  accountId: string,
+): Promise<AccountDetailData> {
+  const supabase = await createClient();
+  const user = await grabUser(supabase);
+
+  try {
+    const { data: accountData, error: accountError } = await supabase
+      .from("accounts")
+      .select(
+        "id, type, name, currenct, is_active, mask, subtype, current_balance, available_balance, institution: plaid_items!inner(id, institution_name, status, last_sync_at, last_sync_status, last_sync_error)",
+      )
+      .eq("user_id", user.id)
+      .eq("id", accountId)
+      .single()
+      .returns<AccountDetailDataRow>();
+
+    if (!accountData || accountError) {
+      console.error("Failed to fetch account detail info", accountError);
+      throw new Error("Failed to fetch account detail information");
+    }
+
+    return { ok: true, account: accountData };
+  } catch (e) {
+    console.error("Server Error while fetch account detail info", e);
+    return { ok: false, error: "Failed to fetch account detail information" };
+  }
 }

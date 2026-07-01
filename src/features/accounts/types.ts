@@ -51,3 +51,26 @@ export type AccountPageInstitution = {
 export type AccountPageData =
   | { ok: true; institutions: AccountPageInstitution[] }
   | { ok: false; error: string };
+
+export type AccountDetailDataRow = {
+  id: string;
+  type: string;
+  name: string;
+  currency: string;
+  is_active: boolean;
+  mask: number;
+  subtype: string | null;
+  current_balance: number | null;
+  instituion: {
+    id: string;
+    institution_name: string;
+    last_sync_status: SyncStatus;
+    last_sync_error: string;
+    last_sync_at: string;
+    status: ConnectionStatus;
+  };
+};
+
+export type AccountDetailData =
+  | { ok: true; account: AccountDetailDataRow }
+  | { ok: false; error: string };
