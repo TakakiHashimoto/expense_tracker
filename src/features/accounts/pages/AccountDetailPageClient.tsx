@@ -49,7 +49,12 @@ function AccountDetailPageClient({ account }: Props) {
     },
   };
 
-  const presentation = healthPresentation[account.health];
+  const presentation = healthPresentation[account.health] ?? {
+    label: "Unknown",
+    description: "We could not determine this account connection status.",
+    badgeClassName: "bg-surface-container-high text-on-surface-variant",
+    action: null,
+  };
 
   return (
     <main className="ml-72 mt-12 p-12 max-w-container-max relative overflow-x-hidden">
@@ -77,7 +82,7 @@ function AccountDetailPageClient({ account }: Props) {
                   ••••{account.mask}
                 </span>
                 <p className="text-slate-muted font-body-lg text-lg mt-1">
-                  {account.institution.institution_name} • {account.type}
+                  {account.institution.institutionName} • {account.type}
                 </p>
               </div>
             </div>
@@ -101,7 +106,7 @@ function AccountDetailPageClient({ account }: Props) {
               )}
 
               <span className="text-slate-muted font-label-bold text-label-bold">
-                Last Sync: {formatLastSync(account.institution.last_sync_at)}
+                Last Sync: {formatLastSync(account.institution.lastSyncAt)}
               </span>
             </div>
           </div>
@@ -110,12 +115,12 @@ function AccountDetailPageClient({ account }: Props) {
               Current Balance
             </p>
             <h3 className="font-display-xl text-display-xl text-primary tracking-tight">
-              {formatCurrency(account.currency, account.current_balance)}
+              {formatCurrency(account.currency, account.currentBalance)}
             </h3>
             <p className="text-slate-muted font-body-md text-body-md flex items-center justify-end gap-2">
               Available Balance:{" "}
               <span className="text-on-surface font-medium">
-                {formatCurrency(account.currency, account.available_balance)}
+                {formatCurrency(account.currency, account.availableBalance)}
               </span>
               <span
                 className="material-symbols-outlined text-sm cursor-help"

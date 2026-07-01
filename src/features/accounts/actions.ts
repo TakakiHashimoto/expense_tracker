@@ -102,15 +102,35 @@ export async function getAccountDetailData(
       throw new Error("Failed to fetch account detail information");
     }
 
-    console.log(`Insititution status: ${accountData.institution.status}`);
+    const syncStatus =
+      accountData.institution.last_sync_status ?? "never_synced";
+
     const health = deriveConnectionHealth({
       connectionStatus: accountData.institution.status,
-      syncStatus: accountData.institution.last_sync_status,
+      syncStatus,
       lastSyncedAt: accountData.institution.last_sync_at,
       lastSyncError: accountData.institution.last_sync_error,
     });
 
-    const account = { ...accountData, health };
+    const account: AccountDetailPageData = {
+      id: accountData.id,
+      name: accountData.name,
+      type: accountData.type || "Unknown",
+      subtype: accountData.subtype,
+      mask: accountData.mask,
+      currency: accountData.currency,
+      currentBalance: accountData.current_balance,
+      availableBalance: accountData.available_balance,
+      institution: {
+        id: accountData.institution.id,
+        institutionName: accountData.institution.institution_name || "Unknown",
+        status: accountData.institution.status,
+        lastSyncStatus: syncStatus,
+        lastSyncError: accountData.institution.last_sync_error,
+        lastSyncAt: accountData.institution.last_sync_at,
+      },
+      health,
+    };
 
     return { ok: true, account: account };
   } catch (e) {

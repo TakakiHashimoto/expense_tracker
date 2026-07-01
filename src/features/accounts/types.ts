@@ -54,25 +54,41 @@ export type AccountPageData =
 
 export type AccountDetailDataRow = {
   id: string;
-  type: string;
+  type: string | null;
   name: string;
-  currency: string;
+  currency: string | null;
   is_active: boolean;
-  mask: number;
+  mask: string | null;
   subtype: string | null;
   current_balance: number | null;
   available_balance: number | null;
   institution: {
     id: string;
-    institution_name: string;
-    last_sync_status: SyncStatus;
-    last_sync_error: string;
-    last_sync_at: string;
+    institution_name: string | null;
+    last_sync_status: SyncStatus | null;
+    last_sync_error: string | null;
+    last_sync_at: string | null;
     status: ConnectionStatus;
   };
 };
 
-export type AccountDetailPageData = AccountDetailDataRow & {
+export type AccountDetailPageData = {
+  id: string;
+  name: string;
+  type: string;
+  subtype: string | null;
+  mask: string | null;
+  currency: string | null;
+  currentBalance: number | null;
+  availableBalance: number | null;
+  institution: {
+    id: string;
+    institutionName: string;
+    status: ConnectionStatus;
+    lastSyncStatus: SyncStatus;
+    lastSyncError: string | null;
+    lastSyncAt: string | null;
+  };
   health: ConnectionHealth;
 };
 
