@@ -61,7 +61,8 @@ export type AccountDetailDataRow = {
   mask: number;
   subtype: string | null;
   current_balance: number | null;
-  instituion: {
+  available_balance: number | null;
+  institution: {
     id: string;
     institution_name: string;
     last_sync_status: SyncStatus;
@@ -78,3 +79,10 @@ export type AccountDetailPageData = AccountDetailDataRow & {
 export type AccountDetailData =
   | { ok: true; account: AccountDetailPageData }
   | { ok: false; error: string };
+
+export type HealthPresentation = {
+  label: string;
+  description: string | null;
+  badgeClassName: string;
+  action: "repair" | "sync" | null;
+};

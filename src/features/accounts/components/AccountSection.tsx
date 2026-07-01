@@ -2,28 +2,12 @@ import { ShieldAlert } from "lucide-react";
 import { AccountPageInstitution } from "../types";
 import AccountItem from "./AccountItem";
 import RepairConnectionButton from "./RepairConnectionButton";
-import type { ConnectionHealth } from "../types";
-import { DateTime } from "luxon";
+import type { ConnectionHealth, HealthPresentation } from "../types";
+
 import SyncInstitutionButton from "./SyncInstitutionButton";
+import { formatLastSync } from "../lib/formatSyncTime";
 
 type Props = { institution: AccountPageInstitution };
-
-type HealthPresentation = {
-  label: string;
-  description: string | null;
-  badgeClassName: string;
-  action: "repair" | "sync" | null;
-};
-
-function formatLastSync(value: string | null) {
-  if (!value) return "Never synced";
-
-  const date = DateTime.fromISO(value);
-
-  if (!date.isValid) return "Sync time unavailable";
-
-  return date.toRelative() ?? date.toLocaleString(DateTime.DATETIME_MED);
-}
 
 const healthPresentation: Record<ConnectionHealth, HealthPresentation> = {
   healthy: {

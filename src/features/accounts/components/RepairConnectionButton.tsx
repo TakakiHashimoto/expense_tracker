@@ -110,11 +110,12 @@ function RepairConnectionButton({ repairPlaidItemId }: Props) {
   }
 
   return (
-    <div className="flex min-w-64 flex-col items-end gap-2">
+    <div className="flex min-w-64 flex-col items-start gap-2">
       <button
         type="button"
         onClick={handleRepairClick}
         disabled={status === "creating_token" || status === "syncing"}
+        className="btn-primary"
       >
         <Wrench className="h-4 w-4" />
 

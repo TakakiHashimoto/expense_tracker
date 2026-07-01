@@ -90,7 +90,7 @@ export async function getAccountDetailData(
     const { data: accountData, error: accountError } = await supabase
       .from("accounts")
       .select(
-        "id, type, name, currenct, is_active, mask, subtype, current_balance, available_balance, institution: plaid_items!inner(id, institution_name, status, last_sync_at, last_sync_status, last_sync_error)",
+        "id, type, name, currency, is_active, mask, subtype, current_balance, available_balance, institution: plaid_items!inner(id, institution_name, status, last_sync_at, last_sync_status, last_sync_error)",
       )
       .eq("user_id", user.id)
       .eq("id", accountId)
@@ -102,11 +102,12 @@ export async function getAccountDetailData(
       throw new Error("Failed to fetch account detail information");
     }
 
+    console.log(`Insititution status: ${accountData.institution.status}`);
     const health = deriveConnectionHealth({
-      connectionStatus: accountData.instituion.status,
-      syncStatus: accountData.instituion.last_sync_status,
-      lastSyncedAt: accountData.instituion.last_sync_at,
-      lastSyncError: accountData.instituion.last_sync_error,
+      connectionStatus: accountData.institution.status,
+      syncStatus: accountData.institution.last_sync_status,
+      lastSyncedAt: accountData.institution.last_sync_at,
+      lastSyncError: accountData.institution.last_sync_error,
     });
 
     const account = { ...accountData, health };

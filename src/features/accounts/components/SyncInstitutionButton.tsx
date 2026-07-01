@@ -47,7 +47,12 @@ function SyncInstitutionButton({ plaidItemId }: Props) {
     }
   }
   return (
-    <button type="button" onClick={syncTransactions} disabled={isSyncing}>
+    <button
+      type="button"
+      onClick={syncTransactions}
+      disabled={isSyncing}
+      className="btn-primary max-w-16"
+    >
       <RefreshCw className={`h-4 w-4 ${isSyncing ? "animate-spin" : ""}`} />
       {isSyncing ? "Synchronizing" : "Retry synchronization"}
     </button>
