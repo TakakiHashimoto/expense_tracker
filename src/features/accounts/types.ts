@@ -9,10 +9,10 @@ export type AccountQueryRowType = {
   plaid_item: {
     id: string;
     institution_name: string;
-    last_sync_status: SyncStatus;
-    last_sync_error: string;
-    last_sync_at: string;
-    status: ConnectionStatus;
+    last_sync_status: SyncStatus | null;
+    last_sync_error: string | null;
+    last_sync_at: string | null;
+    status: ConnectionStatus | null;
   };
 };
 

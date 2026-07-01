@@ -87,23 +87,14 @@ function AccountDetailPageClient({ account }: Props) {
               </div>
             </div>
             <div className="flex items-center gap-4 mt-6">
-              {presentation.label === "Healthy" && (
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-surface-container-high rounded-full">
-                  <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-                  <span className="text-primary font-label-sm text-label-sm uppercase tracking-widest">
-                    Healthy
-                  </span>
-                </div>
-              )}
-
-              {presentation.label === "Needs update" && (
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-surface-container-high rounded-full">
-                  <span className="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
-                  <span className="text-tertiary font-label-sm text-label-sm uppercase tracking-widest">
-                    Needs update
-                  </span>
-                </div>
-              )}
+              <div
+                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${presentation.badgeClassName}`}
+              >
+                <span className="w-2 h-2 rounded-full bg-current animate-pulse" />
+                <span className="font-label-sm text-label-sm uppercase tracking-widest">
+                  {presentation.label}
+                </span>
+              </div>
 
               <span className="text-slate-muted font-label-bold text-label-bold">
                 Last Sync: {formatLastSync(account.institution.lastSyncAt)}
@@ -139,7 +130,6 @@ function AccountDetailPageClient({ account }: Props) {
             <div className="flex items-center gap-2 my-5">
               <ShieldAlert />
               <p>{presentation.description}</p>
-              <p>Demo text</p>
             </div>
           )}
 

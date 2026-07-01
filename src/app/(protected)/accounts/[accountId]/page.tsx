@@ -3,7 +3,7 @@ import AccountDetailPageClient from "@/features/accounts/pages/AccountDetailPage
 
 type Props = { params: Promise<{ accountId: string }> };
 
-async function page({ params }: Props) {
+async function Page({ params }: Props) {
   const { accountId } = await params;
   const res = await getAccountDetailData(accountId);
   if (!res.ok) {
@@ -18,4 +18,4 @@ async function page({ params }: Props) {
   return <AccountDetailPageClient account={res.account} />;
 }
 
-export default page;
+export default Page;

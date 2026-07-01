@@ -37,15 +37,16 @@ export async function getAccountPageData(): Promise<AccountPageData> {
 
   // reshape returned data into AccountPageInstitution
   for (const account of accountData) {
-    const plaidItemId = account.plaid_item?.id || "Unknown";
-    const institutionName = account.plaid_item?.institution_name || "Unknown";
-    const syncStatus = account.plaid_item?.last_sync_status || "never_synced";
+    const plaidItemId = account.plaid_item?.id;
+    const institutionName = account.plaid_item?.institution_name ?? "Unknown";
 
     const existingInstitution = accountMap.get(plaidItemId);
 
-    // define health: If last_sync_status === "succeed"
+    const connectionStatus = account.plaid_item.status ?? "error";
+    const syncStatus = account.plaid_item?.last_sync_status || "never_synced";
+
     const health = deriveConnectionHealth({
-      connectionStatus: account.plaid_item.status,
+      connectionStatus: connectionStatus,
       syncStatus: syncStatus,
       lastSyncedAt: account.plaid_item.last_sync_at,
       lastSyncError: account.plaid_item.last_sync_error,
@@ -54,7 +55,7 @@ export async function getAccountPageData(): Promise<AccountPageData> {
     const reshaped: AccountPageInstitution = existingInstitution ?? {
       plaidItemId,
       institutionName,
-      connectionStatus: account.plaid_item.status,
+      connectionStatus: connectionStatus,
       syncStatus: syncStatus,
       health: health,
       lastSyncError: account.plaid_item.last_sync_error,
