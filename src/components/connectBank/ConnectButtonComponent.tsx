@@ -211,9 +211,9 @@ function ConnectButtonComponent({ title }: { title: string }) {
     }
   }
   return (
-    <div className="flex flex-col gap-6 relative">
+    <div className="flex flex-col gap-6 relative shadow-lg rounded-2xl">
       <button
-        className="btn-primary"
+        className="btn-primary shadow-lg"
         onClick={handleClick}
         disabled={!ready || isBusy}
       >
