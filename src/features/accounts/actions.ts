@@ -9,6 +9,21 @@ import {
   AccountDetailPageData,
 } from "./types";
 import { deriveConnectionHealth } from "./lib/lib.accounts";
+import { TransactionFilters } from "../transactions/types";
+
+type TransactionQueryRowType = {
+  id: string;
+  merchant: string | null;
+  name: string | null;
+  amount: number | string;
+  posted_at: string;
+  category_id: string | null;
+  category: { name: string | null; kind: "income" | "expense" | null } | null;
+  account: {
+    name: string | null;
+    plaid_item: { institution_name: string | null } | null;
+  } | null;
+};
 
 export async function getAccountPageData(): Promise<AccountPageData> {
   const supabase = await createClient();
@@ -138,4 +153,85 @@ export async function getAccountDetailData(
     console.error("Server Error while fetch account detail info", e);
     return { ok: false, error: "Failed to fetch account detail information" };
   }
+}
+
+// get recent transactions for specfic account
+export async function getAccountSpecificTransaction({
+  accountId,
+  filters,
+  q,
+}: {
+  accountId: string;
+  filters: TransactionFilters;
+  q: string;
+}) {
+  const supabase = await createClient();
+  const user = await grabUser(supabase);
+
+  const shouldFilterCategoryKind =
+    filters.type === "income" || filters.type === "expense";
+
+  const categorySelect = shouldFilterCategoryKind
+    ? "category: categories!inner(name, kind)"
+    : "category: categories(name, kind)";
+
+  const sortColumnName =
+    filters.sort === "amount_asc" || filters.sort === "amount_desc"
+      ? "amount"
+      : "posted_at";
+  const sortOrder =
+    filters.sort === "amount_asc" || filters.sort === "date_asc"
+      ? { ascending: true }
+      : { ascending: false };
+
+  // shape the query first before actually fetching data
+  let query = supabase
+    .from("transactions")
+    .select(
+      `id, name, merchant, amount, posted_at, category_id, ${categorySelect}, account: accounts(name, plaid_item: plaid_items(institution_name))`,
+    )
+    .eq("user_id", user.id)
+    .eq("account_id", accountId)
+    .eq("is_removed", false);
+
+  if (q) {
+    query = query.or(`name.ilike.%${q}%,merchant.ilike.%${q}%`);
+  }
+
+  if (filters.type === "uncategorized") {
+    query = query.is("category_id", null);
+  }
+
+  if (filters.type === "income") {
+    query = query.eq("category.kind", "income");
+  }
+
+  if (filters.type === "expense") {
+    query = query.eq("category.kind", "expense");
+  }
+
+  const { data: transactionData, error: transactionError } = await query
+    .order(sortColumnName, sortOrder)
+    .limit(50)
+    .returns<TransactionQueryRowType[]>();
+
+  if (transactionError) {
+    console.error("Failed to fetch transactions", transactionError);
+    return { ok: false, error: "Failed to fetch transactions" };
+  }
+
+  const result = transactionData.map((t) => ({
+    id: t.id,
+    name: t.name ?? "Unknown",
+    merchant: t.merchant ?? "Unknown merchant",
+    amount: Number(t.amount),
+    date: t.posted_at,
+    categoryId: t.category_id,
+    categoryName: t.category?.name ?? null,
+    categoryKind: t.category?.kind ?? null,
+    accountName: t.account?.name ?? null,
+    institutionName: t.account?.plaid_item?.institution_name ?? null,
+  }));
+
+  return { ok: true, transactions: result };
 }

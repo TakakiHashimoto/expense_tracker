@@ -53,7 +53,7 @@ function Search({ placeholder }: { placeholder: string }) {
   }, []);
 
   return (
-    <div className="flex items-center gap-4 bg-surface-container-lowest px-4 py-2 rounded-xl w-full max-w-md transition-all focus-within:bg-surface-container-low group">
+    <div className="flex items-center gap-4 bg-surface-container-lowest shadow-lg px-4 py-2 rounded-xl w-full max-w-md transition-all focus-within:bg-surface-container-low group">
       <span className="material-symbols-outlined text-on-surface-variant group-focus-within:text-primary transition-colors">
         search
       </span>

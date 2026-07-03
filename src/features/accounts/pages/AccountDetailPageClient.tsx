@@ -9,46 +9,57 @@ import { formatLastSync } from "../lib/formatSyncTime";
 import { formatCurrency } from "../lib/formatCurrency";
 import RepairConnectionButton from "../components/RepairConnectionButton";
 import SyncInstitutionButton from "../components/SyncInstitutionButton";
+import {
+  TransactionFilters,
+  TransactionItem,
+} from "@/features/transactions/types";
+import Search from "@/features/transactions/components/Search";
+import TransactionTypeFilter from "@/features/transactions/components/TransactionTypeFilter";
+import TransactionSort from "@/features/transactions/components/TransactionSort";
+import Transactions from "../components/Transactions";
 
-type Props = { account: AccountDetailPageData };
+type Props = {
+  account: AccountDetailPageData;
+  transactions: TransactionItem[];
+  filters: TransactionFilters;
+};
 
-function AccountDetailPageClient({ account }: Props) {
-  const healthPresentation: Record<ConnectionHealth, HealthPresentation> = {
-    healthy: {
-      label: "Healthy",
-      description: null,
-      badgeClassName: "bg-primary/10 text-primary",
-      action: null,
-    },
-    needs_update: {
-      label: "Needs update",
-      description:
-        "Your bank requires you to update or confirm this connection.",
-      badgeClassName: "bg-error-container/20 text-tertiary",
-      action: "repair",
-    },
-    sync_failed: {
-      label: "Sync failed",
-      description:
-        "The latest synchronization failed. Your previous data is still available.",
-      badgeClassName: "bg-error-container/20 text-tertiary",
-      action: "sync",
-    },
-    never_synced: {
-      label: "Never synced",
-      description:
-        "This institution has not completed its first synchronization.",
-      badgeClassName: "bg-surface-container-high text-on-surface-variant",
-      action: "sync",
-    },
-    disconnected: {
-      label: "Disconnected",
-      description: "This institution is no longer connected.",
-      badgeClassName: "bg-surface-container-high text-on-surface-variant",
-      action: null,
-    },
-  };
+const healthPresentation: Record<ConnectionHealth, HealthPresentation> = {
+  healthy: {
+    label: "Healthy",
+    description: null,
+    badgeClassName: "bg-primary/10 text-primary",
+    action: null,
+  },
+  needs_update: {
+    label: "Needs update",
+    description: "Your bank requires you to update or confirm this connection.",
+    badgeClassName: "bg-error-container/20 text-tertiary",
+    action: "repair",
+  },
+  sync_failed: {
+    label: "Sync failed",
+    description:
+      "The latest synchronization failed. Your previous data is still available.",
+    badgeClassName: "bg-error-container/20 text-tertiary",
+    action: "sync",
+  },
+  never_synced: {
+    label: "Never synced",
+    description:
+      "This institution has not completed its first synchronization.",
+    badgeClassName: "bg-surface-container-high text-on-surface-variant",
+    action: "sync",
+  },
+  disconnected: {
+    label: "Disconnected",
+    description: "This institution is no longer connected.",
+    badgeClassName: "bg-surface-container-high text-on-surface-variant",
+    action: null,
+  },
+};
 
+function AccountDetailPageClient({ account, transactions, filters }: Props) {
   const presentation = healthPresentation[account.health] ?? {
     label: "Unknown",
     description: "We could not determine this account connection status.",
@@ -124,6 +135,12 @@ function AccountDetailPageClient({ account }: Props) {
           </div>
         </div>
       </section>
+
+      {/* transaction section */}
+
+      <Transactions transactions={transactions} filters={filters} />
+
+      {/* when updates or sync is needed */}
       <div className="xl:col-span-4 space-y-6">
         <div className="flex flex-col gap-2">
           {presentation.description && (
