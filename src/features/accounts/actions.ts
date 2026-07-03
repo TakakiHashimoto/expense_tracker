@@ -192,7 +192,7 @@ export async function getAccountSpecificTransaction({
     )
     .eq("user_id", user.id)
     .eq("account_id", accountId)
-    .eq("is_removed", false);
+    .or("is_removed.is.null,is_removed.eq.false");
 
   if (q) {
     query = query.or(`name.ilike.%${q}%,merchant.ilike.%${q}%`);
@@ -232,8 +232,6 @@ export async function getAccountSpecificTransaction({
     accountName: t.account?.name ?? null,
     institutionName: t.account?.plaid_item?.institution_name ?? null,
   }));
-
-  console.log(result);
 
   return { ok: true, transactions: result };
 }

@@ -24,11 +24,6 @@ async function Page({ params, searchParams }: Props) {
   const normalizedQuery = sParams.q?.trim().toLowerCase() || "";
 
   const accountDetailData = await getAccountDetailData(accountId);
-  const accountSpecificTransaction = await getAccountSpecificTransaction({
-    accountId,
-    filters,
-    q: normalizedQuery,
-  });
 
   if (!accountDetailData.ok) {
     return (
@@ -38,6 +33,12 @@ async function Page({ params, searchParams }: Props) {
       </div>
     );
   }
+
+  const accountSpecificTransaction = await getAccountSpecificTransaction({
+    accountId,
+    filters,
+    q: normalizedQuery,
+  });
 
   if (
     !accountSpecificTransaction.ok ||

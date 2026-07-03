@@ -13,9 +13,6 @@ import {
   TransactionFilters,
   TransactionItem,
 } from "@/features/transactions/types";
-import Search from "@/features/transactions/components/Search";
-import TransactionTypeFilter from "@/features/transactions/components/TransactionTypeFilter";
-import TransactionSort from "@/features/transactions/components/TransactionSort";
 import Transactions from "../components/Transactions";
 
 type Props = {
@@ -90,7 +87,9 @@ function AccountDetailPageClient({ account, transactions, filters }: Props) {
                   {account.name}
                 </h2>
                 <span className="text-slate-muted font-light">
-                  ••••{account.mask}
+                  {account.mask
+                    ? `•••• ${account.mask}`
+                    : "Account number unavailable"}
                 </span>
                 <p className="text-slate-muted font-body-lg text-lg mt-1">
                   {account.institution.institutionName} • {account.type}
@@ -127,7 +126,6 @@ function AccountDetailPageClient({ account, transactions, filters }: Props) {
               <span
                 className="material-symbols-outlined text-sm cursor-help"
                 data-icon="info"
-                title="Pending transactions: $20.00"
               >
                 info
               </span>
