@@ -125,13 +125,6 @@ async function getTodayExpenses(
   const { data, error } = await supabase.rpc("get_daily_expenses", {
     start_ts: range.todayStartIso,
   });
-  console.log(data);
-  // const { data: todayExpensesArr, error } = await supabase
-  //   .from("transactions")
-  //   .select("amount.sum()")
-  //   .eq("user_id", user.id)
-  //   .lt("amount", 0)
-  //   .gte("posted_at", midnight);
 
   if (error) {
     console.error(error);

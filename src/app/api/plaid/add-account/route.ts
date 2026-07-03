@@ -18,8 +18,6 @@ export async function POST(req: NextRequest) {
   // get hold of plaid item id user intends to add account to
   const { plaidItemUuid } = await req.json();
 
-  console.log(plaidItemUuid);
-
   if (!plaidItemUuid) {
     return NextResponse.json(
       { error: "plaid item is not provided" },

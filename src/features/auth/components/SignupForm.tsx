@@ -26,7 +26,7 @@ export default function SignupForm() {
     const { error } = await supabase.auth.signUp(data);
     if (error) {
       // if the user is already in the database, redirect them to login page
-      console.log(error);
+      console.error("sign up failed", error);
       setSignUpError(error.message);
       return;
     }

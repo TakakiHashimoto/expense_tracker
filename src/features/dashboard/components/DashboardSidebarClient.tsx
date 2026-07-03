@@ -23,7 +23,6 @@ function DashboardSidebarClient({
   logout: () => void;
 }) {
   const pathname = usePathname();
-  console.log(pathname);
   return (
     <aside className="fixed left-0 top-0 h-screen max-w-72 w-72 bg-slate-950/80 backdrop-blur-3xl flex flex-col p-6 gap-8 shadow-[20px_0_40px_rgba(0,0,0,0.4)] z-50">
       <div className="flex flex-col gap-1">

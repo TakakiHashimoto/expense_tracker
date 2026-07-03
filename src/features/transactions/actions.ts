@@ -135,7 +135,5 @@ export async function getTransactionDetail(transactionId: string) {
     throw new Error("Failed to fetch categories");
   }
 
-  console.log(transactionData);
-  console.log(categData);
   return { transaction: transactionData, categories: categData };
 }

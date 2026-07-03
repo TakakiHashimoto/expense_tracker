@@ -24,7 +24,7 @@ async function getUserOnboardingState() {
 
     return { ok: true, hasPlaidItems: (count ?? 0) > 0 };
   } catch (e) {
-    console.log(e);
+    console.error(e);
     return { ok: false, error: "User is not authenticated" };
   }
 }

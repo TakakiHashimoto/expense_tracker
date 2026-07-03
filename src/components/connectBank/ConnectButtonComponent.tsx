@@ -72,6 +72,7 @@ function ConnectButtonComponent({ title }: { title: string }) {
       console.log("Plaid Link exited", { err, metadata });
 
       if (err) {
+        console.error("Exiting open link failed", err);
         setStatus("connect_error");
         setFrontError("Bank connection was closed before completion.");
         return;
@@ -148,13 +149,12 @@ function ConnectButtonComponent({ title }: { title: string }) {
         }
 
         const syncResult = await syncRes.json();
-        console.log(syncResult);
         setStatus("success");
         router.push("/dashboard");
         router.refresh();
       } catch (e) {
         // if above failed, what should I do?
-        console.log("Transaction sync failed", e);
+        console.error("Transaction sync failed", e);
         setStatus("sync_error");
         setFrontError(
           e instanceof Error
@@ -190,20 +190,19 @@ function ConnectButtonComponent({ title }: { title: string }) {
 
       if (!syncRes.ok) {
         const errorBody = await syncRes.json().catch(() => null);
-        console.log(`Retry Sync failed: ${errorBody}`);
+        console.error(`Retry Sync failed: ${errorBody}`);
         throw new Error(
           "Transaction Sync failed again. Please re-try in a moment",
         );
       }
 
       const syncResult = await syncRes.json();
-      console.log(syncResult);
       setStatus("success");
       router.push("/dashboard");
       router.refresh();
     } catch (e) {
       // if above failed, what should I do?
-      console.log(`Plaid connect flow failed: ${e}`);
+      console.error(`Plaid connect flow failed: ${e}`);
       setStatus("sync_error");
       setFrontError(
         e instanceof Error ? e.message : "syncing transaction failed again.",

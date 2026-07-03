@@ -13,7 +13,6 @@ export async function GET(request: Request) {
   const code = url.searchParams.get("code"); // code is needed to exchange with session
   const next = url.searchParams.get("next") ?? "/connect-bank"; // ?? means if the leftside is null, returns right side.
 
-  console.log(code, next);
   const safeUrl =
     next.startsWith("/") && !next.startsWith("//") ? next : "/connect-bank";
 

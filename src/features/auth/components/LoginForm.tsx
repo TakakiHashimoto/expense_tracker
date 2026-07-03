@@ -13,7 +13,7 @@ export default function LoginForm() {
 
   const [loginError, setLoginError] = useState<string | null>(null);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     const typedData = new FormData(e.currentTarget);
     // const formData = Object.fromEntries(loginData.entries());
@@ -27,8 +27,7 @@ export default function LoginForm() {
 
     const { error } = await supabase.auth.signInWithPassword(loginData);
     if (error) {
-      // console.log(error.code); // invalid_credentials
-      // console.log(error.message); // Invalid login credentials
+      console.error("Sign in failed", error);
       setLoginError(error.message);
       return;
     }
