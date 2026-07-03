@@ -3,8 +3,10 @@
 // how to get category ?
 import formatTransactionDate from "@/lib/formatTransactionDate";
 import { formatAmount } from "@/lib/formatValue";
+import Link from "next/link";
 
 type RecentTransactionItemProp = {
+  id: string;
   shop: string;
   category: string | null;
   categoryKind: "income" | "expense" | null;
@@ -24,6 +26,7 @@ const categoryIcons: Record<string, string> = {
 };
 
 function RecentTransactionItem({
+  id,
   shop,
   category,
   categoryKind,
@@ -34,7 +37,10 @@ function RecentTransactionItem({
   const icon = category ? categoryIcons[category] : null;
 
   return (
-    <div className="flex items-center justify-between group cursor-pointer hover:bg-white/5 p-2 -mx-2 rounded-xl transition-colors">
+    <Link
+      href={`/transactions/${id}`}
+      className="flex items-center justify-between group cursor-pointer hover:bg-white/5 p-2 -mx-2 rounded-xl transition-colors"
+    >
       <div className="flex items-center gap-4 min-w-0">
         <div
           className={`w-12 h-12 rounded-2xl flex shrink-0 items-center justify-center transition-all ${
@@ -70,7 +76,7 @@ function RecentTransactionItem({
           Approved
         </p> */}
       </div>
-    </div>
+    </Link>
   );
 }
 

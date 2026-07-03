@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { DashboardAccount } from "../type";
 
 type Props = { account: DashboardAccount };
@@ -10,7 +11,10 @@ function AccountItem({ account }: Props) {
   const institutionName = account.institutionName ?? "Linked institution";
 
   return (
-    <div className="group rounded-3xl border border-outline-variant/10 bg-surface-container-low p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:bg-white/3 hover:shadow-xl">
+    <Link
+      href={`/accounts/${account.id}`}
+      className="group rounded-3xl border border-outline-variant/10 bg-surface-container-low p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:bg-white/3 hover:shadow-xl"
+    >
       <div className="mb-7 flex items-start justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 ring-1 ring-primary/10 transition-colors group-hover:bg-primary/15">
@@ -63,7 +67,7 @@ function AccountItem({ account }: Props) {
           </span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 

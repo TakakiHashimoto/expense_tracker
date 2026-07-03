@@ -65,7 +65,7 @@ function AccountDetailPageClient({ account, transactions, filters }: Props) {
   };
 
   return (
-    <main className="ml-72 mt-12 p-12 max-w-container-max relative overflow-x-hidden">
+    <main className="ml-72 mt-8 p-12 max-w-container-max relative overflow-x-hidden">
       <Link
         href={"/accounts"}
         className="mb-8 flex items-center gap-2 text-slate-muted hover:text-primary transition-colors cursor-pointer w-max group"

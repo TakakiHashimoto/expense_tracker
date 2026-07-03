@@ -42,6 +42,7 @@ function RecentTransactions({ transactions }: TransactionsType) {
       <div className="flex flex-col gap-6">
         {displayTransactions.map((t) => (
           <RecentTransactionItem
+            id={t.id}
             key={t.id}
             shop={t.name}
             category={t.categoryName}
