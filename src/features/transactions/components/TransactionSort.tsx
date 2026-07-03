@@ -4,7 +4,7 @@ import type { TransactionSort } from "../types";
 import Link from "next/link";
 import { MoveDown, MoveUp } from "lucide-react";
 
-const activeFilterClass = "bg-surface-container-highest text-primary";
+const activeFilterClass = "bg-surface-container-highest text-primary shadow-lg";
 const inactiveFilterClass = "text-on-surface-variant hover:text-on-surface";
 
 function buildHref({

@@ -233,5 +233,7 @@ export async function getAccountSpecificTransaction({
     institutionName: t.account?.plaid_item?.institution_name ?? null,
   }));
 
+  console.log(result);
+
   return { ok: true, transactions: result };
 }

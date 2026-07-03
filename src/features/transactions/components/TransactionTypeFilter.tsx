@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import type { TransactionTypeFilter } from "../types";
 
-const activeFilterClass = "bg-surface-container-highest text-primary";
+const activeFilterClass = "bg-surface-container-highest text-primary shadow-lg";
 const inactiveFilterClass = "text-on-surface-variant hover:text-on-surface";
 
 type Props = { filterType: TransactionTypeFilter };

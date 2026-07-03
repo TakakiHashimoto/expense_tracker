@@ -1,10 +1,12 @@
 import { formatAmount } from "@/lib/formatValue";
 import { type TransactionItem } from "../types";
 import Link from "next/link";
+import { getCategIcon } from "@/lib/categIconMap";
 
 type Props = { transaction: TransactionItem };
 
 function TransactionItemRow({ transaction }: Props) {
+  const CategoryIcon = getCategIcon(transaction.categoryName);
   return (
     <Link
       href={`/transactions/${transaction.id}`}
@@ -12,9 +14,7 @@ function TransactionItemRow({ transaction }: Props) {
     >
       <div className="flex items-center gap-6">
         <div className="h-12 w-12 rounded-xl bg-surface-container-high flex items-center justify-center">
-          <span className="material-symbols-outlined text-secondary">
-            shopping_bag
-          </span>
+          <CategoryIcon className="material-symbols-outlined text-secondary" />
         </div>
         <div>
           <p className="font-bold text-slate-100">{transaction.name}</p>
