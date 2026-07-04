@@ -22,6 +22,12 @@ function isValidMonthDate(input: string) {
   return date.toISOString().slice(0, 10) === input;
 }
 
+function getNextMonthStart(month: string) {
+  const date = new Date(`${month}T00:00:00Z`);
+  date.setUTCMonth(date.getUTCMonth() + 1);
+  return date.toISOString().slice(0, 10);
+}
+
 /**
  * @params categoryId, amount, month
  */
@@ -133,24 +139,30 @@ export async function getBudgets(): Promise<BudgetAnalysisReturn> {
   const { data: transactions, error: transactionError } = await supabase
     .from("transactions")
     .select("id, category_id, amount, posted_at")
-    .eq("user_id", user.id);
+    .eq("user_id", user.id)
+    .lt("amount", 0);
 
   if (!transactions || transactionError) {
     return { ok: false, error: "Failed to fetch transactions" };
   }
 
+  console.log(transactions);
   let result = [];
+
   for (const budget of budgetData) {
-    const month = budget.month.split("-")[1];
+    const month = budget.month;
+    const nextMonthStart = getNextMonthStart(month);
     const thisMonthTransactionsForCateg = transactions.filter((tra) => {
       return (
-        tra.category_id === budget.category.id && tra.posted_at.includes(month)
+        tra.category_id === budget.category.id &&
+        tra.posted_at >= month &&
+        tra.posted_at < nextMonthStart
       );
     });
 
     const thisMonthSpending = thisMonthTransactionsForCateg.reduce(
       (sum, cur) => {
-        return sum + cur.amount;
+        return sum + Math.abs(cur.amount);
       },
       0,
     );
@@ -164,7 +176,7 @@ export async function getBudgets(): Promise<BudgetAnalysisReturn> {
       spent: thisMonthSpending,
       remaining: remaining > 0 ? remaining : 0,
       percentUsed,
-      isOverSpending: percentUsed > 80 ? true : false,
+      isOverSpending: thisMonthSpending > budget.amount,
     };
 
     const returnData = { ...budget, ...analysis };
