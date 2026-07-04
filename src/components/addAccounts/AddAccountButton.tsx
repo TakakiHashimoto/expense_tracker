@@ -1,10 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-// 1. user clicks the button => generate link_token
-// 2. with this link_token, opens the update portal
-// 3. onSuccess, sync accounts to my database
-// 4. refresh the page (/accounts, /dashboard)
 
 import { useEffect, useState } from "react";
 import { usePlaidLink } from "react-plaid-link";
@@ -84,8 +80,8 @@ function AddAccountButton({ plaidItemUuid }: Props) {
       }
     },
     onExit: (err, metadata) => {
-      console.error(err);
       if (err) {
+        console.error(err);
         setFrontError("Something went wrong while opening your account modal");
       }
       setStatus("idle");
