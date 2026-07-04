@@ -1,4 +1,4 @@
-function page() {
+function BudgetDisplayPageClient() {
   return (
     <main className="flex-1 ml-78 p-12 max-w-container-max mx-auto ">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
@@ -306,4 +306,4 @@ function page() {
   );
 }
 
-export default page;
+export default BudgetDisplayPageClient;

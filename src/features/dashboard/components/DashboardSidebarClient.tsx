@@ -2,6 +2,7 @@
 
 import { User } from "@supabase/supabase-js";
 import {
+  BadgeDollarSign,
   CircleUserRound,
   LayoutDashboard,
   Receipt,
@@ -54,6 +55,13 @@ function DashboardSidebarClient({
         >
           <Wallet className="material-symbols-outlined" />
           <span>Accounts</span>
+        </Link>
+        <Link
+          className={`flex items-center gap-3 px-4 py-3 ${pathname === "/settings" ? activeClass : inactiveClass}  transition-all duration-300 ease-in-out active:scale-95 `}
+          href="/budgets"
+        >
+          <BadgeDollarSign className="material-symbols-outlined" />
+          <span>Budgets</span>
         </Link>
         <Link
           className={`flex items-center gap-3 px-4 py-3 ${pathname === "/settings" ? activeClass : inactiveClass}  transition-all duration-300 ease-in-out active:scale-95 `}

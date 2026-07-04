@@ -67,7 +67,7 @@ function BudgetCreatePageClient({ categories }: Props) {
   return (
     <main className="grow lg:ml-72 min-h-screen relative overflow-hidden bg-background">
       <div className="relative z-10 p-gutter md:py-12 md:px-6 max-w-container-max mx-auto">
-        <div className="mb-12">
+        <div className="mb-12 w-full">
           {/* <nav className="flex items-center gap-x-2 text-label-bold text-slate-muted mb-4 uppercase tracking-widest">
             <a className="hover:text-primary" href="#">
               Budgets
@@ -80,7 +80,7 @@ function BudgetCreatePageClient({ categories }: Props) {
           <h2 className="font-display-lg text-display-lg text-on-surface tracking-tight">
             Define New Budget
           </h2>
-          <p className="font-body-lg text-body-lg text-slate-muted max-w-2xl mt-2">
+          <p className="font-body-lg text-body-lg text-slate-muted max-w-2xl mt-2 w-full">
             Set precision-engineered financial boundaries for your assets and
             expenses. Our system monitors real-time flows to keep your wealth
             optimized.
@@ -157,11 +157,11 @@ function BudgetCreatePageClient({ categories }: Props) {
 
                 <div className="flex flex-col sm:flex-row items-center gap-4 pt-6">
                   <button
-                    className="w-full sm:w-auto bg-primary text-on-primary font-headline-md text-headline-md py-4 px-12 rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
+                    className={`btn-primary`}
                     type="submit"
                     disabled={isAdding}
                   >
-                    Create Budget
+                    {isAdding ? "Adding budget..." : "Create Budget"}
                   </button>
                   <button
                     className="w-full sm:w-auto text-slate-muted hover:text-on-surface font-body-lg text-body-lg py-4 px-8 transition-colors"

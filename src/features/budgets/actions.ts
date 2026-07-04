@@ -2,7 +2,11 @@
 
 import { grabUser } from "@/lib/getUser";
 import { createClient } from "@/lib/supabase/server";
-import { CategoryReturnType } from "./types";
+import {
+  BudgetAnalysisReturn,
+  BudgetsRowType,
+  CategoryReturnType,
+} from "./types";
 
 function isValidMonthDate(input: string) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(input)) {
@@ -110,4 +114,64 @@ export async function getCategories(): Promise<CategoryReturnType> {
   }
 
   return { ok: true, categories: categoryData };
+}
+
+export async function getBudgets(): Promise<BudgetAnalysisReturn> {
+  const supabase = await createClient();
+  const user = await grabUser(supabase);
+
+  const { data: budgetData, error: budgetError } = await supabase
+    .from("budgets")
+    .select("id, amount, month, category: categories(id, name, kind)")
+    .eq("user_id", user.id)
+    .returns<BudgetsRowType[]>();
+
+  if (!budgetData || budgetError) {
+    return { ok: false, error: "Failed to fetch budgets" };
+  }
+
+  const { data: transactions, error: transactionError } = await supabase
+    .from("transactions")
+    .select("id, category_id, amount, posted_at")
+    .eq("user_id", user.id);
+
+  if (!transactions || transactionError) {
+    return { ok: false, error: "Failed to fetch transactions" };
+  }
+
+  let result = [];
+  for (const budget of budgetData) {
+    const month = budget.month.split("-")[1];
+    const thisMonthTransactionsForCateg = transactions.filter((tra) => {
+      return (
+        tra.category_id === budget.category.id && tra.posted_at.includes(month)
+      );
+    });
+
+    const thisMonthSpending = thisMonthTransactionsForCateg.reduce(
+      (sum, cur) => {
+        return sum + cur.amount;
+      },
+      0,
+    );
+
+    const remaining = budget.amount - thisMonthSpending;
+    const percentUsed =
+      remaining > 0
+        ? Math.floor((thisMonthSpending / budget.amount) * 100)
+        : 100;
+    const analysis = {
+      spent: thisMonthSpending,
+      remaining: remaining > 0 ? remaining : 0,
+      percentUsed,
+      isOverSpending: percentUsed > 80 ? true : false,
+    };
+
+    const returnData = { ...budget, ...analysis };
+    result.push(returnData);
+  }
+
+  console.log(result);
+
+  return { ok: true, data: result };
 }
