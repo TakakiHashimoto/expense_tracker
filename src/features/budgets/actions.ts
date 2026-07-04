@@ -1,5 +1,8 @@
+"use server";
+
 import { grabUser } from "@/lib/getUser";
 import { createClient } from "@/lib/supabase/server";
+import { CategoryReturnType } from "./types";
 
 function isValidMonthDate(input: string) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(input)) {
@@ -92,4 +95,21 @@ export async function addBudget({
   }
 
   return { ok: true };
+}
+
+export async function getCategoris(): Promise<CategoryReturnType> {
+  const supabase = await createClient();
+  const user = await grabUser(supabase);
+
+  const { data: categoryData, error: categoryError } = await supabase
+    .from("categories")
+    .select("id, name")
+    .eq("user_id", user.id)
+    .eq("kind", "expense");
+
+  if (!categoryData || categoryError) {
+    throw new Error("Failed to fetch categories");
+  }
+
+  return { ok: true, categories: categoryData };
 }
