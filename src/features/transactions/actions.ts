@@ -6,15 +6,6 @@ import {
   TransactionsPageData,
 } from "./types";
 
-//   id: string;
-//   name: string;
-//   amount: number;
-//   date: string;
-//   categoryName: string | null;
-//   categoryKind: "income" | "expense" | null;
-//   accountName: string | null;
-//   institutionName: string | null;
-
 type TransactionQueryRowType = {
   id: string;
   merchant: string | null;
