@@ -20,7 +20,7 @@ function BudgetCreatePageClient({ categories }: Props) {
 
   const today = new Date();
 
-  const [amount, setAmount] = useState<number>(0);
+  const [amount, setAmount] = useState<string>("");
   const [month, setMonth] = useState<number>(today.getMonth() + 1);
   const [isAdding, setIsAdding] = useState<boolean>(false);
 
@@ -35,14 +35,19 @@ function BudgetCreatePageClient({ categories }: Props) {
       });
       return;
     }
-    const formattedMonth = `${today.getFullYear()}-${month}-01`;
+    const formattedMonth = `${today.getFullYear()}-${String(month).padStart(2, "0")}-01`;
     try {
       setIsAdding(true);
-      await addBudget({
+      const result = await addBudget({
         categoryId: selectedCategoryId,
-        amount,
+        amount: Number(amount),
         month: formattedMonth,
       });
+
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
       const categ = categories.find((ctg) => ctg.id === selectedCategoryId);
       toast.success(`Successfully added budget for ${categ?.name}`);
       router.refresh();
@@ -55,7 +60,7 @@ function BudgetCreatePageClient({ categories }: Props) {
 
   function handleCancel() {
     setSelectedCategoryId(null);
-    setAmount(0);
+    setAmount("");
     setMonth(today.getMonth() + 1);
   }
 
@@ -115,7 +120,7 @@ function BudgetCreatePageClient({ categories }: Props) {
                       <input
                         className="w-full bg-surface-container-lowest border-none focus:ring-2 focus:ring-primary/20 rounded-2xl py-6 pl-12 pr-6 font-headline-md text-headline-md text-on-surface transition-all"
                         type="number"
-                        onChange={(e) => setAmount(Number(e.target.value))}
+                        onChange={(e) => setAmount(e.target.value)}
                         value={amount}
                       />
                     </div>

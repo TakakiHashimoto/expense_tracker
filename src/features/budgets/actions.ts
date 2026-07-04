@@ -41,9 +41,6 @@ export async function addBudget({
   if (!Number.isFinite(amount)) {
     return { ok: false, error: "Amount must be a valid number" };
   }
-  if (typeof amount !== "number") {
-    return { ok: false, error: "Amount needs to be number" };
-  }
   if (amount <= 0) {
     return { ok: false, error: "Amount needs to be a positive number" };
   }
@@ -97,7 +94,7 @@ export async function addBudget({
   return { ok: true };
 }
 
-export async function getCategoris(): Promise<CategoryReturnType> {
+export async function getCategories(): Promise<CategoryReturnType> {
   const supabase = await createClient();
   const user = await grabUser(supabase);
 
@@ -108,7 +105,8 @@ export async function getCategoris(): Promise<CategoryReturnType> {
     .eq("kind", "expense");
 
   if (!categoryData || categoryError) {
-    throw new Error("Failed to fetch categories");
+    console.error(categoryError);
+    return { ok: false, error: "Failed to fetch categories" };
   }
 
   return { ok: true, categories: categoryData };

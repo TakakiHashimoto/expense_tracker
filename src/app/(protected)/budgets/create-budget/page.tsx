@@ -1,8 +1,8 @@
-import { getCategoris } from "@/features/budgets/actions";
+import { getCategories } from "@/features/budgets/actions";
 import BudgetCreatePageClient from "@/features/budgets/pages/BudgetCreatePageClient";
 
 async function page() {
-  const categData = await getCategoris();
+  const categData = await getCategories();
   if (!categData.ok) {
     return (
       <div>
