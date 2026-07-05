@@ -16,10 +16,11 @@ function BudgetCard({ budget }: Props) {
     status === "On Track"
       ? "text-primary bg-primary/10"
       : status === "Warning"
-        ? "text-yellow-500 bg-yellow-500.10"
+        ? "text-yellow-500 bg-yellow-500/10"
         : "text-tertiary bg-tertiary/10";
 
-  const usageBar = `${budget.percentUsed}%`;
+  const displayPercent = Math.min(budget.percentUsed, 100);
+  const usageBar = `${displayPercent}%`;
   return (
     <div className="glass-panel p-5 rounded-3xl emerald-glow transition-all duration-300">
       <div className="flex justify-between items-start mb-8">
@@ -51,7 +52,7 @@ function BudgetCard({ budget }: Props) {
         ></div>
       </div>
       <div className="flex justify-between text-label-bold font-label-bold">
-        <span className="text-slate-muted">{budget.percentUsed} Used</span>
+        <span className="text-slate-muted">{budget.percentUsed}% Used</span>
         <span className="text-on-surface">
           {formatCurrency("CAD", budget.remaining)} Remaining
         </span>
