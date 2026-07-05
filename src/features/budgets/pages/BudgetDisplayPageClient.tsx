@@ -6,7 +6,7 @@ type Props = { budgets: BudgetAnalysis[] };
 
 function BudgetDisplayPageClient({ budgets }: Props) {
   return (
-    <main className="flex-1 ml-78 p-12 max-w-container-max mx-auto ">
+    <main className="flex-1 lg:ml-78 p-12 max-w-container-max mx-auto ">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
           <h2 className="font-display-lg text-display-lg text-on-surface mb-2">
@@ -23,22 +23,14 @@ function BudgetDisplayPageClient({ budgets }: Props) {
         </Link>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {budgets.map((bdg) => (
-          <BudgetCard key={bdg.id} budget={bdg} />
-        ))}
-        <div className="border-2 border-dashed border-white/10 p-card-padding rounded-3xl flex flex-col items-center justify-center text-center group cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 min-h-85">
-          <div className="w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center text-slate-muted group-hover:text-primary group-hover:scale-110 transition-all mb-4">
-            <span className="material-symbols-outlined text-4xl">
-              add_circle
-            </span>
+        {budgets.length === 0 ? (
+          <div>
+            <h3>No budgets yet</h3>
+            <p>Create your first monthly category budget.</p>
           </div>
-          <h3 className="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors">
-            Create Category
-          </h3>
-          <p className="text-body-md font-body-md text-slate-muted mt-2">
-            Define new allocation rules for your portfolio.
-          </p>
-        </div>
+        ) : (
+          budgets.map((bdg) => <BudgetCard key={bdg.id} budget={bdg} />)
+        )}
       </div>
       {/* TODO: Add later */}
       {/* <section className="mt-16 grid grid-cols-1 lg:grid-cols-12 gap-8">
