@@ -11,7 +11,7 @@ async function page() {
     );
   }
 
-  return <BudgetDisplayPageClient />;
+  return <BudgetDisplayPageClient budgets={res.data} />;
 }
 
 export default page;

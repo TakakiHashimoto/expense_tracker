@@ -1,4 +1,10 @@
-function BudgetDisplayPageClient() {
+import Link from "next/link";
+import { BudgetAnalysis } from "../types";
+import BudgetCard from "../components/BudgetCard";
+
+type Props = { budgets: BudgetAnalysis[] };
+
+function BudgetDisplayPageClient({ budgets }: Props) {
   return (
     <main className="flex-1 ml-78 p-12 max-w-container-max mx-auto ">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
@@ -11,189 +17,16 @@ function BudgetDisplayPageClient() {
             categories with precision.
           </p>
         </div>
-        <button className="bg-gradient-to-r from-primary to-primary-container text-on-primary font-headline-md text-[1rem] px-8 py-4 rounded-xl shadow-lg shadow-primary/20 hover:scale-95 transition-transform flex items-center gap-2">
+        <Link href={"/budgets/create-budget"} className="btn-primary">
           <span className="material-symbols-outlined">add</span>
           Add Budget
-        </button>
+        </Link>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <div className="glass-panel p-card-padding rounded-3xl emerald-glow transition-all duration-300">
-          <div className="flex justify-between items-start mb-8">
-            <div className="w-12 h-12 bg-surface-container-high rounded-2xl flex items-center justify-center text-primary">
-              <span className="material-symbols-outlined">home</span>
-            </div>
-            <span className="text-label-bold font-label-bold text-primary bg-primary/10 px-3 py-1 rounded-full">
-              On Track
-            </span>
-          </div>
-          <h3 className="font-headline-md text-headline-md text-on-surface mb-1">
-            Housing
-          </h3>
-          <p className="text-label-bold font-label-bold text-slate-muted uppercase mb-6">
-            Monthly Allocation
-          </p>
-          <div className="flex items-baseline gap-1 mb-2">
-            <span className="font-display-xl text-[2rem] text-on-surface">
-              $3,200
-            </span>
-            <span className="text-slate-muted font-body-md">/ $4,500</span>
-          </div>
-          <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden mb-4">
-            <div className="h-full bg-primary w-[71%] rounded-full shadow-[0_0_8px_rgba(78,222,163,0.4)]"></div>
-          </div>
-          <div className="flex justify-between text-label-bold font-label-bold">
-            <span className="text-slate-muted">71% Used</span>
-            <span className="text-on-surface">$1,300 Remaining</span>
-          </div>
-        </div>
-        <div className="glass-panel p-card-padding rounded-3xl emerald-glow transition-all duration-300">
-          <div className="flex justify-between items-start mb-8">
-            <div className="w-12 h-12 bg-surface-container-high rounded-2xl flex items-center justify-center text-tertiary">
-              <span className="material-symbols-outlined">restaurant</span>
-            </div>
-            <span className="text-label-bold font-label-bold text-tertiary bg-tertiary/10 px-3 py-1 rounded-full">
-              Warning
-            </span>
-          </div>
-          <h3 className="font-headline-md text-headline-md text-on-surface mb-1">
-            Food &amp; Drink
-          </h3>
-          <p className="text-label-bold font-label-bold text-slate-muted uppercase mb-6">
-            Culinary &amp; Dining
-          </p>
-          <div className="flex items-baseline gap-1 mb-2">
-            <span className="font-display-xl text-[2rem] text-on-surface">
-              $1,850
-            </span>
-            <span className="text-slate-muted font-body-md">/ $2,000</span>
-          </div>
-          <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden mb-4">
-            <div className="h-full bg-tertiary-container w-[92%] rounded-full shadow-[0_0_8px_rgba(252,124,120,0.4)]"></div>
-          </div>
-          <div className="flex justify-between text-label-bold font-label-bold">
-            <span className="text-slate-muted">92% Used</span>
-            <span className="text-on-surface">$150 Remaining</span>
-          </div>
-        </div>
-        <div className="glass-panel p-card-padding rounded-3xl emerald-glow transition-all duration-300">
-          <div className="flex justify-between items-start mb-8">
-            <div className="w-12 h-12 bg-surface-container-high rounded-2xl flex items-center justify-center text-secondary">
-              <span className="material-symbols-outlined">directions_car</span>
-            </div>
-            <span className="text-label-bold font-label-bold text-secondary bg-secondary/10 px-3 py-1 rounded-full">
-              Optimal
-            </span>
-          </div>
-          <h3 className="font-headline-md text-headline-md text-on-surface mb-1">
-            Transportation
-          </h3>
-          <p className="text-label-bold font-label-bold text-slate-muted uppercase mb-6">
-            Auto &amp; Transit
-          </p>
-          <div className="flex items-baseline gap-1 mb-2">
-            <span className="font-display-xl text-[2rem] text-on-surface">
-              $450
-            </span>
-            <span className="text-slate-muted font-body-md">/ $1,200</span>
-          </div>
-          <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden mb-4">
-            <div className="h-full bg-secondary w-[37%] rounded-full shadow-[0_0_8px_rgba(173,198,255,0.4)]"></div>
-          </div>
-          <div className="flex justify-between text-label-bold font-label-bold">
-            <span className="text-slate-muted">37% Used</span>
-            <span className="text-on-surface">$750 Remaining</span>
-          </div>
-        </div>
-        <div className="glass-panel p-card-padding rounded-3xl emerald-glow transition-all duration-300">
-          <div className="flex justify-between items-start mb-8">
-            <div className="w-12 h-12 bg-surface-container-high rounded-2xl flex items-center justify-center text-primary">
-              <span className="material-symbols-outlined">theater_comedy</span>
-            </div>
-            <span className="text-label-bold font-label-bold text-primary bg-primary/10 px-3 py-1 rounded-full">
-              On Track
-            </span>
-          </div>
-          <h3 className="font-headline-md text-headline-md text-on-surface mb-1">
-            Entertainment
-          </h3>
-          <p className="text-label-bold font-label-bold text-slate-muted uppercase mb-6">
-            Lifestyle &amp; Leisure
-          </p>
-          <div className="flex items-baseline gap-1 mb-2">
-            <span className="font-display-xl text-[2rem] text-on-surface">
-              $600
-            </span>
-            <span className="text-slate-muted font-body-md">/ $1,500</span>
-          </div>
-          <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden mb-4">
-            <div className="h-full bg-primary w-[40%] rounded-full shadow-[0_0_8px_rgba(78,222,163,0.4)]"></div>
-          </div>
-          <div className="flex justify-between text-label-bold font-label-bold">
-            <span className="text-slate-muted">40% Used</span>
-            <span className="text-on-surface">$900 Remaining</span>
-          </div>
-        </div>
-        <div className="glass-panel p-card-padding rounded-3xl emerald-glow transition-all duration-300">
-          <div className="flex justify-between items-start mb-8">
-            <div className="w-12 h-12 bg-surface-container-high rounded-2xl flex items-center justify-center text-secondary">
-              <span className="material-symbols-outlined">flight</span>
-            </div>
-            <span className="text-label-bold font-label-bold text-secondary bg-secondary/10 px-3 py-1 rounded-full">
-              Savings
-            </span>
-          </div>
-          <h3 className="font-headline-md text-headline-md text-on-surface mb-1">
-            Travel
-          </h3>
-          <p className="text-label-bold font-label-bold text-slate-muted uppercase mb-6">
-            Annual Reserve
-          </p>
-          <div className="flex items-baseline gap-1 mb-2">
-            <span className="font-display-xl text-[2rem] text-on-surface">
-              $12,400
-            </span>
-            <span className="text-slate-muted font-body-md">/ $25,000</span>
-          </div>
-          <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden mb-4">
-            <div className="h-full bg-secondary w-[50%] rounded-full"></div>
-          </div>
-          <div className="flex justify-between text-label-bold font-label-bold">
-            <span className="text-slate-muted">50% Reserved</span>
-            <span className="text-on-surface">$12,600 Remaining</span>
-          </div>
-        </div>
-        <div className="glass-panel p-card-padding rounded-3xl emerald-glow transition-all duration-300">
-          <div className="flex justify-between items-start mb-8">
-            <div className="w-12 h-12 bg-surface-container-high rounded-2xl flex items-center justify-center text-primary">
-              <span className="material-symbols-outlined">
-                health_and_safety
-              </span>
-            </div>
-            <span className="text-label-bold font-label-bold text-primary bg-primary/10 px-3 py-1 rounded-full">
-              On Track
-            </span>
-          </div>
-          <h3 className="font-headline-md text-headline-md text-on-surface mb-1">
-            Health
-          </h3>
-          <p className="text-label-bold font-label-bold text-slate-muted uppercase mb-6">
-            Wellness &amp; Fitness
-          </p>
-          <div className="flex items-baseline gap-1 mb-2">
-            <span className="font-display-xl text-[2rem] text-on-surface">
-              $820
-            </span>
-            <span className="text-slate-muted font-body-md">/ $1,000</span>
-          </div>
-          <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden mb-4">
-            <div className="h-full bg-primary w-[82%] rounded-full shadow-[0_0_8px_rgba(78,222,163,0.4)]"></div>
-          </div>
-          <div className="flex justify-between text-label-bold font-label-bold">
-            <span className="text-slate-muted">82% Used</span>
-            <span className="text-on-surface">$180 Remaining</span>
-          </div>
-        </div>
-        <div className="border-2 border-dashed border-white/10 p-card-padding rounded-3xl flex flex-col items-center justify-center text-center group cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 min-h-[340px]">
+        {budgets.map((bdg) => (
+          <BudgetCard key={bdg.id} budget={bdg} />
+        ))}
+        <div className="border-2 border-dashed border-white/10 p-card-padding rounded-3xl flex flex-col items-center justify-center text-center group cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 min-h-85">
           <div className="w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center text-slate-muted group-hover:text-primary group-hover:scale-110 transition-all mb-4">
             <span className="material-symbols-outlined text-4xl">
               add_circle
@@ -207,7 +40,8 @@ function BudgetDisplayPageClient() {
           </p>
         </div>
       </div>
-      <section className="mt-16 grid grid-cols-1 lg:grid-cols-12 gap-8">
+      {/* TODO: Add later */}
+      {/* <section className="mt-16 grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-8 glass-panel rounded-3xl p-card-padding">
           <div className="flex items-center justify-between mb-8">
             <div>
@@ -301,7 +135,7 @@ function BudgetDisplayPageClient() {
             </button>
           </div>
         </div>
-      </section>
+      </section> */}
     </main>
   );
 }
