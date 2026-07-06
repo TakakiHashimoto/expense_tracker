@@ -183,7 +183,5 @@ export async function getBudgets(): Promise<BudgetAnalysisReturn> {
     result.push(returnData);
   }
 
-  console.log(result);
-
   return { ok: true, data: result };
 }
