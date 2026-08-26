@@ -43,6 +43,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // fetching transaction cursor, which is needed for transaction syncing
     const { data: cursorData, error: cursorError } = await supabase
       .from("plaid_items")
       .select("id, transactions_cursor")
@@ -65,6 +66,8 @@ export async function POST(request: NextRequest) {
     if (secretError || !data) {
       return NextResponse.json({ error: "Couldn't find " }, { status: 404 });
     }
+
+    // You also need access token for transaction syncing
     const access_token = data.access_token;
 
     if (!access_token) {

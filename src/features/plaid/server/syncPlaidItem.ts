@@ -30,6 +30,7 @@ export async function syncPlaidItem({
     plaidClient,
   );
 
+  // You are renewing accouts as well.
   if (refreshAccount) {
     const accounts = await fetchPlaidAccounts(plaidClient, accessToken);
     const snapshotTime = new Date().toISOString();
