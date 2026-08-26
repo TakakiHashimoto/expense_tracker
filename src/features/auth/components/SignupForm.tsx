@@ -19,7 +19,7 @@ export default function SignupForm() {
     const data = {
       email: email,
       password: password,
-      options: { emailRedirectTo: "http://localhost:3002/auth/confirm" },
+      options: { emailRedirectTo: `${window.location.origin}/auth/confirm` },
     };
     // Until the user clicks the link in that email, their session will be null.
 

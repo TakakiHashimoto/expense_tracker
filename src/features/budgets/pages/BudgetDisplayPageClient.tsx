@@ -22,16 +22,20 @@ function BudgetDisplayPageClient({ budgets }: Props) {
           Add Budget
         </Link>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+
+      <div className="flex flex-row justify-start gap-3 flex-wrap">
         {budgets.length === 0 ? (
-          <div>
-            <h3>No budgets yet</h3>
-            <p>Create your first monthly category budget.</p>
+          <div className="flex flex-col bg-white/20 rounded-2xl p-5 flex-1">
+            <h3 className="text-xl">No budgets yet</h3>
+            <p className="text-muted">
+              Create your first monthly category budget.
+            </p>
           </div>
         ) : (
           budgets.map((bdg) => <BudgetCard key={bdg.id} budget={bdg} />)
         )}
       </div>
+
       {/* TODO: Add later */}
       {/* <section className="mt-16 grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-8 glass-panel rounded-3xl p-card-padding">
