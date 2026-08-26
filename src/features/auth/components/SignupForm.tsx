@@ -10,7 +10,7 @@ export default function SignupForm() {
   const [signupError, setSignUpError] = useState<string | null>(null);
   const supabase = createClient();
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     setSignUpError(null); // on every submiit erros is reset
     const signupData = new FormData(e.currentTarget);
