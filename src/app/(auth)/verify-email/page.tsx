@@ -38,12 +38,12 @@ export default function VerifyEmail() {
     setTimeout(() => setIsSending(false), 60000);
   }
   return (
-    <div>
-      <p>We have sent you a verify email</p>
+    <div className="flex flex-col justify-center items-center h-full mt-15">
+      <p>We have sent you a verification email</p>
       <p>Please check your email</p>
       <button
         onClick={handleClick}
-        className="text-blue-500/40"
+        className="text-blue-500/40 cursor-pointer hover:underline"
         disabled={isSending}
       >
         Resend confirmation email

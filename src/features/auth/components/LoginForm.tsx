@@ -35,7 +35,6 @@ export default function LoginForm() {
     // get plaid item for this user
     // If empty, redirect to "connect-bank",
     // If they already have items, redirect to dashboard
-
     const onBoadingState = await getUserOnboardingState();
     if (!onBoadingState.ok) {
       setLoginError("Server Error");
