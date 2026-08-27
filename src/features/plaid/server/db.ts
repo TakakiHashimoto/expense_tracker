@@ -1,5 +1,4 @@
 import { grabUser } from "@/features/dashboard/actions";
-import { createClient } from "@/lib/supabase/server";
 import { normalizeCategory } from "@/lib/transactions.helper";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { RemovedTransaction, Transaction } from "plaid";
@@ -90,12 +89,16 @@ export async function persistSyncResult(
             account_id: accountId,
             category_id: categId,
             category_source: "auto",
-            posted_at: item.datetime ?? item.date,
             amount: normalizedAmount,
             merchant: item.merchant_name,
             plaid_transaction_id: item.transaction_id,
             plaid_item_id: itemUuid,
             pending: item.pending,
+            posted_at: item.datetime ?? item.date,
+            posted_date: item.date,
+            posted_datetime: item.datetime,
+            authorized_date: item.authorized_date,
+            authorized_datetime: item.authorized_datetime,
             authorized_at: item.authorized_datetime ?? item.authorized_date,
             payment_channel: item.payment_channel,
             raw_category: item.personal_finance_category,
@@ -182,6 +185,10 @@ export async function persistSyncResult(
             plaid_transaction_id: item.transaction_id,
             plaid_item_id: itemUuid,
             pending: item.pending,
+            posted_date: item.date,
+            posted_datetime: item.datetime,
+            authorized_date: item.authorized_date,
+            authorized_datetime: item.authorized_datetime,
             authorized_at: item.authorized_datetime ?? item.authorized_date,
             name: item.name,
             payment_channel: item.payment_channel,

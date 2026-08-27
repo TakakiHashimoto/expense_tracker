@@ -4,5 +4,6 @@ import { DashboardData } from "@/features/dashboard/type";
 
 export default async function Dashboard() {
   const data: DashboardData = await getDashboardData();
+
   return <DashboardClient initialValue={data} />;
 }

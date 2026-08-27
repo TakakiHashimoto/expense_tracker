@@ -1,6 +1,7 @@
 import { grabUser } from "@/lib/getUser";
 import { createClient } from "@/lib/supabase/server";
 import {
+  TransactionDetail,
   TransactionFilters,
   TransactionRowType,
   TransactionsPageData,
@@ -8,12 +9,40 @@ import {
 
 type TransactionQueryRowType = {
   id: string;
+  amount: number | string;
   merchant: string | null;
   name: string | null;
-  amount: number | string;
   posted_at: string;
   category_id: string | null;
   category: { name: string | null; kind: "income" | "expense" | null } | null;
+  account: {
+    name: string | null;
+    plaid_item: { institution_name: string | null } | null;
+  } | null;
+};
+
+// "id, amount, merchant, note, name, payment_channel, posted_at, pending, category: categories(id, name, kind), institutionName: plaid_items(institution_name), account: accounts(name, type, mask)",
+type TransactionDetailQueryRow = {
+  id: string;
+  amount: number | string;
+  merchant: string | null;
+  note: string | null;
+  name: string | null;
+
+  posted_date: string;
+  posted_datetime: string | null;
+
+  payment_channel: string | null;
+  pending: boolean;
+
+  category: {
+    id: string;
+    name: string | null;
+    kind: "income" | "expense" | null;
+  } | null;
+
+  institution_name: { institution_name: string };
+
   account: {
     name: string | null;
     plaid_item: { institution_name: string | null } | null;
@@ -103,13 +132,13 @@ export async function getTransactionDetail(transactionId: string) {
   const { data: transactionData, error: transactionError } = await supabase
     .from("transactions")
     .select(
-      "id, amount, merchant, note, name, payment_channel, posted_at, pending, category: categories(id, name, kind), institutionName: plaid_items(institution_name), account: accounts(name, type, mask)",
+      "id, amount, merchant, note, name, payment_channel, posted_date, posted_datetime, pending, category: categories(id, name, kind), institution_name: plaid_items(institution_name), account: accounts(name, type, mask)",
     )
     .eq("user_id", user.id)
     .eq("id", transactionId)
     .eq("is_removed", false)
     .single()
-    .returns<TransactionRowType>();
+    .returns<TransactionDetailQueryRow>();
 
   if (!transactionData || transactionError) {
     console.error("Failed to fetch transaction data", transactionError);
@@ -126,5 +155,25 @@ export async function getTransactionDetail(transactionId: string) {
     throw new Error("Failed to fetch categories");
   }
 
-  return { transaction: transactionData, categories: categData };
+  const transaction: TransactionDetail = {
+    id: transactionData.id,
+    amount: transactionData.amount,
+    merchant: transactionData.merchant,
+    note: transactionData.note,
+    name: transactionData.name,
+
+    postedDate: transactionData.posted_date,
+    postedDatetime: transactionData.posted_datetime,
+
+    paymentChannel: transactionData.payment_channel,
+    pending: transactionData.pending,
+
+    category: transactionData.category,
+
+    institutionName: transactionData.institution_name,
+
+    account: transactionData.account,
+  };
+
+  return { transaction, categories: categData };
 }

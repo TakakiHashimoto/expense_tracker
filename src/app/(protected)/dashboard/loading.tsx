@@ -5,7 +5,6 @@ export default function DashboardLoading() {
         <div className="h-8 w-48 rounded bg-surface-container-low" />
         <div className="h-4 w-72 rounded bg-surface-container-low" />
       </div>
-
       <section className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {Array.from({ length: 4 }).map((_, index) => (
           <div

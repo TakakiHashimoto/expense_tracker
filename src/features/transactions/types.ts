@@ -72,3 +72,30 @@ export function parseTransactionTypeSort(
 
   return "date_desc";
 }
+
+export type TransactionDetail = {
+  id: string;
+  amount: number | string;
+  merchant: string | null;
+  note: string | null;
+  name: string | null;
+
+  postedDate: string;
+  postedDatetime: string | null;
+
+  paymentChannel: string | null;
+  pending: boolean;
+
+  category: {
+    id: string;
+    name: string | null;
+    kind: "income" | "expense" | null;
+  } | null;
+
+  institutionName: { institutionName: string };
+
+  account: {
+    name: string | null;
+    plaidItem: { institutionName: string | null } | null;
+  } | null;
+};

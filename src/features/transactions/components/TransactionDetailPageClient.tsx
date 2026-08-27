@@ -4,18 +4,16 @@ import { formatAmount } from "@/lib/formatValue";
 import { CreditCard, MoveLeft, Pencil } from "lucide-react";
 import Link from "next/link";
 import EditCategoryComponent, { CategoryType } from "./EditCategoryComponent";
-import { TransactionRowType } from "../types";
+import { TransactionDetail } from "../types";
 import { useState } from "react";
 import { updateTransactionCategory } from "../server-actions";
 import { toast } from "sonner";
 
-type Props = { transaction: TransactionRowType; categories: CategoryType[] };
+type Props = { transaction: TransactionDetail; categories: CategoryType[] };
 
 function TransactionDetailPageClient({ transaction, categories }: Props) {
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
-
-  const traSec = transaction.posted_at.split("T")[1].split(".")[0].slice(0, 5);
 
   async function handleChangeCategory(categId: string | null) {
     try {
@@ -92,13 +90,13 @@ function TransactionDetailPageClient({ transaction, categories }: Props) {
               Date &amp; Time
             </p>
             <p className="text-lg font-medium text-on-surface">
-              {new Intl.DateTimeFormat("en-CA", {
-                weekday: "long",
-                month: "long",
-                day: "numeric",
-              }).format(new Date(transaction.posted_at))}
+              {transaction.postedDate}
             </p>
-            <p className="text-sm text-on-surface-variant mt-1">{traSec}</p>
+            {transaction.postedDatetime && (
+              <p className="text-sm text-on-surface-variant mt-1">
+                {transaction.postedDatetime.split("T")[1].slice(0, 5)}
+              </p>
+            )}
           </div>
           <div className="bg-surface-container-lowest p-8 rounded-2xl flex flex-col justify-center">
             <div className="flex justify-between items-center w-full">
