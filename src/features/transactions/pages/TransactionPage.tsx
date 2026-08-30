@@ -42,9 +42,8 @@ function TransactionPageClient({ transactions, filters }: Props) {
     );
   }
 
-  function convertDate(date: string) {
-    const extractedDate = date.split("T")[0];
-    const [, monthNum, day] = extractedDate.split("-");
+  function convertDate(postedDate: string) {
+    const [, monthNum, day] = postedDate.split("-");
     const month = dateMonthMap[monthNum] ?? monthNum; // May
     return `${month}, ${day}`;
   }
@@ -54,12 +53,12 @@ function TransactionPageClient({ transactions, filters }: Props) {
   const dateMap = new Map<string, TransactionItem[]>();
 
   for (const transaction of transactionData) {
-    const convertedDate = convertDate(transaction.date);
+    const postedDate = transaction.postedDate;
 
-    const currentGroup = dateMap.get(convertedDate) ?? [];
+    const currentGroup = dateMap.get(postedDate) ?? [];
     currentGroup.push(transaction);
 
-    dateMap.set(convertedDate, currentGroup);
+    dateMap.set(postedDate, currentGroup);
   }
 
   const totalActivityAmount = transactionData.reduce(
@@ -130,7 +129,7 @@ function TransactionPageClient({ transactions, filters }: Props) {
               value.length > 0 && (
                 <TransactionByDate
                   key={key}
-                  convertedDate={key}
+                  convertedDate={convertDate(key)}
                   transactions={value}
                 />
               ),

@@ -33,7 +33,7 @@ function TransactionItemRow({ transaction }: Props) {
           {transaction.institutionName ?? "Unknown institution"}
         </p>
         <p className="text-xs text-on-surface-variant">
-          {transaction.accountName ?? "Unkwon account"}
+          {transaction.accountName ?? "Unknown account"}
         </p>
       </div>
       <div className="text-right">

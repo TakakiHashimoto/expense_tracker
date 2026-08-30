@@ -9,6 +9,8 @@ export async function seedData() {
   }
   const supabase = await createClient();
 
+  const postedDate = "2026-02-09";
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -55,11 +57,7 @@ export async function seedData() {
 
   const { data: categId, error: categError } = await supabase
     .from("categories")
-    .insert({
-      user_id: user.id,
-      kind: "expense",
-      name: "Food",
-    })
+    .insert({ user_id: user.id, kind: "expense", name: "Food" })
     .select("id")
     .single();
 
@@ -75,7 +73,11 @@ export async function seedData() {
       category_id: categId.id,
       amount: -40,
       merchant: "save on foods",
-      posted_at: new Date().toISOString(),
+      posted_date: postedDate,
+      posted_datetime: null,
+
+      // temporary compatibility only
+      posted_at: `${postedDate}T00:00:00.000Z`,
     })
     .select("id")
     .single();

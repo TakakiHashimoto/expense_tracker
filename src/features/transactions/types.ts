@@ -34,20 +34,6 @@ export type TransactionFilters = {
   sort: TransactionSort;
 };
 
-export type TransactionRowType = {
-  id: string;
-  amount: number;
-  merchant: string | null;
-  note: string | null;
-  name: string | null;
-  posted_at: string;
-  payment_channel: string | null;
-  pending: boolean;
-  category: { id: string; name: string | null; kind: string };
-  institutionName: { institution_name: string | null };
-  account: { name: string; type: string; mask: number };
-};
-
 export function parseTransactionTypeFilter(
   value: string | undefined,
 ): TransactionTypeFilter {
