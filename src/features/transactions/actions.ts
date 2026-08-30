@@ -3,7 +3,6 @@ import { createClient } from "@/lib/supabase/server";
 import {
   TransactionDetail,
   TransactionFilters,
-  TransactionRowType,
   TransactionsPageData,
 } from "./types";
 
@@ -12,7 +11,7 @@ type TransactionQueryRowType = {
   amount: number | string;
   merchant: string | null;
   name: string | null;
-  posted_at: string;
+  posted_date: string;
   category_id: string | null;
   category: { name: string | null; kind: "income" | "expense" | null } | null;
   account: {
@@ -21,7 +20,6 @@ type TransactionQueryRowType = {
   } | null;
 };
 
-// "id, amount, merchant, note, name, payment_channel, posted_at, pending, category: categories(id, name, kind), institutionName: plaid_items(institution_name), account: accounts(name, type, mask)",
 type TransactionDetailQueryRow = {
   id: string;
   amount: number | string;
@@ -41,12 +39,9 @@ type TransactionDetailQueryRow = {
     kind: "income" | "expense" | null;
   } | null;
 
-  institution_name: { institution_name: string };
+  institution_name: { institution_name: string | null } | null;
 
-  account: {
-    name: string | null;
-    plaid_item: { institution_name: string | null } | null;
-  } | null;
+  account: { name: string | null; type: string; mask: number } | null;
 };
 
 type ArgumentType = { filters: TransactionFilters; q: string };
@@ -68,7 +63,7 @@ export async function getTransactionPageData({
   const sortColumnName =
     filters.sort === "amount_asc" || filters.sort === "amount_desc"
       ? "amount"
-      : "posted_at";
+      : "posted_date";
   const sortOrder =
     filters.sort === "amount_asc" || filters.sort === "date_asc"
       ? { ascending: true }
@@ -78,7 +73,7 @@ export async function getTransactionPageData({
   let query = supabase
     .from("transactions")
     .select(
-      `id, name, merchant, amount, posted_at, category_id, ${categorySelect}, account: accounts(name, plaid_item: plaid_items(institution_name))`,
+      `id, name, merchant, amount, posted_date, category_id, ${categorySelect}, account: accounts(name, plaid_item: plaid_items(institution_name))`,
     )
     .eq("user_id", user.id)
     .eq("is_removed", false);
@@ -114,7 +109,7 @@ export async function getTransactionPageData({
     name: t.name ?? "Unknown",
     merchant: t.merchant ?? "Unknown merchant",
     amount: Number(t.amount),
-    date: t.posted_at,
+    postedDate: t.posted_date,
     categoryId: t.category_id,
     categoryName: t.category?.name ?? null,
     categoryKind: t.category?.kind ?? null,
@@ -157,7 +152,7 @@ export async function getTransactionDetail(transactionId: string) {
 
   const transaction: TransactionDetail = {
     id: transactionData.id,
-    amount: transactionData.amount,
+    amount: Number(transactionData.amount),
     merchant: transactionData.merchant,
     note: transactionData.note,
     name: transactionData.name,
@@ -170,9 +165,15 @@ export async function getTransactionDetail(transactionId: string) {
 
     category: transactionData.category,
 
-    institutionName: transactionData.institution_name,
+    institutionName: transactionData.institution_name?.institution_name ?? null,
 
-    account: transactionData.account,
+    account: transactionData.account
+      ? {
+          name: transactionData.account.name,
+          type: transactionData.account.type,
+          mask: transactionData.account.mask,
+        }
+      : null,
   };
 
   return { transaction, categories: categData };

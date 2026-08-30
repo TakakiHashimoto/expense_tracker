@@ -129,10 +129,11 @@ function TransactionDetailPageClient({ transaction, categories }: Props) {
             </p>
             <p className="text-lg font-medium text-on-surface flex items-center">
               <CreditCard className="material-symbols-outlined mr-2 text-secondary text-xl" />
-              {transaction.account.name}
+              {transaction.account?.name ?? "Unknown"}
             </p>
             <p className="text-sm text-on-surface-variant mt-1">
-              {transaction.account.type} ...{transaction.account.mask}
+              {transaction.account?.type ?? "Unknown"} ...
+              {transaction.account?.mask ?? "Unknown"}
             </p>
           </div>
           <div className="bg-surface-container-lowest p-8 rounded-2xl flex flex-col justify-center">
@@ -140,7 +141,7 @@ function TransactionDetailPageClient({ transaction, categories }: Props) {
               Institution
             </p>
             <p className="text-lg font-medium text-on-surface">
-              {transaction.institutionName.institution_name}
+              {transaction.institutionName ?? "Unknown"}
             </p>
           </div>
           {/* <div className="bg-surface-container-lowest p-8 rounded-2xl flex flex-col justify-center">

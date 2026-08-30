@@ -3,7 +3,7 @@ export type TransactionItem = {
   name: string;
   merchant: string;
   amount: number;
-  date: string;
+  postedDate: string;
   categoryId: string | null;
   categoryName: string | null;
   categoryKind: "income" | "expense" | null;
@@ -75,7 +75,7 @@ export function parseTransactionTypeSort(
 
 export type TransactionDetail = {
   id: string;
-  amount: number | string;
+  amount: number;
   merchant: string | null;
   note: string | null;
   name: string | null;
@@ -92,10 +92,7 @@ export type TransactionDetail = {
     kind: "income" | "expense" | null;
   } | null;
 
-  institutionName: { institutionName: string };
+  institutionName: string | null;
 
-  account: {
-    name: string | null;
-    plaidItem: { institutionName: string | null } | null;
-  } | null;
+  account: { name: string | null; type: string; mask: number } | null;
 };
