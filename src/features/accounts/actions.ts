@@ -16,7 +16,7 @@ type TransactionQueryRowType = {
   merchant: string | null;
   name: string | null;
   amount: number | string;
-  posted_at: string;
+  posted_date: string;
   category_id: string | null;
   category: { name: string | null; kind: "income" | "expense" | null } | null;
   account: {
@@ -178,7 +178,7 @@ export async function getAccountSpecificTransaction({
   const sortColumnName =
     filters.sort === "amount_asc" || filters.sort === "amount_desc"
       ? "amount"
-      : "posted_at";
+      : "posted_date";
   const sortOrder =
     filters.sort === "amount_asc" || filters.sort === "date_asc"
       ? { ascending: true }
@@ -188,7 +188,7 @@ export async function getAccountSpecificTransaction({
   let query = supabase
     .from("transactions")
     .select(
-      `id, name, merchant, amount, posted_at, category_id, ${categorySelect}, account: accounts(name, plaid_item: plaid_items(institution_name))`,
+      `id, name, merchant, amount, posted_date, category_id, ${categorySelect}, account: accounts(name, plaid_item: plaid_items(institution_name))`,
     )
     .eq("user_id", user.id)
     .eq("account_id", accountId)
@@ -225,7 +225,7 @@ export async function getAccountSpecificTransaction({
     name: t.name ?? "Unknown",
     merchant: t.merchant ?? "Unknown merchant",
     amount: Number(t.amount),
-    date: t.posted_at,
+    postedDate: t.posted_date,
     categoryId: t.category_id,
     categoryName: t.category?.name ?? null,
     categoryKind: t.category?.kind ?? null,
