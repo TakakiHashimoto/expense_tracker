@@ -1,4 +1,4 @@
-import { grabUser } from "@/features/dashboard/actions";
+import { grabUser } from "@/lib/getUser";
 import { normalizeCategory } from "@/lib/transactions.helper";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { RemovedTransaction, Transaction } from "plaid";

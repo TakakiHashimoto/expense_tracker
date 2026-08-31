@@ -47,7 +47,7 @@ function RecentTransactions({ transactions }: TransactionsType) {
             shop={t.name}
             category={t.categoryName}
             categoryKind={t.categoryKind}
-            date={t.date}
+            date={t.postedDate}
             amount={t.amount}
           />
         ))}

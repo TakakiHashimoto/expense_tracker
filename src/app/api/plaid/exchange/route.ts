@@ -1,8 +1,8 @@
 // Here, exchange public token to access token and store access token and plaid items to database
 
-import { grabUser } from "@/features/dashboard/actions";
 import { fetchPlaidAccounts } from "@/features/plaid/server/accounts";
 import { persistPlaidAccounts } from "@/features/plaid/server/persitstPlaidAccounts";
+import { grabUser } from "@/lib/getUser";
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { Configuration, PlaidApi, PlaidEnvironments } from "plaid";

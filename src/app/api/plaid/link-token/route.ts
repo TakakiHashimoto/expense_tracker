@@ -22,9 +22,9 @@ import {
   CountryCode,
   Products,
 } from "plaid";
-import { grabUser } from "@/features/dashboard/actions";
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { grabUser } from "@/lib/getUser";
 
 const plaidClientId = process.env.PLAID_CLIENT_ID;
 const plaidEnv = process.env.PLAID_ENV || "sandbox";

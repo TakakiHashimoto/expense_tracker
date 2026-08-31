@@ -104,7 +104,7 @@ async function getTodayExpenses(
   range: DashboardDateRange,
 ) {
   const { data, error } = await supabase.rpc("get_daily_expenses", {
-    start_ts: range.todayDate,
+    target_date: range.todayDate,
   });
 
   if (error) {
@@ -124,8 +124,8 @@ async function getTotalMonthlyExpenses(
   // here rpc is created and calling that rpc
 
   const { data, error } = await supabase.rpc("get_monthly_expense_total", {
-    start_ts: range.monthStartDate,
-    end_ts: range.nextMonthStartDate,
+    start_date: range.monthStartDate,
+    end_date: range.nextMonthStartDate,
   });
 
   if (error) {

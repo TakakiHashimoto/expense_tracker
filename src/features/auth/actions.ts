@@ -1,7 +1,7 @@
 "use server";
 
+import { grabUser } from "@/lib/getUser";
 import { createClient } from "@/lib/supabase/server";
-import { grabUser } from "../dashboard/actions";
 import { redirect } from "next/navigation";
 
 type OnboardingState =
