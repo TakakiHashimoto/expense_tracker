@@ -1,12 +1,11 @@
 // here in this page syncs transactions data which is associated with access-token
 
-import { grabUser } from "@/features/dashboard/actions";
-
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { Configuration, PlaidApi, PlaidEnvironments } from "plaid";
 import { recordSyncFailure } from "@/features/plaid/server/recordSyncFailure";
 import { syncPlaidItem } from "@/features/plaid/server/syncPlaidItem";
+import { grabUser } from "@/lib/getUser";
 
 const plaidClientId = process.env.PLAID_CLIENT_ID;
 const plaidEnv = process.env.PLAID_ENV || "sandbox";
