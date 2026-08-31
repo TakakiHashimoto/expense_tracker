@@ -16,22 +16,7 @@ import {
   type DashboardAccount,
 } from "./type";
 import { DashboardDateRange, getDashboardDateRange } from "@/lib/dateRanges";
-
-export async function grabUser(supabase: SupabaseClient): Promise<User> {
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser(); // getting a user using JWT
-
-  if (error) {
-    throw new Error("User not found");
-  }
-  if (!user) {
-    redirect("/login");
-  }
-
-  return user;
-}
+import { grabUser } from "@/lib/getUser";
 
 /**
  *
@@ -51,14 +36,14 @@ async function getThisMonthExpenses(
   const { data: transactions, error } = await supabase
     .from("transactions")
     .select(
-      "id, account_id, category_id, posted_at, amount, merchant, note, category:categories(name, kind)",
+      "id, account_id, category_id, posted_date, amount, merchant, note, category:categories(name, kind)",
     )
     .eq("user_id", user.id)
     .or("is_removed.is.null,is_removed.eq.false")
     .lt("amount", 0)
-    .gte("posted_at", range.monthStartIso)
-    .lt("posted_at", range.nextMonthStartIso)
-    .order("posted_at", { ascending: false });
+    .gte("posted_date", range.monthStartDate)
+    .lt("posted_date", range.nextMonthStartDate)
+    .order("posted_date", { ascending: false });
 
   if (error) {
     console.error(error); // 'time zone "gmt-0800" not recognized'
@@ -75,13 +60,13 @@ async function getThisMonthIncome(
 ): Promise<Transaction[]> {
   const { data: income, error } = await supabase
     .from("transactions")
-    .select("id, account_id, category_id, posted_at, amount, merchant, note")
+    .select("id, account_id, category_id, posted_date, amount, merchant, note")
     .eq("user_id", user.id)
     .or("is_removed.is.null,is_removed.eq.false")
     .gt("amount", 0)
-    .gte("posted_at", range.monthStartIso)
-    .lt("posted_at", range.nextMonthStartIso)
-    .order("posted_at", { ascending: false });
+    .gte("posted_date", range.monthStartDate)
+    .lt("posted_date", range.nextMonthStartDate)
+    .order("posted_date", { ascending: false });
 
   if (error) {
     throw new Error("Failed to fetch this month income");
@@ -94,21 +79,17 @@ async function getThisMonthIncome(
 async function getRecentTransactions(
   user: User,
   supabase: SupabaseClient,
-  range: DashboardDateRange,
 ): Promise<TransactionRow[]> {
   const { data: recentTransactions, error } = await supabase
     .from("transactions")
     .select(
-      "id, account_id, category_id, posted_at, amount, merchant, note,category:categories (name, kind)",
+      "id, account_id, category_id, posted_date, amount, merchant, note,category:categories (name, kind)",
     )
     .eq("user_id", user.id)
     .or("is_removed.is.null,is_removed.eq.false")
-    .order("posted_at", { ascending: false })
+    .order("posted_date", { ascending: false })
     .limit(20);
 
-  // later add
-  // .gte("posted_at", range.monthStartIso)
-  // .lt("posted_at", range.nextMonthStartIso)
   if (error) {
     throw new Error("Failed to fetch recent transactions");
   }
@@ -123,7 +104,7 @@ async function getTodayExpenses(
   range: DashboardDateRange,
 ) {
   const { data, error } = await supabase.rpc("get_daily_expenses", {
-    start_ts: range.todayStartIso,
+    start_ts: range.todayDate,
   });
 
   if (error) {
@@ -143,16 +124,9 @@ async function getTotalMonthlyExpenses(
   // here rpc is created and calling that rpc
 
   const { data, error } = await supabase.rpc("get_monthly_expense_total", {
-    start_ts: range.monthStartIso,
-    end_ts: range.nextMonthStartIso,
+    start_ts: range.monthStartDate,
+    end_ts: range.nextMonthStartDate,
   });
-  // const { data: monthlyExpenses, error } = await supabase
-  //   .from("transactions")
-  //   .select("amount.sum()")
-  //   .eq("user_id", user.id)
-  //   .lt("amount", 0)
-  //   .gte("posted_at", firstDayOfMonth.toISOString())
-  //   .lt("posted_at", firstDayOfNextMonth.toISOString());
 
   if (error) {
     throw new Error("Failed to fetch this month expenses");
@@ -273,7 +247,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     dashboardAccounts,
   ] = await Promise.all([
     getThisMonthIncome(user, supabase, range),
-    getRecentTransactions(user, supabase, range),
+    getRecentTransactions(user, supabase),
     getTotalMonthlyExpenses(user, supabase, range),
     getTodayExpenses(user, supabase, range),
     getSpendingByCategory(user, supabase, range),
@@ -294,7 +268,7 @@ export async function getDashboardData(): Promise<DashboardData> {
         id: tran.id,
         name: tran.merchant ?? "Unknown Merchant",
         amount: tran.amount,
-        date: tran.posted_at,
+        postedDate: tran.posted_date,
         categoryName: tran.category?.name ?? null,
         categoryKind: tran.category?.kind ?? null,
       };

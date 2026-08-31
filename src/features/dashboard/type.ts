@@ -2,7 +2,7 @@ export type Transaction = {
   id: string;
   account_id: string;
   category_id: string | null;
-  posted_at: string;
+  posted_date: string;
   amount: number;
   merchant: string | null;
   note: string | null;
@@ -16,7 +16,7 @@ export type RecentTransaction = {
   id: string;
   name: string;
   amount: number;
-  date: string;
+  postedDate: string;
   categoryName: string | null;
   categoryKind: "income" | "expense" | null;
 };

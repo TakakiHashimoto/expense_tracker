@@ -2,55 +2,41 @@
 
 export type DashboardDateRange = {
   timeZone: string;
-  nowIso: string;
-  todayStartIso: string;
-  tomorrowStartIso: string;
-  monthStartIso: string;
-  nextMonthStartIso: string;
+
+  todayDate: string;
+  tomorrowDate: string;
+
+  monthStartDate: string;
+  nextMonthStartDate: string;
 };
 
 import { DateTime } from "luxon";
 
 const APP_TIME_ZONE = "America/Vancouver";
 
-export function getDashboardDateRange(timeZone = APP_TIME_ZONE) {
+export function getDashboardDateRange(
+  timeZone = APP_TIME_ZONE,
+): DashboardDateRange {
   const now = DateTime.now().setZone(timeZone);
-
-  const todayStart = now.startOf("day");
-  const tomorrowStart = todayStart.plus({ days: 1 });
 
   const monthStart = now.startOf("month");
   const nextMonthStart = monthStart.plus({ months: 1 });
 
-  const nowIso = now.toUTC().toISO();
-  if (!nowIso) throw new Error("Failed to create now ISO");
+  const todayDate = now.toISODate();
+  const tomorrowDate = now.plus({ days: 1 }).toISODate();
 
-  const todayStartIso = todayStart.toUTC().toISO();
+  const monthStartDate = monthStart.toISODate();
+  const nextMonthStartDate = nextMonthStart.toISODate();
 
-  if (!todayStartIso) {
-    throw new Error("Failed to create todayStartISO");
+  if (!todayDate || !tomorrowDate || !monthStartDate || !nextMonthStartDate) {
+    throw new Error("Failed to create dashboard date range");
   }
 
-  const tomorrowStartIso = tomorrowStart.toUTC().toISO();
-  if (!tomorrowStartIso) {
-    throw new Error("Failed to create tomorrowStartISO");
-  }
-
-  const monthStartIso = monthStart.toUTC().toISO();
-  if (!monthStartIso) {
-    throw new Error("Failed to create monthStartISO");
-  }
-
-  const nextMonthStartIso = nextMonthStart.toUTC().toISO();
-  if (!nextMonthStartIso) {
-    throw new Error("Failed to create nextMonthStartISO");
-  }
   return {
     timeZone,
-    nowIso,
-    todayStartIso,
-    tomorrowStartIso,
-    monthStartIso,
-    nextMonthStartIso,
+    todayDate,
+    tomorrowDate,
+    monthStartDate,
+    nextMonthStartDate,
   };
 }
