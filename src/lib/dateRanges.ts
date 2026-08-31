@@ -4,7 +4,6 @@ export type DashboardDateRange = {
   timeZone: string;
 
   todayDate: string;
-  tomorrowDate: string;
 
   monthStartDate: string;
   nextMonthStartDate: string;
@@ -23,20 +22,13 @@ export function getDashboardDateRange(
   const nextMonthStart = monthStart.plus({ months: 1 });
 
   const todayDate = now.toISODate();
-  const tomorrowDate = now.plus({ days: 1 }).toISODate();
 
   const monthStartDate = monthStart.toISODate();
   const nextMonthStartDate = nextMonthStart.toISODate();
 
-  if (!todayDate || !tomorrowDate || !monthStartDate || !nextMonthStartDate) {
+  if (!todayDate || !monthStartDate || !nextMonthStartDate) {
     throw new Error("Failed to create dashboard date range");
   }
 
-  return {
-    timeZone,
-    todayDate,
-    tomorrowDate,
-    monthStartDate,
-    nextMonthStartDate,
-  };
+  return { timeZone, todayDate, monthStartDate, nextMonthStartDate };
 }

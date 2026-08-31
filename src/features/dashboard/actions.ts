@@ -1,12 +1,6 @@
-// 1. get logged in user => if !user, redirect them to login page
-// 2. create "getDashboardData()", which is accumulative of many functions.
-//    - getThisMonthExpenses(), getThisMonthIncome(), getTodayExpenses() etc
-// 3. get expenses by category
-
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
 import { SupabaseClient, type User } from "@supabase/supabase-js";
 import {
   type Transaction,
@@ -32,7 +26,6 @@ async function getThisMonthExpenses(
   range: DashboardDateRange,
 ): Promise<TransactionRow[]> {
   // get this month expenses
-  // I am supposed to put .gte("posted_at", firstDayOfMonth.toISOString()) but for demonstrorate purpose
   const { data: transactions, error } = await supabase
     .from("transactions")
     .select(
@@ -131,8 +124,6 @@ async function getTotalMonthlyExpenses(
   if (error) {
     throw new Error("Failed to fetch this month expenses");
   }
-
-  // const totalExpenses = monthlyExpenses.reduce((sum, cur) => sum + cur.sum, 0);
 
   return data ?? 0;
 }
