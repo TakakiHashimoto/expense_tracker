@@ -8,7 +8,7 @@ export type BudgetsRowType = {
   id: string;
   month: string;
   amount: number;
-  category: { id: string; name: string; kind: "expense" | "income" };
+  category: { id: string; name: string; kind: "expense" };
 };
 
 export type BudgetAnalysis = BudgetsRowType & {

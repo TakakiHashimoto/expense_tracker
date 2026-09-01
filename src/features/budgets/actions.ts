@@ -3,29 +3,62 @@
 import { grabUser } from "@/lib/getUser";
 import { createClient } from "@/lib/supabase/server";
 import {
+  BudgetAnalysis,
   BudgetAnalysisReturn,
   BudgetsRowType,
   CategoryReturnType,
 } from "./types";
 
 function isValidMonthDate(input: string) {
+  // regex structure
   if (!/^\d{4}-\d{2}-\d{2}$/.test(input)) {
     return false;
   }
 
-  const date = new Date(`${input}T00:00:00Z`);
+  // split
+  const [year, month, day] = input.split("-");
+  // convert year/month/day
+  const numYear = Number(year);
+  const numMonth = Number(month);
+  const numDay = Number(day);
 
-  if (Number.isNaN(date.getTime())) {
+  // validate year
+  if (numYear < 1 || numYear > 9999) {
     return false;
   }
 
-  return date.toISOString().slice(0, 10) === input;
+  // validate month
+  if (!(numMonth <= 12 && numMonth >= 1)) {
+    return false;
+  }
+  // require day === 1
+  if (numDay !== 1) {
+    return false;
+  }
+
+  return true;
 }
 
-function getNextMonthStart(month: string) {
-  const date = new Date(`${month}T00:00:00Z`);
-  date.setUTCMonth(date.getUTCMonth() + 1);
-  return date.toISOString().slice(0, 10);
+function getNextMonthStart(input: string) {
+  const [year, month, _day] = input.split("-");
+  const numYear = Number(year);
+  const numMonth = Number(month);
+
+  if (!isValidMonthDate(input)) {
+    throw new Error(`Invalid budget month: ${input}`);
+  }
+
+  if (numMonth === 12) {
+    if (numYear === 9999) {
+      throw new Error("Budget month exceeds supported year range");
+    }
+    const nextYear = String(numYear + 1).padStart(4, "0");
+    return `${nextYear}-01-01`;
+  }
+
+  const displayMonth = numMonth + 1;
+
+  return `${year}-${String(displayMonth).padStart(2, "0")}-01`;
 }
 
 /**
@@ -77,10 +110,6 @@ export async function addBudget({
     return { ok: false, error: "Invalid month format" };
   }
 
-  if (!month.endsWith("-01")) {
-    return { ok: false, error: "Month must be the first day of the month" };
-  }
-
   // add budget to database
   const { error: budgetError } = await supabase
     .from("budgets")
@@ -129,8 +158,7 @@ export async function getBudgets(): Promise<BudgetAnalysisReturn> {
   const { data: budgetData, error: budgetError } = await supabase
     .from("budgets")
     .select("id, amount, month, category: categories(id, name, kind)")
-    .eq("user_id", user.id)
-    .returns<BudgetsRowType[]>();
+    .eq("user_id", user.id);
 
   if (!budgetData || budgetError) {
     return { ok: false, error: "Failed to fetch budgets" };
@@ -138,25 +166,30 @@ export async function getBudgets(): Promise<BudgetAnalysisReturn> {
 
   const { data: transactions, error: transactionError } = await supabase
     .from("transactions")
-    .select("id, category_id, amount, posted_at")
+    .select("id, category_id, amount, posted_date")
     .eq("user_id", user.id)
+    .or("is_removed.is.null,is_removed.eq.false")
     .lt("amount", 0);
 
   if (!transactions || transactionError) {
     return { ok: false, error: "Failed to fetch transactions" };
   }
 
-  console.log(transactions);
-  let result = [];
+  let result: BudgetAnalysis[] = [];
 
   for (const budget of budgetData) {
+    if (budget.category.kind !== "expense") {
+      throw new Error(`Budget ${budget.id} references a non-expense category`);
+    }
+    // month is a date: "2026-08-01"
     const month = budget.month;
     const nextMonthStart = getNextMonthStart(month);
     const thisMonthTransactionsForCateg = transactions.filter((tra) => {
       return (
+        tra.posted_date !== null &&
         tra.category_id === budget.category.id &&
-        tra.posted_at >= month &&
-        tra.posted_at < nextMonthStart
+        tra.posted_date >= month &&
+        tra.posted_date < nextMonthStart
       );
     });
 
@@ -179,7 +212,22 @@ export async function getBudgets(): Promise<BudgetAnalysisReturn> {
       isOverSpending: thisMonthSpending > budget.amount,
     };
 
-    const returnData = { ...budget, ...analysis };
+    const returnData: BudgetAnalysis = {
+      id: budget.id,
+      month: budget.month,
+      amount: budget.amount,
+
+      category: {
+        id: budget.category.id,
+        name: budget.category.name,
+        kind: budget.category.kind,
+      },
+
+      spent: thisMonthSpending,
+      remaining: remaining > 0 ? remaining : 0,
+      percentUsed,
+      isOverSpending: thisMonthSpending > budget.amount,
+    };
     result.push(returnData);
   }
 
