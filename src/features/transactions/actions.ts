@@ -4,6 +4,8 @@ import {
   TransactionDetail,
   TransactionFilters,
   TransactionsPageData,
+  CategoryType,
+  TransactionItem,
 } from "./types";
 
 type TransactionQueryRowType = {
@@ -18,6 +20,11 @@ type TransactionQueryRowType = {
     name: string | null;
     plaid_item: { institution_name: string | null } | null;
   } | null;
+};
+
+type TransactionDetailReturn = {
+  transaction: TransactionDetail;
+  categories: CategoryType[];
 };
 
 type TransactionDetailQueryRow = {
@@ -96,31 +103,46 @@ export async function getTransactionPageData({
 
   const { data: transactionData, error: transactionError } = await query
     .order(sortColumnName, sortOrder)
-    .limit(50)
-    .returns<TransactionQueryRowType[]>();
+    .limit(50);
 
   if (transactionError) {
     console.error("Failed to fetch transactions", transactionError);
     return { ok: false, error: "Failed to fetch transactions" };
   }
 
-  const result = transactionData.map((t) => ({
-    id: t.id,
-    name: t.name ?? "Unknown",
-    merchant: t.merchant ?? "Unknown merchant",
-    amount: Number(t.amount),
-    postedDate: t.posted_date,
-    categoryId: t.category_id,
-    categoryName: t.category?.name ?? null,
-    categoryKind: t.category?.kind ?? null,
-    accountName: t.account?.name ?? null,
-    institutionName: t.account?.plaid_item?.institution_name ?? null,
-  }));
+  const result = transactionData.map((t): TransactionItem => {
+    const categoryKind = t.category?.kind ?? null;
+
+    if (
+      categoryKind !== null &&
+      categoryKind !== "income" &&
+      categoryKind !== "expense"
+    ) {
+      throw new Error(
+        `Transaction ${t.id} has invalid category kind: ${categoryKind}`,
+      );
+    }
+
+    return {
+      id: t.id,
+      name: t.name ?? "Unknown",
+      merchant: t.merchant ?? "Unknown merchant",
+      amount: Number(t.amount),
+      postedDate: t.posted_date,
+      categoryId: t.category_id,
+      categoryName: t.category?.name ?? null,
+      categoryKind,
+      accountName: t.account?.name ?? null,
+      institutionName: t.account?.plaid_item?.institution_name ?? null,
+    };
+  });
 
   return { ok: true, transactions: result };
 }
 
-export async function getTransactionDetail(transactionId: string) {
+export async function getTransactionDetail(
+  transactionId: string,
+): Promise<TransactionDetailReturn> {
   const supabase = await createClient();
   const user = await grabUser(supabase);
 
@@ -132,8 +154,7 @@ export async function getTransactionDetail(transactionId: string) {
     .eq("user_id", user.id)
     .eq("id", transactionId)
     .eq("is_removed", false)
-    .single()
-    .returns<TransactionDetailQueryRow>();
+    .single();
 
   if (!transactionData || transactionError) {
     console.error("Failed to fetch transaction data", transactionError);
@@ -150,6 +171,34 @@ export async function getTransactionDetail(transactionId: string) {
     throw new Error("Failed to fetch categories");
   }
 
+  const categories: CategoryType[] = categData.map((category) => {
+    if (category.kind !== "income" && category.kind !== "expense") {
+      throw new Error(
+        `Category ${category.id} has invalid kind: ${category.kind}`,
+      );
+    }
+
+    return { id: category.id, name: category.name, kind: category.kind };
+  });
+
+  let transactionCategory: TransactionDetail["category"] = null;
+
+  if (transactionData.category) {
+    const kind = transactionData.category.kind;
+
+    if (kind !== "income" && kind !== "expense") {
+      throw new Error(
+        `Transaction ${transactionData.id} has invalid category kind: ${kind}`,
+      );
+    }
+
+    transactionCategory = {
+      id: transactionData.category.id,
+      name: transactionData.category.name,
+      kind,
+    };
+  }
+
   const transaction: TransactionDetail = {
     id: transactionData.id,
     amount: Number(transactionData.amount),
@@ -163,7 +212,7 @@ export async function getTransactionDetail(transactionId: string) {
     paymentChannel: transactionData.payment_channel,
     pending: transactionData.pending,
 
-    category: transactionData.category,
+    category: transactionCategory,
 
     institutionName: transactionData.institution_name?.institution_name ?? null,
 
@@ -176,5 +225,5 @@ export async function getTransactionDetail(transactionId: string) {
       : null,
   };
 
-  return { transaction, categories: categData };
+  return { transaction, categories };
 }

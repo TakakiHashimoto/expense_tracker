@@ -80,5 +80,11 @@ export type TransactionDetail = {
 
   institutionName: string | null;
 
-  account: { name: string | null; type: string; mask: number } | null;
+  account: { name: string | null; type: string; mask: string | null } | null;
+};
+
+export type CategoryType = {
+  id: string;
+  name: string;
+  kind: "income" | "expense";
 };

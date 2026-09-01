@@ -4,364 +4,355 @@ export type Json =
   | boolean
   | null
   | { [key: string]: Json | undefined }
-  | Json[]
+  | Json[];
 
 export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.5"
-  }
+  __InternalSupabase: { PostgrestVersion: "14.5" };
   public: {
     Tables: {
       accounts: {
         Row: {
-          available_balance: number | null
-          balance_as_of: string | null
-          created_at: string
-          currency: string
-          current_balance: number | null
-          id: string
-          is_active: boolean
-          mask: string | null
-          name: string
-          official_name: string | null
-          plaid_account_id: string | null
-          plaid_item_id: string | null
-          subtype: string | null
-          type: string
-          user_id: string
-        }
+          available_balance: number | null;
+          balance_as_of: string | null;
+          created_at: string;
+          currency: string;
+          current_balance: number | null;
+          id: string;
+          is_active: boolean;
+          mask: string | null;
+          name: string;
+          official_name: string | null;
+          plaid_account_id: string | null;
+          plaid_item_id: string | null;
+          subtype: string | null;
+          type: string;
+          user_id: string;
+        };
         Insert: {
-          available_balance?: number | null
-          balance_as_of?: string | null
-          created_at?: string
-          currency?: string
-          current_balance?: number | null
-          id?: string
-          is_active?: boolean
-          mask?: string | null
-          name: string
-          official_name?: string | null
-          plaid_account_id?: string | null
-          plaid_item_id?: string | null
-          subtype?: string | null
-          type: string
-          user_id: string
-        }
+          available_balance?: number | null;
+          balance_as_of?: string | null;
+          created_at?: string;
+          currency?: string;
+          current_balance?: number | null;
+          id?: string;
+          is_active?: boolean;
+          mask?: string | null;
+          name: string;
+          official_name?: string | null;
+          plaid_account_id?: string | null;
+          plaid_item_id?: string | null;
+          subtype?: string | null;
+          type: string;
+          user_id: string;
+        };
         Update: {
-          available_balance?: number | null
-          balance_as_of?: string | null
-          created_at?: string
-          currency?: string
-          current_balance?: number | null
-          id?: string
-          is_active?: boolean
-          mask?: string | null
-          name?: string
-          official_name?: string | null
-          plaid_account_id?: string | null
-          plaid_item_id?: string | null
-          subtype?: string | null
-          type?: string
-          user_id?: string
-        }
+          available_balance?: number | null;
+          balance_as_of?: string | null;
+          created_at?: string;
+          currency?: string;
+          current_balance?: number | null;
+          id?: string;
+          is_active?: boolean;
+          mask?: string | null;
+          name?: string;
+          official_name?: string | null;
+          plaid_account_id?: string | null;
+          plaid_item_id?: string | null;
+          subtype?: string | null;
+          type?: string;
+          user_id?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "accounts_plaid_item_id_fkey"
-            columns: ["plaid_item_id"]
-            isOneToOne: false
-            referencedRelation: "plaid_items"
-            referencedColumns: ["id"]
+            foreignKeyName: "accounts_plaid_item_id_fkey";
+            columns: ["plaid_item_id"];
+            isOneToOne: false;
+            referencedRelation: "plaid_items";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       budgets: {
         Row: {
-          amount: number
-          category_id: string
-          created_at: string
-          id: string
-          month: string
-          updated_at: string
-          user_id: string
-        }
+          amount: number;
+          category_id: string;
+          created_at: string;
+          id: string;
+          month: string;
+          updated_at: string;
+          user_id: string;
+        };
         Insert: {
-          amount: number
-          category_id: string
-          created_at?: string
-          id?: string
-          month: string
-          updated_at?: string
-          user_id: string
-        }
+          amount: number;
+          category_id: string;
+          created_at?: string;
+          id?: string;
+          month: string;
+          updated_at?: string;
+          user_id: string;
+        };
         Update: {
-          amount?: number
-          category_id?: string
-          created_at?: string
-          id?: string
-          month?: string
-          updated_at?: string
-          user_id?: string
-        }
+          amount?: number;
+          category_id?: string;
+          created_at?: string;
+          id?: string;
+          month?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "budgets_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "categories"
-            referencedColumns: ["id"]
+            foreignKeyName: "budgets_category_id_fkey";
+            columns: ["category_id"];
+            isOneToOne: false;
+            referencedRelation: "categories";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       categories: {
         Row: {
-          created_at: string
-          id: string
-          is_active: boolean
-          kind: string
-          name: string
-          raw_category: Json | null
-          user_id: string
-        }
+          created_at: string;
+          id: string;
+          is_active: boolean;
+          kind: string;
+          name: string;
+          raw_category: Json | null;
+          user_id: string;
+        };
         Insert: {
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          kind: string
-          name: string
-          raw_category?: Json | null
-          user_id: string
-        }
+          created_at?: string;
+          id?: string;
+          is_active?: boolean;
+          kind: string;
+          name: string;
+          raw_category?: Json | null;
+          user_id: string;
+        };
         Update: {
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          kind?: string
-          name?: string
-          raw_category?: Json | null
-          user_id?: string
-        }
-        Relationships: []
-      }
+          created_at?: string;
+          id?: string;
+          is_active?: boolean;
+          kind?: string;
+          name?: string;
+          raw_category?: Json | null;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       plaid_item_secrets: {
         Row: {
-          access_token: string
-          created_at: string
-          plaid_item_id: string
-        }
+          access_token: string;
+          created_at: string;
+          plaid_item_id: string;
+        };
         Insert: {
-          access_token: string
-          created_at?: string
-          plaid_item_id: string
-        }
+          access_token: string;
+          created_at?: string;
+          plaid_item_id: string;
+        };
         Update: {
-          access_token?: string
-          created_at?: string
-          plaid_item_id?: string
-        }
+          access_token?: string;
+          created_at?: string;
+          plaid_item_id?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "plaid_item_secrets_plaid_item_id_fkey"
-            columns: ["plaid_item_id"]
-            isOneToOne: true
-            referencedRelation: "plaid_items"
-            referencedColumns: ["id"]
+            foreignKeyName: "plaid_item_secrets_plaid_item_id_fkey";
+            columns: ["plaid_item_id"];
+            isOneToOne: true;
+            referencedRelation: "plaid_items";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       plaid_items: {
         Row: {
-          created_at: string
-          id: string
-          institution_id: string | null
-          institution_name: string | null
-          last_sync_at: string | null
-          last_sync_error: string | null
-          last_sync_status: string | null
-          plaid_item_id: string
-          status: string
-          transactions_cursor: string | null
-          updated_at: string | null
-          user_id: string
-        }
+          created_at: string;
+          id: string;
+          institution_id: string | null;
+          institution_name: string | null;
+          last_sync_at: string | null;
+          last_sync_error: string | null;
+          last_sync_status: string | null;
+          plaid_item_id: string;
+          status: string;
+          transactions_cursor: string | null;
+          updated_at: string | null;
+          user_id: string;
+        };
         Insert: {
-          created_at?: string
-          id?: string
-          institution_id?: string | null
-          institution_name?: string | null
-          last_sync_at?: string | null
-          last_sync_error?: string | null
-          last_sync_status?: string | null
-          plaid_item_id: string
-          status?: string
-          transactions_cursor?: string | null
-          updated_at?: string | null
-          user_id: string
-        }
+          created_at?: string;
+          id?: string;
+          institution_id?: string | null;
+          institution_name?: string | null;
+          last_sync_at?: string | null;
+          last_sync_error?: string | null;
+          last_sync_status?: string | null;
+          plaid_item_id: string;
+          status?: string;
+          transactions_cursor?: string | null;
+          updated_at?: string | null;
+          user_id: string;
+        };
         Update: {
-          created_at?: string
-          id?: string
-          institution_id?: string | null
-          institution_name?: string | null
-          last_sync_at?: string | null
-          last_sync_error?: string | null
-          last_sync_status?: string | null
-          plaid_item_id?: string
-          status?: string
-          transactions_cursor?: string | null
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
+          created_at?: string;
+          id?: string;
+          institution_id?: string | null;
+          institution_name?: string | null;
+          last_sync_at?: string | null;
+          last_sync_error?: string | null;
+          last_sync_status?: string | null;
+          plaid_item_id?: string;
+          status?: string;
+          transactions_cursor?: string | null;
+          updated_at?: string | null;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       transactions: {
         Row: {
-          account_id: string
-          amount: number
-          authorized_at: string | null
-          authorized_date: string | null
-          authorized_datetime: string | null
-          category_id: string | null
-          category_source: string
-          created_at: string
-          id: string
-          is_removed: boolean
-          location: Json | null
-          merchant: string | null
-          name: string | null
-          note: string | null
-          payment_channel: string | null
-          pending: boolean
-          plaid_account_id: string | null
-          plaid_item_id: string | null
-          plaid_transaction_id: string | null
-          posted_at: string
-          posted_date: string | null
-          posted_datetime: string | null
-          raw_category: Json | null
-          user_id: string
-        }
+          account_id: string;
+          amount: number;
+          authorized_at: string | null;
+          authorized_date: string | null;
+          authorized_datetime: string | null;
+          category_id: string | null;
+          category_source: string;
+          created_at: string;
+          id: string;
+          is_removed: boolean;
+          location: Json | null;
+          merchant: string | null;
+          name: string | null;
+          note: string | null;
+          payment_channel: string | null;
+          pending: boolean;
+          plaid_account_id: string | null;
+          plaid_item_id: string | null;
+          plaid_transaction_id: string | null;
+          posted_at: string;
+          posted_date: string;
+          posted_datetime: string | null;
+          raw_category: Json | null;
+          user_id: string;
+        };
         Insert: {
-          account_id: string
-          amount: number
-          authorized_at?: string | null
-          authorized_date?: string | null
-          authorized_datetime?: string | null
-          category_id?: string | null
-          category_source?: string
-          created_at?: string
-          id?: string
-          is_removed?: boolean
-          location?: Json | null
-          merchant?: string | null
-          name?: string | null
-          note?: string | null
-          payment_channel?: string | null
-          pending?: boolean
-          plaid_account_id?: string | null
-          plaid_item_id?: string | null
-          plaid_transaction_id?: string | null
-          posted_at: string
-          posted_date?: string | null
-          posted_datetime?: string | null
-          raw_category?: Json | null
-          user_id: string
-        }
+          account_id: string;
+          amount: number;
+          authorized_at?: string | null;
+          authorized_date?: string | null;
+          authorized_datetime?: string | null;
+          category_id?: string | null;
+          category_source?: string;
+          created_at?: string;
+          id?: string;
+          is_removed?: boolean;
+          location?: Json | null;
+          merchant?: string | null;
+          name?: string | null;
+          note?: string | null;
+          payment_channel?: string | null;
+          pending?: boolean;
+          plaid_account_id?: string | null;
+          plaid_item_id?: string | null;
+          plaid_transaction_id?: string | null;
+          posted_at: string;
+          posted_date: string;
+          posted_datetime?: string | null;
+          raw_category?: Json | null;
+          user_id: string;
+        };
         Update: {
-          account_id?: string
-          amount?: number
-          authorized_at?: string | null
-          authorized_date?: string | null
-          authorized_datetime?: string | null
-          category_id?: string | null
-          category_source?: string
-          created_at?: string
-          id?: string
-          is_removed?: boolean
-          location?: Json | null
-          merchant?: string | null
-          name?: string | null
-          note?: string | null
-          payment_channel?: string | null
-          pending?: boolean
-          plaid_account_id?: string | null
-          plaid_item_id?: string | null
-          plaid_transaction_id?: string | null
-          posted_at?: string
-          posted_date?: string | null
-          posted_datetime?: string | null
-          raw_category?: Json | null
-          user_id?: string
-        }
+          account_id?: string;
+          amount?: number;
+          authorized_at?: string | null;
+          authorized_date?: string | null;
+          authorized_datetime?: string | null;
+          category_id?: string | null;
+          category_source?: string;
+          created_at?: string;
+          id?: string;
+          is_removed?: boolean;
+          location?: Json | null;
+          merchant?: string | null;
+          name?: string | null;
+          note?: string | null;
+          payment_channel?: string | null;
+          pending?: boolean;
+          plaid_account_id?: string | null;
+          plaid_item_id?: string | null;
+          plaid_transaction_id?: string | null;
+          posted_at?: string;
+          posted_date?: string;
+          posted_datetime?: string | null;
+          raw_category?: Json | null;
+          user_id?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "transactions_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "accounts"
-            referencedColumns: ["id"]
+            foreignKeyName: "transactions_account_id_fkey";
+            columns: ["account_id"];
+            isOneToOne: false;
+            referencedRelation: "accounts";
+            referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "transactions_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "categories"
-            referencedColumns: ["id"]
+            foreignKeyName: "transactions_category_id_fkey";
+            columns: ["category_id"];
+            isOneToOne: false;
+            referencedRelation: "categories";
+            referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "transactions_plaid_item_id_fkey"
-            columns: ["plaid_item_id"]
-            isOneToOne: false
-            referencedRelation: "plaid_items"
-            referencedColumns: ["id"]
+            foreignKeyName: "transactions_plaid_item_id_fkey";
+            columns: ["plaid_item_id"];
+            isOneToOne: false;
+            referencedRelation: "plaid_items";
+            referencedColumns: ["id"];
           },
-        ]
-      }
-    }
-    Views: {
-      [_ in never]: never
-    }
+        ];
+      };
+    };
+    Views: { [_ in never]: never };
     Functions: {
-      get_daily_expenses: { Args: { target_date: string }; Returns: number }
-      get_daily_expenses_total: {
-        Args: { end_ts: string; start_ts: string }
-        Returns: number
-      }
+      get_daily_expenses: { Args: { target_date: string }; Returns: number };
       get_monthly_expense_total: {
-        Args: { end_date: string; start_date: string }
-        Returns: number
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
-}
+        Args: { end_date: string; start_date: string };
+        Returns: number;
+      };
+    };
+    Enums: { [_ in never]: never };
+    CompositeTypes: { [_ in never]: never };
+  };
+};
 
-type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">;
 
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+type DefaultSchema = DatabaseWithoutInternals[Extract<
+  keyof Database,
+  "public"
+>];
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof DatabaseWithoutInternals;
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
   ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
       DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
-      Row: infer R
+      Row: infer R;
     }
     ? R
     : never
@@ -369,98 +360,94 @@ export type Tables<
         DefaultSchema["Views"])
     ? (DefaultSchema["Tables"] &
         DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
-        Row: infer R
+        Row: infer R;
       }
       ? R
       : never
-    : never
+    : never;
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof DatabaseWithoutInternals;
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Insert: infer I
+      Insert: infer I;
     }
     ? I
     : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
     ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Insert: infer I
+        Insert: infer I;
       }
       ? I
       : never
-    : never
+    : never;
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof DatabaseWithoutInternals;
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Update: infer U
+      Update: infer U;
     }
     ? U
     : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
     ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Update: infer U
+        Update: infer U;
       }
       ? U
       : never
-    : never
+    : never;
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof DatabaseWithoutInternals;
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
   ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
-    : never
+    : never;
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof DatabaseWithoutInternals;
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
   ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
-    : never
+    : never;
 
-export const Constants = {
-  public: {
-    Enums: {},
-  },
-} as const
+export const Constants = { public: { Enums: {} } } as const;

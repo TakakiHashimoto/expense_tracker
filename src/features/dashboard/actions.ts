@@ -18,7 +18,7 @@ import { grabUser } from "@/lib/getUser";
  * @param supabase
  * @param firstDayOfMonth
  * @param firstDayOfNextMonth
- * @returns array of { account_id: string; category_id: string; posted_at: string; amount: number; merchant: string; note: string;} ;
+ * @returns { account_id: string; category_id: string; posted_date: string; amount: number; merchant: string; note: string;}[] ;
  */
 async function getThisMonthExpenses(
   user: User,

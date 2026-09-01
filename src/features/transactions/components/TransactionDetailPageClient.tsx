@@ -3,8 +3,8 @@
 import { formatAmount } from "@/lib/formatValue";
 import { CreditCard, MoveLeft, Pencil } from "lucide-react";
 import Link from "next/link";
-import EditCategoryComponent, { CategoryType } from "./EditCategoryComponent";
-import { TransactionDetail } from "../types";
+import EditCategoryComponent from "./EditCategoryComponent";
+import { CategoryType, TransactionDetail } from "../types";
 import { useState } from "react";
 import { updateTransactionCategory } from "../server-actions";
 import { toast } from "sonner";
