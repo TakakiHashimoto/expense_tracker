@@ -5,7 +5,6 @@ import { createClient } from "@/lib/supabase/server";
 import {
   BudgetAnalysis,
   BudgetAnalysisReturn,
-  BudgetsRowType,
   CategoryReturnType,
 } from "./types";
 
@@ -205,12 +204,6 @@ export async function getBudgets(): Promise<BudgetAnalysisReturn> {
       remaining > 0
         ? Math.floor((thisMonthSpending / budget.amount) * 100)
         : 100;
-    const analysis = {
-      spent: thisMonthSpending,
-      remaining: remaining > 0 ? remaining : 0,
-      percentUsed,
-      isOverSpending: thisMonthSpending > budget.amount,
-    };
 
     const returnData: BudgetAnalysis = {
       id: budget.id,
