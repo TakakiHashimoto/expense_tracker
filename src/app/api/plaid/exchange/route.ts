@@ -4,6 +4,7 @@ import { fetchPlaidAccounts } from "@/features/plaid/server/accounts";
 import { persistPlaidAccounts } from "@/features/plaid/server/persitstPlaidAccounts";
 import { grabUser } from "@/lib/getUser";
 import { createClient } from "@/lib/supabase/server";
+import { createServerRoleClient } from "@/lib/supabase/server-role";
 import { NextRequest, NextResponse } from "next/server";
 import { Configuration, PlaidApi, PlaidEnvironments } from "plaid";
 
@@ -105,9 +106,11 @@ export async function POST(request: NextRequest) {
     // database id for plaid_items
     const plaidItemUuid = data.id;
 
+    const serverSupabase = createServerRoleClient();
+
     try {
       // add access_token and item_id to database
-      const { error: plaidSecretsError } = await supabase
+      const { error: plaidSecretsError } = await serverSupabase
         .from("plaid_item_secrets")
         .insert({ access_token: access_token, plaid_item_id: plaidItemUuid });
 

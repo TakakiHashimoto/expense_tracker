@@ -9,6 +9,7 @@ import { createPlaidClient, getPlaidError } from "../lib/plaid.helper";
 import { persistPlaidAccounts } from "@/features/plaid/server/persitstPlaidAccounts";
 import { syncPlaidItem } from "@/features/plaid/server/syncPlaidItem";
 import { recordSyncFailure } from "@/features/plaid/server/recordSyncFailure";
+import { createServerRoleClient } from "@/lib/supabase/server-role";
 
 export async function POST(req: NextRequest) {
   const { plaidItemUuid } = await req.json();
@@ -40,7 +41,9 @@ export async function POST(req: NextRequest) {
     }
 
     // get access token
-    const { data: accessToken, error: secretError } = await supabase
+    const serverSupabase = createServerRoleClient();
+
+    const { data: accessToken, error: secretError } = await serverSupabase
       .from("plaid_item_secrets")
       .select("access_token")
       .eq("plaid_item_id", plaidItem.id)

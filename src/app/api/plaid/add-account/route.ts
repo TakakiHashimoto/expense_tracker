@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { CountryCode } from "plaid";
 import { createPlaidClient } from "../lib/plaid.helper";
+import { createServerRoleClient } from "@/lib/supabase/server-role";
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
@@ -42,8 +43,10 @@ export async function POST(req: NextRequest) {
   }
 
   // fetch access_token
+  const serverSupabase = createServerRoleClient();
+
   try {
-    const { data: accessToken, error: secretError } = await supabase
+    const { data: accessToken, error: secretError } = await serverSupabase
       .from("plaid_item_secrets")
       .select("access_token")
       .eq("plaid_item_id", plaidItem.id)

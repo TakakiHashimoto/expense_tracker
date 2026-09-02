@@ -6,6 +6,7 @@ import { Configuration, PlaidApi, PlaidEnvironments } from "plaid";
 import { recordSyncFailure } from "@/features/plaid/server/recordSyncFailure";
 import { syncPlaidItem } from "@/features/plaid/server/syncPlaidItem";
 import { grabUser } from "@/lib/getUser";
+import { createServerRoleClient } from "@/lib/supabase/server-role";
 
 const plaidClientId = process.env.PLAID_CLIENT_ID;
 const plaidEnv = process.env.PLAID_ENV || "sandbox";
@@ -54,12 +55,14 @@ export async function POST(request: NextRequest) {
       throw new Error("Failed to fetch plaid items");
     }
 
+    const serverRoleSupabase = createServerRoleClient();
+
     const transactionCursor = cursorData.transactions_cursor;
 
-    const { data, error: secretError } = await supabase
+    const { data, error: secretError } = await serverRoleSupabase
       .from("plaid_item_secrets")
       .select("access_token")
-      .eq("plaid_item_id", plaid_item_uuid)
+      .eq("plaid_item_id", cursorData.id)
       .single();
 
     if (secretError || !data) {

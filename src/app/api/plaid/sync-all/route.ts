@@ -2,6 +2,7 @@
 import { recordSyncFailure } from "@/features/plaid/server/recordSyncFailure";
 import { syncPlaidItem } from "@/features/plaid/server/syncPlaidItem";
 import { createClient } from "@/lib/supabase/server";
+import { createServerRoleClient } from "@/lib/supabase/server-role";
 import { NextResponse } from "next/server";
 import { Configuration, PlaidApi, PlaidEnvironments } from "plaid";
 
@@ -80,10 +81,12 @@ export async function POST() {
     let modifiedCount = 0;
     let removedCount = 0;
 
+    const serverSupabase = createServerRoleClient();
+
     for (const plaidItem of data) {
       try {
         failedPlaidItemId = plaidItem.id;
-        const { data: secret, error: secretError } = await supabase
+        const { data: secret, error: secretError } = await serverSupabase
           .from("plaid_item_secrets")
           .select("access_token")
           .eq("plaid_item_id", plaidItem.id)

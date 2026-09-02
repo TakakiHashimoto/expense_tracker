@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { CountryCode } from "plaid";
 import { createPlaidClient } from "../lib/plaid.helper";
+import { createServerRoleClient } from "@/lib/supabase/server-role";
 
 const plaidClientId = process.env.PLAID_CLIENT_ID;
 const plaidEnv = process.env.PLAID_ENV || "sandbox";
@@ -57,10 +58,12 @@ export async function POST(request: NextRequest) {
     }
 
     // fetch the access_token
-    const { data: accessToken, error: accessTokenError } = await supabase
+    const serverSupabase = createServerRoleClient();
+
+    const { data: accessToken, error: accessTokenError } = await serverSupabase
       .from("plaid_item_secrets")
       .select("access_token")
-      .eq("plaid_item_id", plaid_item_uuid)
+      .eq("plaid_item_id", plaidItem.id)
       .single();
 
     if (accessTokenError || !accessToken) {
