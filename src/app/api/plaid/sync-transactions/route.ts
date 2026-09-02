@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
         supabase,
         userId: user.id,
         plaidClient: client,
-        plaidItemUuid: plaid_item_uuid,
+        plaidItemUuid: cursorData.id,
         accessToken: access_token,
         transactionCursor: transactionCursor,
         refreshAccount: true,
@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
         await recordSyncFailure({
           supabase,
           userId: user.id,
-          plaidItemUuid: plaid_item_uuid,
+          plaidItemUuid: cursorData.id,
           errorCode,
           requiresUpdate,
         });
