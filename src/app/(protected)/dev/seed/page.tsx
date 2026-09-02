@@ -2,8 +2,10 @@ import { seedData } from "@/features/dev/seed/action";
 
 export default function SeedData() {
   return (
-    <form action={seedData}>
-      <button>Seed Data</button>
-    </form>
+    <div className="flex justify-center items-center">
+      <form action={seedData} className="my-6">
+        <button className="btn-primary">Seed Data</button>
+      </form>
+    </div>
   );
 }

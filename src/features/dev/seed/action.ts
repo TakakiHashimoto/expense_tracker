@@ -77,7 +77,6 @@ export async function seedData() {
       posted_datetime: null,
 
       // temporary compatibility only
-      posted_at: `${postedDate}T00:00:00.000Z`,
     })
     .select("id")
     .single();
