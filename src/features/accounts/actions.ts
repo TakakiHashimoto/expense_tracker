@@ -34,7 +34,7 @@ export async function getAccountPageData(): Promise<AccountPageData> {
   const { data: accountData, error: accountError } = await supabase
     .from("accounts")
     .select(
-      "id, type, subtype, name,currency, current_balance , plaid_item: plaid_items!inner(id, institution_name,status,last_sync_status,last_sync_error,last_sync_at), mask",
+      "id, type, subtype, name,currency, current_balance , plaid_item: plaid_items!accounts_user_id_plaid_item_id_fkey!inner(id, institution_name,status,last_sync_status,last_sync_error,last_sync_at), mask",
     )
     .eq("user_id", user.id)
     .eq("is_active", true)
@@ -106,7 +106,7 @@ export async function getAccountDetailData(
     const { data: accountData, error: accountError } = await supabase
       .from("accounts")
       .select(
-        "id, type, name, currency, is_active, mask, subtype, current_balance, available_balance, institution: plaid_items!inner(id, institution_name, status, last_sync_at, last_sync_status, last_sync_error)",
+        "id, type, name, currency, is_active, mask, subtype, current_balance, available_balance, institution: plaid_items!accounts_user_id_plaid_item_id_fkey!inner(id, institution_name, status, last_sync_at, last_sync_status, last_sync_error)",
       )
       .eq("user_id", user.id)
       .eq("id", accountId)
@@ -188,7 +188,7 @@ export async function getAccountSpecificTransaction({
   let query = supabase
     .from("transactions")
     .select(
-      `id, name, merchant, amount, posted_date, category_id, ${categorySelect}, account: accounts(name, plaid_item: plaid_items(institution_name))`,
+      `id, name, merchant, amount, posted_date, category_id, ${categorySelect}, account: accounts!transactions_user_id_account_id_fkey(name, plaid_item: plaid_items!accounts_user_id_plaid_item_id_fkey(institution_name))`,
     )
     .eq("user_id", user.id)
     .eq("account_id", accountId)

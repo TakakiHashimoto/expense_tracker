@@ -186,12 +186,13 @@ async function getDashboardAccounts(
   const { data: accountsData, error: accountsError } = await supabase
     .from("accounts")
     .select(
-      "id, name, type, subtype, is_active, mask, plaid_item:plaid_items(institution_name)",
+      "id, name, type, subtype, is_active, mask, plaid_items!accounts_user_id_plaid_item_id_fkey (id,institution_name)",
     )
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
   if (accountsError) {
+    console.error("getDashboardAccounts failed:", accountsError);
     throw new Error("Failed to fetch accounts");
   }
 

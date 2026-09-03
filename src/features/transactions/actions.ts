@@ -80,7 +80,7 @@ export async function getTransactionPageData({
   let query = supabase
     .from("transactions")
     .select(
-      `id, name, merchant, amount, posted_date, category_id, ${categorySelect}, account: accounts(name, plaid_item: plaid_items(institution_name))`,
+      `id, name, merchant, amount, posted_date, category_id, ${categorySelect}, account: accounts!transactions_user_id_account_id_fkey(name, plaid_item: plaid_items!accounts_user_id_plaid_item_id_fkey(institution_name))`,
     )
     .eq("user_id", user.id)
     .eq("is_removed", false);
@@ -149,7 +149,7 @@ export async function getTransactionDetail(
   const { data: transactionData, error: transactionError } = await supabase
     .from("transactions")
     .select(
-      "id, amount, merchant, note, name, payment_channel, posted_date, posted_datetime, pending, category: categories(id, name, kind), institution_name: plaid_items(institution_name), account: accounts(name, type, mask)",
+      "id, amount, merchant, note, name, payment_channel, posted_date, posted_datetime, pending, category: categories(id, name, kind), institution_name: plaid_items!transactions_user_id_plaid_item_id_fkey(institution_name), account: accounts!transactions_user_id_account_id_fkey(name, type, mask)",
     )
     .eq("user_id", user.id)
     .eq("id", transactionId)
