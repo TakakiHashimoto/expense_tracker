@@ -80,6 +80,9 @@ export async function POST() {
     let addedCount = 0;
     let modifiedCount = 0;
     let removedCount = 0;
+    // track how many item is busy
+    let busyItemCount = 0;
+    let syncedCount = 0;
 
     const serverSupabase = createServerRoleClient();
 
@@ -107,12 +110,14 @@ export async function POST() {
 
         // if status is busy, skip this item
         if (result.status === "busy") {
-          return;
+          busyItemCount += 1;
+          continue;
         }
 
         addedCount += result.addedCount;
         modifiedCount += result.modifiedCount;
         removedCount += result.removedCount;
+        syncedCount += 1;
       } catch (syncError) {
         const plaidError = getPlaidError(syncError);
         const errorCode = plaidError?.error_code ?? "SYNC_FAILED";
@@ -153,7 +158,8 @@ export async function POST() {
       addedCount,
       modifiedCount,
       removedCount,
-      syncedItemCount: data.length,
+      busyItemCount,
+      syncedItemCount: syncedCount,
     });
   } catch (e) {
     console.error("Sync all transactions failed", e);

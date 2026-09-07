@@ -88,9 +88,18 @@ export async function POST(req: NextRequest) {
           accessToken: accessToken.access_token,
           refreshAccount: false,
         });
-        addedCount += result?.addedCount ?? 0;
-        modifiedCount += result?.modifiedCount ?? 0;
-        removedCount += result?.removedCount ?? 0;
+
+        // if session is ocupied,
+        if (result.status === "busy") {
+          return NextResponse.json({
+            success: true,
+            accountRefreshSucceeded: true,
+            transactionSyncStatus: "busy",
+          });
+        }
+        addedCount += result.addedCount;
+        modifiedCount += result.modifiedCount;
+        removedCount += result.removedCount;
       } catch (syncError) {
         const plaidError = getPlaidError(syncError);
         const errorCode = plaidError?.error_code ?? "SYNC_FAILED";
@@ -128,6 +137,8 @@ export async function POST(req: NextRequest) {
 
       return NextResponse.json({
         success: true,
+        accountRefreshSucceeded: true,
+        transactionSyncStatus: "synced",
         addedCount,
         modifiedCount,
         removedCount,

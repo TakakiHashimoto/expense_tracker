@@ -79,6 +79,13 @@ export async function POST(req: NextRequest) {
       refreshAccount: true,
     });
 
+    if (result.status === "busy") {
+      return NextResponse.json(
+        { ok: false, retry: true, reason: "SYNC_ALREADY_IN_PROGRESS" },
+        { status: 429, headers: { "Retry-After": "30" } },
+      );
+    }
+
     return NextResponse.json({
       ok: true,
       added: result.addedCount,

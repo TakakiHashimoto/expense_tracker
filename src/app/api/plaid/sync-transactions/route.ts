@@ -103,7 +103,13 @@ export async function POST(request: NextRequest) {
 
       // if session is ocupied, then return conflict
       if (data.status === "busy") {
-        return NextResponse.json({ error: "" }, { status: 409 });
+        return NextResponse.json(
+          {
+            error: "SYNC_ALREADY_IN_PROGRESS",
+            message: "This bank connection is already being synced.",
+          },
+          { status: 409 },
+        );
       }
 
       return NextResponse.json({

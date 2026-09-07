@@ -16,6 +16,15 @@ interface ArgTypes {
   refreshAccount: boolean;
 }
 
+type SyncPlaidItemResult =
+  | { status: "busy" }
+  | {
+      status: "synced";
+      addedCount: number;
+      modifiedCount: number;
+      removedCount: number;
+    };
+
 export async function syncPlaidItem({
   supabase,
   userId,
@@ -23,7 +32,7 @@ export async function syncPlaidItem({
   plaidItemUuid,
   accessToken,
   refreshAccount,
-}: ArgTypes) {
+}: ArgTypes): Promise<SyncPlaidItemResult> {
   // aquire owner ship and whoever owns owenership gets cursor.
   const lease = await aquireSyncLease({ plaidItemUuid, supabase, userId });
 
