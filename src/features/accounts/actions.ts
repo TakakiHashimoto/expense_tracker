@@ -103,6 +103,7 @@ export async function getAccountDetailData(
   const user = await grabUser(supabase);
 
   try {
+    // fetch only active accounts
     const { data: accountData, error: accountError } = await supabase
       .from("accounts")
       .select(
@@ -110,6 +111,7 @@ export async function getAccountDetailData(
       )
       .eq("user_id", user.id)
       .eq("id", accountId)
+      .eq("is_active", true)
       .single()
       .returns<AccountDetailDataRow>();
 

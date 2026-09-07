@@ -14,7 +14,20 @@ export async function persistPlaidAccounts({
   accounts: AccountBase[];
   snapshotTime: string;
 }) {
-  const addAccounts = accounts.map((account) => ({
+  // first get existing accounts for this plaidItem
+  const { data: existingAccounts, error: existingAccountsError } =
+    await supabase
+      .from("accounts")
+      .select("id, plaid_account_id, is_active")
+      .eq("user_id", userId)
+      .eq("plaid_item_id", plaidItemUuid);
+
+  if (existingAccountsError) {
+    throw new Error("Failed to fetch existing accounts data");
+  }
+
+  // if new accounts = insert, already exists = update
+  const accountsToUpsert = accounts.map((account) => ({
     user_id: userId,
     plaid_item_id: plaidItemUuid,
     plaid_account_id: account.account_id,
@@ -34,10 +47,38 @@ export async function persistPlaidAccounts({
 
   const { error } = await supabase
     .from("accounts")
-    .upsert(addAccounts, { onConflict: "plaid_item_id,plaid_account_id" });
+    .upsert(accountsToUpsert, { onConflict: "plaid_item_id,plaid_account_id" });
 
   if (error) {
     console.error("Failed to persist plaid accounts", error);
     throw new Error("Failed to persist Plaid accounts", { cause: error });
+  }
+
+  const currentPlaidAccountIds = new Set(
+    accounts.map((account) => account.account_id),
+  );
+
+  const missingAccounts = existingAccounts.filter(
+    (account) =>
+      account.plaid_account_id !== null &&
+      !currentPlaidAccountIds.has(account.plaid_account_id),
+  );
+
+  const missingAccountIds = missingAccounts.map((account) => account.id);
+
+  // deactivate missing accounts from new plaid accounts
+  if (missingAccountIds.length > 0) {
+    const { error } = await supabase
+      .from("accounts")
+      .update({ is_active: false })
+      .eq("user_id", userId)
+      .eq("plaid_item_id", plaidItemUuid)
+      .in("id", missingAccountIds);
+
+    if (error) {
+      throw new Error("Failed to deactivate missing Plaid accounts", {
+        cause: error,
+      });
+    }
   }
 }
