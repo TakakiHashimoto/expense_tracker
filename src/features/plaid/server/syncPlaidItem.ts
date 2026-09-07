@@ -4,6 +4,7 @@ import { PlaidApi } from "plaid";
 import { fetchPlaidAccounts } from "./accounts";
 import { persistPlaidAccounts } from "./persitstPlaidAccounts";
 import { persistSyncResult } from "./db";
+import { aquireSyncLease } from "./syncLease";
 
 interface ArgTypes {
   supabase: SupabaseClient;
@@ -11,7 +12,6 @@ interface ArgTypes {
   plaidClient: PlaidApi;
   plaidItemUuid: string;
   accessToken: string;
-  transactionCursor: string | null;
   refreshAccount: boolean;
 }
 
@@ -21,39 +21,50 @@ export async function syncPlaidItem({
   plaidClient,
   plaidItemUuid,
   accessToken,
-  transactionCursor,
   refreshAccount,
 }: ArgTypes) {
-  const { added, modified, removed, cursor } = await syncTransactions(
-    accessToken,
-    transactionCursor,
-    plaidClient,
-  );
+  // aquire owner ship and whoever owns owenership gets cursor.
+  const lease = await aquireSyncLease({ plaidItemUuid, supabase, userId });
 
-  // You are renewing accouts as well.
-  if (refreshAccount) {
-    const accounts = await fetchPlaidAccounts(plaidClient, accessToken);
-    const snapshotTime = new Date().toISOString();
-    await persistPlaidAccounts({
-      supabase,
-      userId: userId,
-      plaidItemUuid: plaidItemUuid,
-      accounts,
-      snapshotTime,
-    });
+  // if operation is locked
+  if (!lease.acquired) {
+    return;
   }
 
-  await persistSyncResult(
-    supabase,
-    added,
-    modified,
-    removed,
-    cursor,
-    plaidItemUuid,
-  );
-  return {
-    addedCount: added.length,
-    modifiedCount: modified.length,
-    removedCount: removed.length,
-  };
+  try {
+    const { added, modified, removed, cursor } = await syncTransactions(
+      accessToken,
+      lease.cursor,
+      plaidClient,
+    );
+
+    // You are renewing accouts as well.
+    if (refreshAccount) {
+      const accounts = await fetchPlaidAccounts(plaidClient, accessToken);
+      const snapshotTime = new Date().toISOString();
+      await persistPlaidAccounts({
+        supabase,
+        userId: userId,
+        plaidItemUuid: plaidItemUuid,
+        accounts,
+        snapshotTime,
+      });
+    }
+
+    await persistSyncResult(
+      supabase,
+      added,
+      modified,
+      removed,
+      cursor,
+      plaidItemUuid,
+    );
+    return {
+      addedCount: added.length,
+      modifiedCount: modified.length,
+      removedCount: removed.length,
+    };
+  } finally {
+    // once the transaction is finished, release the lease
+  }
 }
