@@ -23,7 +23,6 @@ function getPlaidError(error: unknown) {
 }
 
 export async function POST() {
-  let failedPlaidItemId: string | null = null;
   try {
     const supabase = await createClient();
 
@@ -48,7 +47,7 @@ export async function POST() {
 
     const { data, error: plaidError } = await supabase
       .from("plaid_items")
-      .select("id, transactions_cursor")
+      .select("id")
       .eq("user_id", user.id);
 
     if (plaidError) {
@@ -88,7 +87,6 @@ export async function POST() {
 
     for (const plaidItem of data) {
       try {
-        failedPlaidItemId = plaidItem.id;
         const { data: secret, error: secretError } = await serverSupabase
           .from("plaid_item_secrets")
           .select("access_token")

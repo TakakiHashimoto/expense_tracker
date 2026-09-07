@@ -174,7 +174,7 @@ export async function getBudgets(): Promise<BudgetAnalysisReturn> {
     return { ok: false, error: "Failed to fetch transactions" };
   }
 
-  let result: BudgetAnalysis[] = [];
+  const result: BudgetAnalysis[] = [];
 
   for (const budget of budgetData) {
     if (budget.category.kind !== "expense") {
