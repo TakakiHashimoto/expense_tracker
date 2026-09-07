@@ -76,7 +76,6 @@ export async function POST(req: NextRequest) {
       plaidClient: client,
       plaidItemUuid: plaidItem.id,
       accessToken: secret.access_token,
-      transactionCursor: plaidItem.transactions_cursor,
       refreshAccount: true,
     });
 

@@ -5,6 +5,7 @@ import { fetchPlaidAccounts } from "./accounts";
 import { persistPlaidAccounts } from "./persitstPlaidAccounts";
 import { persistSyncResult } from "./db";
 import { aquireSyncLease } from "./syncLease";
+import { unlockLease } from "./unlockRelase";
 
 interface ArgTypes {
   supabase: SupabaseClient;
@@ -28,7 +29,7 @@ export async function syncPlaidItem({
 
   // if operation is locked
   if (!lease.acquired) {
-    return;
+    return { status: "busy" as const };
   }
 
   try {
@@ -53,6 +54,7 @@ export async function syncPlaidItem({
 
     await persistSyncResult(
       supabase,
+      userId,
       added,
       modified,
       removed,
@@ -60,11 +62,13 @@ export async function syncPlaidItem({
       plaidItemUuid,
     );
     return {
+      status: "synced" as const,
       addedCount: added.length,
       modifiedCount: modified.length,
       removedCount: removed.length,
     };
   } finally {
     // once the transaction is finished, release the lease
+    await unlockLease({ plaidItemUuid, userId, supabase, token: lease.token });
   }
 }

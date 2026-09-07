@@ -87,11 +87,10 @@ export async function POST(req: NextRequest) {
           plaidItemUuid: plaidItem.id,
           accessToken: accessToken.access_token,
           refreshAccount: false,
-          transactionCursor: plaidItem.transactions_cursor,
         });
-        addedCount += result.addedCount;
-        modifiedCount += result.modifiedCount;
-        removedCount += result.removedCount;
+        addedCount += result?.addedCount ?? 0;
+        modifiedCount += result?.modifiedCount ?? 0;
+        removedCount += result?.removedCount ?? 0;
       } catch (syncError) {
         const plaidError = getPlaidError(syncError);
         const errorCode = plaidError?.error_code ?? "SYNC_FAILED";

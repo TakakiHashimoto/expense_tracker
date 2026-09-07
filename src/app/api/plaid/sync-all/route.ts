@@ -102,9 +102,13 @@ export async function POST() {
           plaidClient: client,
           userId: user.id,
           accessToken: secret.access_token,
-          transactionCursor: plaidItem.transactions_cursor,
           refreshAccount: true,
         });
+
+        // if status is busy, skip this item
+        if (result.status === "busy") {
+          return;
+        }
 
         addedCount += result.addedCount;
         modifiedCount += result.modifiedCount;

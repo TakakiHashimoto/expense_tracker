@@ -1,4 +1,3 @@
-import { grabUser } from "@/lib/getUser";
 import { normalizeCategory } from "@/lib/transactions.helper";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { RemovedTransaction, Transaction } from "plaid";
@@ -6,6 +5,7 @@ import { RemovedTransaction, Transaction } from "plaid";
 // take Plaid’s sync changes and apply those changes into your own database
 export async function persistSyncResult(
   supabase: SupabaseClient,
+  userId: string,
   added: Transaction[],
   modified: Transaction[],
   removed: RemovedTransaction[],
@@ -13,8 +13,6 @@ export async function persistSyncResult(
   itemUuid: string,
 ) {
   try {
-    const user = await grabUser(supabase);
-
     // Plaid uses positive = money out, negative = money in.
     // Our app uses negative = expense, positive = income.
     // Flip once at ingestion so the rest of the app has one consistent rule.
@@ -52,7 +50,7 @@ export async function persistSyncResult(
         .match({
           plaid_account_id: item.account_id,
           plaid_item_id: itemUuid,
-          user_id: user.id,
+          user_id: userId,
         })
         .single();
 
@@ -78,14 +76,14 @@ export async function persistSyncResult(
       const categId = await findOrCreateCategory({
         kind: rowCategoryName.kind,
         name: rowCategoryName.name,
-        userId: user.id,
+        userId: userId,
       });
 
       const { error: addedError } = await supabase
         .from("transactions")
         .upsert(
           {
-            user_id: user.id,
+            user_id: userId,
             account_id: accountId,
             category_id: categId,
             category_source: "auto",
@@ -120,7 +118,7 @@ export async function persistSyncResult(
         .match({
           plaid_account_id: item.account_id,
           plaid_item_id: itemUuid,
-          user_id: user.id,
+          user_id: userId,
         })
         .single();
 
@@ -144,7 +142,7 @@ export async function persistSyncResult(
       const categId = await findOrCreateCategory({
         name: categName.name,
         kind: categName.kind,
-        userId: user.id,
+        userId: userId,
       });
 
       // if category is manually modified by user, keep that category
@@ -152,7 +150,7 @@ export async function persistSyncResult(
         await supabase
           .from("transactions")
           .select("category_id, category_source")
-          .eq("user_id", user.id)
+          .eq("user_id", userId)
           .eq("plaid_item_id", itemUuid)
           .eq("plaid_transaction_id", item.transaction_id)
           .maybeSingle();
@@ -174,7 +172,7 @@ export async function persistSyncResult(
         .from("transactions")
         .upsert(
           {
-            user_id: user.id,
+            user_id: userId,
             account_id: accountId,
             ...categoryFields,
             amount: normalizedAmount,
@@ -208,7 +206,7 @@ export async function persistSyncResult(
         .from("transactions")
         .update({ is_removed: true })
         .match({
-          user_id: user.id,
+          user_id: userId,
           plaid_transaction_id: item.transaction_id,
           plaid_item_id: itemUuid,
         });
@@ -231,7 +229,7 @@ export async function persistSyncResult(
         updated_at: completedAt,
       })
       .eq("id", itemUuid)
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
       .select("id")
       .single();
 

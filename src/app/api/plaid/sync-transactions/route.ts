@@ -98,9 +98,13 @@ export async function POST(request: NextRequest) {
         plaidClient: client,
         plaidItemUuid: cursorData.id,
         accessToken: access_token,
-        transactionCursor: transactionCursor,
         refreshAccount: true,
       });
+
+      // if session is ocupied, then return conflict
+      if (data.status === "busy") {
+        return NextResponse.json({ error: "" }, { status: 409 });
+      }
 
       return NextResponse.json({
         success: true,
