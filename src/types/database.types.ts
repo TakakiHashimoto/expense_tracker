@@ -188,6 +188,8 @@ export type Database = {
           last_sync_status: string | null
           plaid_item_id: string
           status: string
+          sync_lock_expires_at: string | null
+          sync_lock_token: string | null
           transactions_cursor: string | null
           updated_at: string | null
           user_id: string
@@ -202,6 +204,8 @@ export type Database = {
           last_sync_status?: string | null
           plaid_item_id: string
           status?: string
+          sync_lock_expires_at?: string | null
+          sync_lock_token?: string | null
           transactions_cursor?: string | null
           updated_at?: string | null
           user_id: string
@@ -216,6 +220,8 @@ export type Database = {
           last_sync_status?: string | null
           plaid_item_id?: string
           status?: string
+          sync_lock_expires_at?: string | null
+          sync_lock_token?: string | null
           transactions_cursor?: string | null
           updated_at?: string | null
           user_id?: string
