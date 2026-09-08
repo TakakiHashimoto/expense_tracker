@@ -195,7 +195,6 @@ function ConnectButtonComponent({ title }: { title: string }) {
         );
       }
 
-      const syncResult = await syncRes.json();
       setStatus("success");
       router.push("/dashboard");
       router.refresh();

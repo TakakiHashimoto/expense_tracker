@@ -45,6 +45,7 @@ function AddAccountButton({ plaidItemUuid }: Props) {
       setLinkToken(data.link_token);
       setStatus("adding_account");
     } catch (e) {
+      console.error("Failed to obtain link token", e);
       setFrontError("Failed to obtain link token");
       setStatus("idle");
     }
