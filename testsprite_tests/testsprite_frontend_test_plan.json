@@ -6,14 +6,8 @@
     "category": "User Authentication - Signup",
     "priority": "High",
     "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /signup"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/signup\""
-      },
+      { "type": "action", "description": "Navigate to /signup" },
+      { "type": "assertion", "description": "Verify URL contains \"/signup\"" },
       {
         "type": "action",
         "description": "Type \"existing.user@example.com\" into the email input field"
@@ -22,18 +16,12 @@
         "type": "action",
         "description": "Type \"ValidPassw0rd!234\" into the password input field"
       },
-      {
-        "type": "action",
-        "description": "Click Submit button"
-      },
+      { "type": "action", "description": "Click Submit button" },
       {
         "type": "assertion",
         "description": "Verify text \"already\" is visible"
       },
-      {
-        "type": "assertion",
-        "description": "Verify text \"email\" is visible"
-      }
+      { "type": "assertion", "description": "Verify text \"email\" is visible" }
     ]
   },
   {
@@ -43,10 +31,7 @@
     "category": "User Authentication - Signup",
     "priority": "High",
     "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /signup"
-      },
+      { "type": "action", "description": "Navigate to /signup" },
       {
         "type": "action",
         "description": "Type \"not-an-email\" into the email input field"
@@ -55,18 +40,12 @@
         "type": "action",
         "description": "Type \"ValidPassw0rd!234\" into the password input field"
       },
-      {
-        "type": "action",
-        "description": "Click Submit button"
-      },
+      { "type": "action", "description": "Click Submit button" },
       {
         "type": "assertion",
         "description": "Verify text \"invalid\" is visible"
       },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/signup\""
-      }
+      { "type": "assertion", "description": "Verify URL contains \"/signup\"" }
     ]
   },
   {
@@ -76,18 +55,9 @@
     "category": "User Authentication - Signup",
     "priority": "Medium",
     "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /signup"
-      },
-      {
-        "type": "action",
-        "description": "Click Submit button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/signup\""
-      },
+      { "type": "action", "description": "Navigate to /signup" },
+      { "type": "action", "description": "Click Submit button" },
+      { "type": "assertion", "description": "Verify URL contains \"/signup\"" },
       {
         "type": "assertion",
         "description": "Verify text \"email\" is visible"
@@ -105,22 +75,13 @@
     "category": "User Authentication - Signup",
     "priority": "Medium",
     "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /signup"
-      },
+      { "type": "action", "description": "Navigate to /signup" },
       {
         "type": "action",
         "description": "Type \"new.user.testrun+3@example.com\" into the email input field"
       },
-      {
-        "type": "action",
-        "description": "Click Submit button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/signup\""
-      },
+      { "type": "action", "description": "Click Submit button" },
+      { "type": "assertion", "description": "Verify URL contains \"/signup\"" },
       {
         "type": "assertion",
         "description": "Verify text \"password\" is visible"
@@ -138,10 +99,7 @@
     "category": "User Authentication - Signup",
     "priority": "Medium",
     "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /signup"
-      },
+      { "type": "action", "description": "Navigate to /signup" },
       {
         "type": "action",
         "description": "Type \"new.user.testrun+4@example.com\" into the email input field"
@@ -150,18 +108,12 @@
         "type": "action",
         "description": "Type \"123\" into the password input field"
       },
-      {
-        "type": "action",
-        "description": "Click Submit button"
-      },
+      { "type": "action", "description": "Click Submit button" },
       {
         "type": "assertion",
         "description": "Verify text \"password\" is visible"
       },
-      {
-        "type": "assertion",
-        "description": "Verify text \"too\" is visible"
-      }
+      { "type": "assertion", "description": "Verify text \"too\" is visible" }
     ]
   },
   {
@@ -171,10 +123,7 @@
     "category": "Email Verification",
     "priority": "High",
     "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /verify-email"
-      },
+      { "type": "action", "description": "Navigate to /verify-email" },
       {
         "type": "assertion",
         "description": "Verify page title contains \"Verify\""
@@ -187,10 +136,7 @@
         "type": "assertion",
         "description": "Verify text \"email\" is visible"
       },
-      {
-        "type": "assertion",
-        "description": "Verify text \"check\" is visible"
-      }
+      { "type": "assertion", "description": "Verify text \"check\" is visible" }
     ]
   },
   {
@@ -200,22 +146,13 @@
     "category": "Email Verification",
     "priority": "Low",
     "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /verify-email"
-      },
+      { "type": "action", "description": "Navigate to /verify-email" },
       {
         "type": "assertion",
         "description": "Verify text \"Log in\" is visible"
       },
-      {
-        "type": "action",
-        "description": "Click on \"Log in\""
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/login\""
-      },
+      { "type": "action", "description": "Click on \"Log in\"" },
+      { "type": "assertion", "description": "Verify URL contains \"/login\"" },
       {
         "type": "assertion",
         "description": "Verify page title contains \"Login\""
@@ -229,22 +166,13 @@
     "category": "Email Verification",
     "priority": "Low",
     "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /verify-email"
-      },
+      { "type": "action", "description": "Navigate to /verify-email" },
       {
         "type": "assertion",
         "description": "Verify text \"Sign up\" is visible"
       },
-      {
-        "type": "action",
-        "description": "Click on \"Sign up\""
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/signup\""
-      },
+      { "type": "action", "description": "Click on \"Sign up\"" },
+      { "type": "assertion", "description": "Verify URL contains \"/signup\"" },
       {
         "type": "assertion",
         "description": "Verify page title contains \"Sign\""
@@ -258,10 +186,7 @@
     "category": "Dashboard",
     "priority": "High",
     "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
+      { "type": "action", "description": "Navigate to /login" },
       {
         "type": "action",
         "description": "Type \"{{LOGIN_USER}}\" into the email field"
@@ -270,10 +195,7 @@
         "type": "action",
         "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
       },
-      {
-        "type": "action",
-        "description": "Click the \"Log in\" button"
-      },
+      { "type": "action", "description": "Click the \"Log in\" button" },
       {
         "type": "assertion",
         "description": "Verify URL contains \"/dashboard\""
@@ -299,10 +221,7 @@
     "category": "Dashboard",
     "priority": "High",
     "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
+      { "type": "action", "description": "Navigate to /login" },
       {
         "type": "action",
         "description": "Type \"{{LOGIN_USER}}\" into the email field"
@@ -311,10 +230,7 @@
         "type": "action",
         "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
       },
-      {
-        "type": "action",
-        "description": "Click the \"Log in\" button"
-      },
+      { "type": "action", "description": "Click the \"Log in\" button" },
       {
         "type": "assertion",
         "description": "Verify URL contains \"/dashboard\""
@@ -340,10 +256,7 @@
     "category": "Dashboard",
     "priority": "Medium",
     "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
+      { "type": "action", "description": "Navigate to /login" },
       {
         "type": "action",
         "description": "Type \"{{LOGIN_USER}}\" into the email field"
@@ -352,10 +265,7 @@
         "type": "action",
         "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
       },
-      {
-        "type": "action",
-        "description": "Click the \"Log in\" button"
-      },
+      { "type": "action", "description": "Click the \"Log in\" button" },
       {
         "type": "assertion",
         "description": "Verify URL contains \"/dashboard\""
@@ -381,10 +291,7 @@
     "category": "Dashboard",
     "priority": "Medium",
     "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
+      { "type": "action", "description": "Navigate to /login" },
       {
         "type": "action",
         "description": "Type \"{{LOGIN_USER}}\" into the email field"
@@ -393,10 +300,7 @@
         "type": "action",
         "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
       },
-      {
-        "type": "action",
-        "description": "Click the \"Log in\" button"
-      },
+      { "type": "action", "description": "Click the \"Log in\" button" },
       {
         "type": "assertion",
         "description": "Verify URL contains \"/dashboard\""
@@ -422,10 +326,7 @@
     "category": "Dashboard",
     "priority": "Medium",
     "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
+      { "type": "action", "description": "Navigate to /login" },
       {
         "type": "action",
         "description": "Type \"{{LOGIN_USER}}\" into the email field"
@@ -434,10 +335,7 @@
         "type": "action",
         "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
       },
-      {
-        "type": "action",
-        "description": "Click the \"Log in\" button"
-      },
+      { "type": "action", "description": "Click the \"Log in\" button" },
       {
         "type": "assertion",
         "description": "Verify URL contains \"/dashboard\""
@@ -463,10 +361,7 @@
     "category": "Dashboard",
     "priority": "Low",
     "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
+      { "type": "action", "description": "Navigate to /login" },
       {
         "type": "action",
         "description": "Type \"{{LOGIN_USER}}\" into the email field"
@@ -475,10 +370,7 @@
         "type": "action",
         "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
       },
-      {
-        "type": "action",
-        "description": "Click the \"Log in\" button"
-      },
+      { "type": "action", "description": "Click the \"Log in\" button" },
       {
         "type": "assertion",
         "description": "Verify URL contains \"/dashboard\""
@@ -504,10 +396,7 @@
     "category": "Bank Connection - Plaid Integration",
     "priority": "High",
     "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
+      { "type": "action", "description": "Navigate to /login" },
       {
         "type": "action",
         "description": "Type \"{{LOGIN_USER}}\" into the email field"
@@ -516,22 +405,13 @@
         "type": "action",
         "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
       },
-      {
-        "type": "action",
-        "description": "Click the \"Log in\" button"
-      },
+      { "type": "action", "description": "Click the \"Log in\" button" },
       {
         "type": "assertion",
         "description": "Verify URL contains \"/dashboard\""
       },
-      {
-        "type": "action",
-        "description": "Navigate to /connect-bank"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Sync now\" button"
-      },
+      { "type": "action", "description": "Navigate to /connect-bank" },
+      { "type": "action", "description": "Click the \"Sync now\" button" },
       {
         "type": "assertion",
         "description": "Verify text \"Last sync\" is visible"
@@ -545,14 +425,8 @@
     "category": "Landing Page",
     "priority": "High",
     "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/\""
-      },
+      { "type": "action", "description": "Navigate to /" },
+      { "type": "assertion", "description": "Verify URL contains \"/\"" },
       {
         "type": "assertion",
         "description": "Verify element \"Hero section\" is visible"
@@ -574,18 +448,12 @@
     "category": "Landing Page",
     "priority": "Medium",
     "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /"
-      },
+      { "type": "action", "description": "Navigate to /" },
       {
         "type": "assertion",
         "description": "Verify element \"Hero section\" is visible"
       },
-      {
-        "type": "action",
-        "description": "Scroll to \"How it works\" section"
-      },
+      { "type": "action", "description": "Scroll to \"How it works\" section" },
       {
         "type": "assertion",
         "description": "Verify text \"How it works\" is visible"
@@ -603,18 +471,12 @@
     "category": "Landing Page",
     "priority": "Medium",
     "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /"
-      },
+      { "type": "action", "description": "Navigate to /" },
       {
         "type": "assertion",
         "description": "Verify element \"Hero section\" is visible"
       },
-      {
-        "type": "action",
-        "description": "Scroll to \"Security\" section"
-      },
+      { "type": "action", "description": "Scroll to \"Security\" section" },
       {
         "type": "assertion",
         "description": "Verify text \"Security\" is visible"
@@ -632,22 +494,13 @@
     "category": "Landing Page",
     "priority": "High",
     "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /"
-      },
+      { "type": "action", "description": "Navigate to /" },
       {
         "type": "assertion",
         "description": "Verify element \"Get Started\" button is visible"
       },
-      {
-        "type": "action",
-        "description": "Click on \"Get Started\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/signup\""
-      },
+      { "type": "action", "description": "Click on \"Get Started\" button" },
+      { "type": "assertion", "description": "Verify URL contains \"/signup\"" },
       {
         "type": "assertion",
         "description": "Verify page title contains \"Sign\""
@@ -661,26 +514,14 @@
     "category": "Landing Page",
     "priority": "High",
     "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /"
-      },
-      {
-        "type": "action",
-        "description": "Scroll to \"Security\" section"
-      },
+      { "type": "action", "description": "Navigate to /" },
+      { "type": "action", "description": "Scroll to \"Security\" section" },
       {
         "type": "assertion",
         "description": "Verify text \"Security\" is visible"
       },
-      {
-        "type": "action",
-        "description": "Click on \"Get Started\" button"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify URL contains \"/signup\""
-      }
+      { "type": "action", "description": "Click on \"Get Started\" button" },
+      { "type": "assertion", "description": "Verify URL contains \"/signup\"" }
     ]
   },
   {
@@ -690,10 +531,7 @@
     "category": "Accounts & Transactions (Manual CRUD)",
     "priority": "High",
     "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
+      { "type": "action", "description": "Navigate to /login" },
       {
         "type": "action",
         "description": "Type \"{{LOGIN_USER}}\" into the email field"
@@ -702,10 +540,7 @@
         "type": "action",
         "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
       },
-      {
-        "type": "action",
-        "description": "Click the \"Log in\" button"
-      },
+      { "type": "action", "description": "Click the \"Log in\" button" },
       {
         "type": "assertion",
         "description": "Verify URL contains \"/dashboard\""
@@ -714,10 +549,7 @@
         "type": "action",
         "description": "Click the \"Accounts\" control or tab"
       },
-      {
-        "type": "action",
-        "description": "Click the \"Add Account\" button"
-      },
+      { "type": "action", "description": "Click the \"Add Account\" button" },
       {
         "type": "assertion",
         "description": "Verify text \"Add Account\" is visible"
@@ -731,10 +563,7 @@
     "category": "Accounts & Transactions (Manual CRUD)",
     "priority": "High",
     "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
+      { "type": "action", "description": "Navigate to /login" },
       {
         "type": "action",
         "description": "Type \"{{LOGIN_USER}}\" into the email field"
@@ -743,10 +572,7 @@
         "type": "action",
         "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
       },
-      {
-        "type": "action",
-        "description": "Click the \"Log in\" button"
-      },
+      { "type": "action", "description": "Click the \"Log in\" button" },
       {
         "type": "assertion",
         "description": "Verify URL contains \"/dashboard\""
@@ -755,10 +581,7 @@
         "type": "action",
         "description": "Click the \"Accounts\" control or tab"
       },
-      {
-        "type": "action",
-        "description": "Click the \"Add Account\" button"
-      },
+      { "type": "action", "description": "Click the \"Add Account\" button" },
       {
         "type": "action",
         "description": "Type \"Test Checking Account\" into the account name field"
@@ -772,10 +595,7 @@
     "category": "Accounts & Transactions (Manual CRUD)",
     "priority": "High",
     "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
+      { "type": "action", "description": "Navigate to /login" },
       {
         "type": "action",
         "description": "Type \"{{LOGIN_USER}}\" into the email field"
@@ -784,10 +604,7 @@
         "type": "action",
         "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
       },
-      {
-        "type": "action",
-        "description": "Click the \"Log in\" button"
-      },
+      { "type": "action", "description": "Click the \"Log in\" button" },
       {
         "type": "assertion",
         "description": "Verify URL contains \"/dashboard\""
@@ -796,14 +613,8 @@
         "type": "action",
         "description": "Click the \"Accounts\" control or tab"
       },
-      {
-        "type": "action",
-        "description": "Click the \"Add Account\" button"
-      },
-      {
-        "type": "action",
-        "description": "Click the \"Save\" button"
-      }
+      { "type": "action", "description": "Click the \"Add Account\" button" },
+      { "type": "action", "description": "Click the \"Save\" button" }
     ]
   },
   {
@@ -813,10 +624,7 @@
     "category": "Accounts & Transactions (Manual CRUD)",
     "priority": "Medium",
     "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
+      { "type": "action", "description": "Navigate to /login" },
       {
         "type": "action",
         "description": "Type \"{{LOGIN_USER}}\" into the email field"
@@ -825,10 +633,7 @@
         "type": "action",
         "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
       },
-      {
-        "type": "action",
-        "description": "Click the \"Log in\" button"
-      },
+      { "type": "action", "description": "Click the \"Log in\" button" },
       {
         "type": "assertion",
         "description": "Verify URL contains \"/dashboard\""
@@ -837,10 +642,7 @@
         "type": "action",
         "description": "Click the \"Accounts\" control or tab"
       },
-      {
-        "type": "action",
-        "description": "Click the \"Add Account\" button"
-      },
+      { "type": "action", "description": "Click the \"Add Account\" button" },
       {
         "type": "assertion",
         "description": "Verify text \"required\" is visible"
@@ -854,10 +656,7 @@
     "category": "Accounts & Transactions (Manual CRUD)",
     "priority": "High",
     "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
+      { "type": "action", "description": "Navigate to /login" },
       {
         "type": "action",
         "description": "Type \"{{LOGIN_USER}}\" into the email field"
@@ -866,10 +665,7 @@
         "type": "action",
         "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
       },
-      {
-        "type": "action",
-        "description": "Click the \"Log in\" button"
-      },
+      { "type": "action", "description": "Click the \"Log in\" button" },
       {
         "type": "assertion",
         "description": "Verify URL contains \"/dashboard\""
@@ -895,10 +691,7 @@
     "category": "Accounts & Transactions (Manual CRUD)",
     "priority": "High",
     "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
+      { "type": "action", "description": "Navigate to /login" },
       {
         "type": "action",
         "description": "Type \"{{LOGIN_USER}}\" into the email field"
@@ -907,10 +700,7 @@
         "type": "action",
         "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
       },
-      {
-        "type": "action",
-        "description": "Click the \"Log in\" button"
-      },
+      { "type": "action", "description": "Click the \"Log in\" button" },
       {
         "type": "assertion",
         "description": "Verify URL contains \"/dashboard\""
@@ -936,10 +726,7 @@
     "category": "Accounts & Transactions (Manual CRUD)",
     "priority": "High",
     "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to /login"
-      },
+      { "type": "action", "description": "Navigate to /login" },
       {
         "type": "action",
         "description": "Type \"{{LOGIN_USER}}\" into the email field"
@@ -948,10 +735,7 @@
         "type": "action",
         "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
       },
-      {
-        "type": "action",
-        "description": "Click the \"Log in\" button"
-      },
+      { "type": "action", "description": "Click the \"Log in\" button" },
       {
         "type": "assertion",
         "description": "Verify URL contains \"/dashboard\""
