@@ -1,20 +1,3 @@
-// Here in this page, get request from client and exchange link-token with plaid api and return link-token to a client
-
-// TODO: Now:
-// - Keep webhook route implemented
-// - Keep manual sync + repair flow working
-// - Keep Accounts page reflecting stored DB truth
-
-// Before deployment:
-// - Add NEXT_PUBLIC_APP_URL or APP_BASE_URL
-// - Add webhook: `${APP_BASE_URL}/api/plaid/webhook` to /api/plaid/link-token
-// - Add Plaid webhook verification TODO
-// - Rotate pasted secrets
-
-// After deployment:
-// - Connect a fresh bank Item and confirm webhook is registered
-// - For old Items, optionally call /item/webhook/update
-
 import {
   PlaidApi,
   Configuration,
@@ -30,12 +13,14 @@ const plaidClientId = process.env.PLAID_CLIENT_ID;
 const plaidEnv = process.env.PLAID_ENV || "sandbox";
 const plaidSecret = process.env.PLAID_SECRET;
 
+const appBaseUrl = process.env.APP_BASE_URL;
+
 export async function POST() {
   try {
     const supabase = await createClient();
     const user = await grabUser(supabase);
 
-    if (!plaidClientId || !plaidSecret) {
+    if (!plaidClientId || !plaidSecret || !appBaseUrl) {
       return NextResponse.json(
         { error: "Missing Plaid Credentials" },
         { status: 500 },
@@ -61,6 +46,8 @@ export async function POST() {
       country_codes: [CountryCode.Ca],
       language: "en",
       transactions: { days_requested: 90 },
+      // in production this should become real URL
+      webhook: `${appBaseUrl}/api/plaid/webhook`,
     };
 
     // actually requesting to plaid api to get link token

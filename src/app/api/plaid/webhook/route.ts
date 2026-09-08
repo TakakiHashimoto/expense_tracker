@@ -19,24 +19,11 @@ export async function POST(req: NextRequest) {
       { status: 401 },
     );
   }
-  const body = JSON.parse(rawBody);
+  const body = JSON.parse(rawBody) as PlaidWebhookBody;
 
   if (!body.item_id) {
     return NextResponse.json({ error: "Missing item id" }, { status: 400 });
   }
-
-  if (
-    body.webhook_type !== "TRANSACTIONS" ||
-    body.webhook_code !== "SYNC_UPDATES_AVAILABLE"
-  ) {
-    return NextResponse.json({ ok: true, ignored: true });
-  }
-
-  console.log("Plaid webhook received", {
-    webhook_type: body.webhook_type,
-    webhook_code: body.webhook_code,
-    item_id: body.item_id,
-  });
 
   const supabase = createServerRoleClient();
 
@@ -52,78 +39,147 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, ignored: true });
   }
 
-  const { data: secret, error: secretError } = await supabase
-    .from("plaid_item_secrets")
-    .select("access_token")
-    .eq("plaid_item_id", plaidItem.id)
-    .single();
+  if (
+    body.webhook_type === "ITEM" &&
+    body.webhook_code === "ERROR" &&
+    body.error?.error_code === "ITEM_LOGIN_REQUIRED"
+  ) {
+    await recordSyncFailure({
+      supabase,
+      userId: plaidItem.user_id,
+      plaidItemUuid: plaidItem.id,
+      errorCode: "ITEM_LOGIN_REQUIRED",
+      requiresUpdate: true,
+    });
 
-  if (!secret || secretError) {
-    console.error("Webhook secret not found", secretError);
     return NextResponse.json(
-      { error: "Missing access token" },
-      { status: 500 },
+      { ok: true, message: "Login is required" },
+      { status: 200 },
     );
   }
 
-  const client = createPlaidClient();
-  try {
-    const result = await syncPlaidItem({
-      supabase,
-      userId: plaidItem.user_id,
-      plaidClient: client,
-      plaidItemUuid: plaidItem.id,
-      accessToken: secret.access_token,
-      refreshAccount: true,
-    });
-
-    if (result.status === "busy") {
-      return NextResponse.json(
-        { ok: false, retry: true, reason: "SYNC_ALREADY_IN_PROGRESS" },
-        { status: 429, headers: { "Retry-After": "30" } },
-      );
+  if (
+    body.webhook_type === "ITEM" &&
+    body.webhook_code === "USER_PERMISSION_REVOKED"
+  ) {
+    const { error } = await supabase
+      .from("plaid_items")
+      .update({ status: "revoked", updated_at: new Date().toISOString() })
+      .eq("id", plaidItem.id)
+      .eq("user_id", plaidItem.user_id);
+    if (error) {
+      throw new Error("Failed to change status for this item");
     }
 
-    return NextResponse.json({
-      ok: true,
-      added: result.addedCount,
-      modified: result.modifiedCount,
-      removed: result.removedCount,
+    return NextResponse.json(
+      { ok: true, message: "This item has become revoked" },
+      { status: 200 },
+    );
+  }
+
+  if (body.webhook_type === "ITEM" && body.webhook_code === "LOGIN_REPAIRED") {
+    const now = new Date().toISOString();
+
+    const { error } = await supabase
+      .from("plaid_items")
+      .update({ status: "active", last_sync_error: null, updated_at: now })
+      .eq("id", plaidItem.id)
+      .eq("user_id", plaidItem.user_id);
+
+    if (error) {
+      throw new Error("Failed to record repaired Plaid Item", { cause: error });
+    }
+
+    return NextResponse.json({ ok: true });
+  }
+
+  if (
+    body.webhook_type === "TRANSACTIONS" &&
+    body.webhook_code === "SYNC_UPDATES_AVAILABLE"
+  ) {
+    //
+
+    console.log("Plaid webhook received", {
+      webhook_type: body.webhook_type,
+      webhook_code: body.webhook_code,
+      item_id: body.item_id,
     });
-  } catch (e) {
-    const plaidError = getPlaidError(e);
-    const errorCode = plaidError?.error_code ?? "SYNC_FAILED";
-    const requiresUpdate = errorCode === "ITEM_LOGIN_REQUIRED";
-    try {
-      await recordSyncFailure({
-        supabase,
-        userId: plaidItem.user_id,
-        plaidItemUuid: plaidItem.id,
-        errorCode,
-        requiresUpdate,
-      });
-    } catch (recordError) {
-      console.error("Failed to record sync failure", recordError);
+
+    const { data: secret, error: secretError } = await supabase
+      .from("plaid_item_secrets")
+      .select("access_token")
+      .eq("plaid_item_id", plaidItem.id)
+      .single();
+
+    if (!secret || secretError) {
+      console.error("Webhook secret not found", secretError);
       return NextResponse.json(
-        { error: "Failed to record sync failure" },
+        { error: "Missing access token" },
         { status: 500 },
       );
     }
 
-    if (requiresUpdate) {
+    const client = createPlaidClient();
+    try {
+      const result = await syncPlaidItem({
+        supabase,
+        userId: plaidItem.user_id,
+        plaidClient: client,
+        plaidItemUuid: plaidItem.id,
+        accessToken: secret.access_token,
+        refreshAccount: true,
+      });
+
+      if (result.status === "busy") {
+        return NextResponse.json(
+          { ok: false, retry: true, reason: "SYNC_ALREADY_IN_PROGRESS" },
+          { status: 429, headers: { "Retry-After": "30" } },
+        );
+      }
+
       return NextResponse.json({
         ok: true,
-        error: "ITEM_LOGIN_REQUIRED",
-        message: "Your bank connection needs to be updated.",
-        plaidItemId: plaidItem.id,
+        added: result.addedCount,
+        modified: result.modifiedCount,
+        removed: result.removedCount,
       });
+    } catch (e) {
+      const plaidError = getPlaidError(e);
+      const errorCode = plaidError?.error_code ?? "SYNC_FAILED";
+      const requiresUpdate = errorCode === "ITEM_LOGIN_REQUIRED";
+      try {
+        await recordSyncFailure({
+          supabase,
+          userId: plaidItem.user_id,
+          plaidItemUuid: plaidItem.id,
+          errorCode,
+          requiresUpdate,
+        });
+      } catch (recordError) {
+        console.error("Failed to record sync failure", recordError);
+        return NextResponse.json(
+          { error: "Failed to record sync failure" },
+          { status: 500 },
+        );
+      }
+
+      if (requiresUpdate) {
+        return NextResponse.json({
+          ok: true,
+          error: "ITEM_LOGIN_REQUIRED",
+          message: "Your bank connection needs to be updated.",
+          plaidItemId: plaidItem.id,
+        });
+      }
+
+      console.error("Plaid Item synchronization failed", e);
+
+      return NextResponse.json(
+        { error: "Failed to sync transactions" },
+        { status: 500 },
+      );
     }
-
-    console.error("Plaid Item synchronization failed", e);
-
-    return NextResponse.json(
-      { error: "Failed to sync transactions" },
-      { status: 500 },
-    );
   }
+
+  return NextResponse.json({ ok: true, ignored: true });
 }
