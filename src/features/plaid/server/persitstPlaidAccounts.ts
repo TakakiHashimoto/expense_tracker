@@ -45,13 +45,17 @@ export async function persistPlaidAccounts({
     is_active: true,
   }));
 
-  const { error } = await supabase
-    .from("accounts")
-    .upsert(accountsToUpsert, { onConflict: "plaid_item_id,plaid_account_id" });
+  if (accountsToUpsert.length > 0) {
+    const { error } = await supabase
+      .from("accounts")
+      .upsert(accountsToUpsert, {
+        onConflict: "plaid_item_id,plaid_account_id",
+      });
 
-  if (error) {
-    console.error("Failed to persist plaid accounts", error);
-    throw new Error("Failed to persist Plaid accounts", { cause: error });
+    if (error) {
+      console.error("Failed to persist plaid accounts", error);
+      throw new Error("Failed to persist Plaid accounts", { cause: error });
+    }
   }
 
   const currentPlaidAccountIds = new Set(

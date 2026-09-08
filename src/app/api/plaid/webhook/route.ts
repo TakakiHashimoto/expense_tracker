@@ -6,8 +6,6 @@ import { createPlaidClient, getPlaidError } from "../lib/plaid.helper";
 import { createServerRoleClient } from "@/lib/supabase/server-role";
 import { verifyPlaidWebhook } from "./verifyWebhooks";
 
-// TODO production: verify Plaid-Verification header before trusting payload.
-
 export async function POST(req: NextRequest) {
   const rawBody = await req.text();
   const isVerified = await verifyPlaidWebhook({

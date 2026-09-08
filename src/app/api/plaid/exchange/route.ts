@@ -151,29 +151,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
-//     {
-//   institution: {
-//     name: 'Wells Fargo',
-//     institution_id: 'ins_4'
-//   },
-//   accounts: [
-//     {
-//       id: 'ygPnJweommTWNr9doD6ZfGR6GGVQy7fyREmWy',
-//       name: 'Plaid Checking',
-//       mask: '0000',
-//       type: 'depository',
-//       subtype: 'checking',
-//       verification_status: null
-//     },
-//     {
-//       id: '9ebEyJAl33FRrZNLBG8ECxD9xxpwWnuRNZ1V4',
-//       name: 'Plaid Saving',
-//       mask: '1111',
-//       type: 'depository',
-//       subtype: 'savings'
-//     }
-//     ...
-//   ],
-//   link_session_id: '79e772be-547d-4c9c-8b76-4ac4ed4c441a'
-// }
