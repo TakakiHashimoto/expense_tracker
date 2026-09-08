@@ -65,7 +65,7 @@ function ConnectButtonComponent({ title }: { title: string }) {
     linkTokenRequest();
   }, []);
 
-  const { open, ready, error } = usePlaidLink({
+  const { open, ready } = usePlaidLink({
     token: linkToken ?? "",
 
     onExit: (err, metadata) => {
@@ -148,7 +148,6 @@ function ConnectButtonComponent({ title }: { title: string }) {
           );
         }
 
-        const syncResult = await syncRes.json();
         setStatus("success");
         router.push("/dashboard");
         router.refresh();

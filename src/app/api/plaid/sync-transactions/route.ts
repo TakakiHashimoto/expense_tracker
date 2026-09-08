@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     // fetching transaction cursor, which is needed for transaction syncing
     const { data: cursorData, error: cursorError } = await supabase
       .from("plaid_items")
-      .select("id, transactions_cursor")
+      .select("id")
       .eq("id", plaid_item_uuid)
       .eq("user_id", user.id)
       .single();
@@ -56,8 +56,6 @@ export async function POST(request: NextRequest) {
     }
 
     const serverRoleSupabase = createServerRoleClient();
-
-    const transactionCursor = cursorData.transactions_cursor;
 
     const { data, error: secretError } = await serverRoleSupabase
       .from("plaid_item_secrets")

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import AccountSection from "../components/AccountSection";
 import { AccountPageInstitution } from "../types";
-import { Plus, SquarePlus } from "lucide-react";
+import { Plus } from "lucide-react";
 
 type Props = { accounts: AccountPageInstitution[] };
 

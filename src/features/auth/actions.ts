@@ -4,10 +4,6 @@ import { grabUser } from "@/lib/getUser";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
-type OnboardingState =
-  | { ok: true; hasPlaidItems: boolean }
-  | { ok: false; error: string };
-
 async function getUserOnboardingState() {
   const supabase = await createClient();
 

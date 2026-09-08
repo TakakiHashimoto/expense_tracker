@@ -1,4 +1,3 @@
-import ConnectBank from "@/components/connectBank/ConnectBankClient";
 import SyncDashboardButton from "./SyncDashboardButton";
 import ConnectButtonComponent from "@/components/connectBank/ConnectButtonComponent";
 

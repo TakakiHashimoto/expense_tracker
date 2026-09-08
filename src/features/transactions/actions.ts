@@ -8,48 +8,48 @@ import {
   TransactionItem,
 } from "./types";
 
-type TransactionQueryRowType = {
-  id: string;
-  amount: number | string;
-  merchant: string | null;
-  name: string | null;
-  posted_date: string;
-  category_id: string | null;
-  category: { name: string | null; kind: "income" | "expense" | null } | null;
-  account: {
-    name: string | null;
-    plaid_item: { institution_name: string | null } | null;
-  } | null;
-};
+// type TransactionQueryRowType = {
+//   id: string;
+//   amount: number | string;
+//   merchant: string | null;
+//   name: string | null;
+//   posted_date: string;
+//   category_id: string | null;
+//   category: { name: string | null; kind: "income" | "expense" | null } | null;
+//   account: {
+//     name: string | null;
+//     plaid_item: { institution_name: string | null } | null;
+//   } | null;
+// };
 
 type TransactionDetailReturn = {
   transaction: TransactionDetail;
   categories: CategoryType[];
 };
 
-type TransactionDetailQueryRow = {
-  id: string;
-  amount: number | string;
-  merchant: string | null;
-  note: string | null;
-  name: string | null;
+// type TransactionDetailQueryRow = {
+//   id: string;
+//   amount: number | string;
+//   merchant: string | null;
+//   note: string | null;
+//   name: string | null;
 
-  posted_date: string;
-  posted_datetime: string | null;
+//   posted_date: string;
+//   posted_datetime: string | null;
 
-  payment_channel: string | null;
-  pending: boolean;
+//   payment_channel: string | null;
+//   pending: boolean;
 
-  category: {
-    id: string;
-    name: string | null;
-    kind: "income" | "expense" | null;
-  } | null;
+//   category: {
+//     id: string;
+//     name: string | null;
+//     kind: "income" | "expense" | null;
+//   } | null;
 
-  institution_name: { institution_name: string | null } | null;
+//   institution_name: { institution_name: string | null } | null;
 
-  account: { name: string | null; type: string; mask: number } | null;
-};
+//   account: { name: string | null; type: string; mask: number } | null;
+// };
 
 type ArgumentType = { filters: TransactionFilters; q: string };
 

@@ -52,6 +52,7 @@ function BudgetCreatePageClient({ categories }: Props) {
       toast.success(`Successfully added budget for ${categ?.name}`);
       router.refresh();
     } catch (e) {
+      console.error("Failed to add budgets", e);
       toast.error("Failed to add budgets");
     } finally {
       setIsAdding(false);

@@ -75,11 +75,12 @@ function AddAccountButton({ plaidItemUuid }: Props) {
         setLinkToken(null);
         router.refresh();
       } catch (e) {
+        console.error("Failed to add accounts", e);
         setFrontError("Failed to sync your bank account");
         setStatus("idle");
       }
     },
-    onExit: (err, metadata) => {
+    onExit: (err) => {
       if (err) {
         console.error(err);
         setFrontError("Something went wrong while opening your account modal");

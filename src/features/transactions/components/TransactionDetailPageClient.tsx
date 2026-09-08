@@ -25,6 +25,7 @@ function TransactionDetailPageClient({ transaction, categories }: Props) {
       setIsEditModalOpen(false);
       toast.success("Successfully updated category");
     } catch (e) {
+      console.error("Failed to update cateogry", e);
       toast.error("Failed to update category");
     } finally {
       setIsUpdating(false);

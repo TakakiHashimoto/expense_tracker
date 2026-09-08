@@ -5,7 +5,6 @@ import { createPlaidClient } from "../lib/plaid.helper";
 import { createServerRoleClient } from "@/lib/supabase/server-role";
 
 const plaidClientId = process.env.PLAID_CLIENT_ID;
-const plaidEnv = process.env.PLAID_ENV || "sandbox";
 const plaidSecret = process.env.PLAID_SECRET;
 
 export async function POST(request: NextRequest) {
