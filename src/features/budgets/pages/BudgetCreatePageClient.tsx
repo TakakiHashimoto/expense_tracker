@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Categories } from "../types";
 import { useState } from "react";
 import SelectCategoryButton from "../components/SelectCategoryButton";
@@ -10,10 +10,6 @@ import { toast } from "sonner";
 type Props = { categories: Categories[] };
 
 function BudgetCreatePageClient({ categories }: Props) {
-  const pathname = usePathname();
-  // /budgets/create-budget
-  // generateBreadcrumb(pathname)
-
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
     null,
   );
@@ -36,6 +32,7 @@ function BudgetCreatePageClient({ categories }: Props) {
       return;
     }
     const formattedMonth = `${today.getFullYear()}-${String(month).padStart(2, "0")}-01`;
+    const selectedMonth = formattedMonth.slice(0, 7);
     try {
       setIsAdding(true);
       const result = await addBudget({
@@ -50,7 +47,7 @@ function BudgetCreatePageClient({ categories }: Props) {
       }
       const categ = categories.find((ctg) => ctg.id === selectedCategoryId);
       toast.success(`Successfully added budget for ${categ?.name}`);
-      router.refresh();
+      router.replace(`/budgets?month=${selectedMonth}`);
     } catch (e) {
       console.error("Failed to add budgets", e);
       toast.error("Failed to add budgets");
@@ -60,9 +57,7 @@ function BudgetCreatePageClient({ categories }: Props) {
   }
 
   function handleCancel() {
-    setSelectedCategoryId(null);
-    setAmount("");
-    setMonth(today.getMonth() + 1);
+    router.replace("/budgets");
   }
 
   return (
