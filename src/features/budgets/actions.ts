@@ -150,25 +150,33 @@ export async function getCategories(): Promise<CategoryReturnType> {
   return { ok: true, categories: categoryData };
 }
 
-export async function getBudgets(): Promise<BudgetAnalysisReturn> {
+export async function getBudgets(month: string): Promise<BudgetAnalysisReturn> {
   const supabase = await createClient();
   const user = await grabUser(supabase);
+
+  if (!isValidMonthDate(month)) {
+    return { ok: false, error: "Invalid month" };
+  }
 
   const { data: budgetData, error: budgetError } = await supabase
     .from("budgets")
     .select("id, amount, month, category: categories(id, name, kind)")
-    .eq("user_id", user.id);
+    .eq("user_id", user.id)
+    .eq("month", month);
 
   if (!budgetData || budgetError) {
     return { ok: false, error: "Failed to fetch budgets" };
   }
 
+  const nextMonthStart = getNextMonthStart(month);
   const { data: transactions, error: transactionError } = await supabase
     .from("transactions")
     .select("id, category_id, amount, posted_date")
     .eq("user_id", user.id)
     .or("is_removed.is.null,is_removed.eq.false")
-    .lt("amount", 0);
+    .lt("amount", 0)
+    .gte("posted_date", month)
+    .lt("posted_date", nextMonthStart);
 
   if (!transactions || transactionError) {
     return { ok: false, error: "Failed to fetch transactions" };
@@ -181,15 +189,8 @@ export async function getBudgets(): Promise<BudgetAnalysisReturn> {
       throw new Error(`Budget ${budget.id} references a non-expense category`);
     }
     // month is a date: "2026-08-01"
-    const month = budget.month;
-    const nextMonthStart = getNextMonthStart(month);
     const thisMonthTransactionsForCateg = transactions.filter((tra) => {
-      return (
-        tra.posted_date !== null &&
-        tra.category_id === budget.category.id &&
-        tra.posted_date >= month &&
-        tra.posted_date < nextMonthStart
-      );
+      return tra.category_id === budget.category.id;
     });
 
     const thisMonthSpending = thisMonthTransactionsForCateg.reduce(

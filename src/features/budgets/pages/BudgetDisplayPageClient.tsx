@@ -1,10 +1,59 @@
 import Link from "next/link";
 import { BudgetAnalysis } from "../types";
 import BudgetCard from "../components/BudgetCard";
+import { Calendar, CircleChevronLeft, CircleChevronRight } from "lucide-react";
 
-type Props = { budgets: BudgetAnalysis[] };
+type Props = { budgets: BudgetAnalysis[]; month: string };
 
-function BudgetDisplayPageClient({ budgets }: Props) {
+const monthMapping: Record<string, string> = {
+  "01": "Jan",
+  "02": "Feb",
+  "03": "Mar",
+  "04": "Apr",
+  "05": "May",
+  "06": "Jun",
+  "07": "Jul",
+  "08": "Aug",
+  "09": "Sep",
+  "10": "Oct",
+  "11": "Nov",
+  "12": "Dec",
+};
+
+function getNextMonth(input: string) {
+  // We want "2026-09" like this
+  const [year, month] = input.split("-");
+  const nextMonth = Number(month) + 1;
+
+  if (nextMonth > 12) {
+    return `${Number(year) + 1}-01`;
+  }
+
+  return `${year}-${String(nextMonth).padStart(2, "0")}`;
+}
+
+function getPrevMonth(input: string) {
+  const [year, month] = input.split("-");
+  const nextMonth = Number(month) - 1;
+
+  if (nextMonth < 1) {
+    return `${Number(year) - 1}-12`;
+  }
+
+  return `${year}-${String(nextMonth).padStart(2, "0")}`;
+}
+
+function formatDate(input: string) {
+  const [year, month] = input.split("-");
+  const displayMonth = monthMapping[month];
+  return `${displayMonth} ${year}`;
+}
+
+function BudgetDisplayPageClient({ budgets, month }: Props) {
+  const nextMonth = getNextMonth(month);
+  const prevMonth = getPrevMonth(month);
+  const formattedDate = formatDate(month);
+
   return (
     <main className="flex-1 lg:ml-78 p-12 max-w-container-max mx-auto ">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
@@ -17,6 +66,33 @@ function BudgetDisplayPageClient({ budgets }: Props) {
             categories with precision.
           </p>
         </div>
+
+        <div className="flex items-center gap-1 bg-surface-container-low border border-white/10 rounded-xl p-1.5 shadow-sm">
+          <Link
+            href={`/budgets?month=${prevMonth}`}
+            className="w-9 h-9 rounded-lg flex items-center justify-center text-slate-muted hover:text-on-surface hover:bg-surface-container-high transition-colors"
+            aria-label="Previous Month"
+          >
+            <CircleChevronLeft className="material-symbols-outlined text-[20px]" />
+          </Link>
+          <Link
+            href={`/budgets?month=${month}`}
+            className="flex items-center gap-2 px-3"
+          >
+            <Calendar className="material-symbols-outlined text-primary text-[18px]" />
+            <span className="font-label-bold text-label-bold text-on-surface tracking-wide uppercase">
+              {formattedDate}
+            </span>
+          </Link>
+          <Link
+            href={`/budgets?month=${nextMonth}`}
+            className="w-9 h-9 rounded-lg flex items-center justify-center text-slate-muted hover:text-on-surface hover:bg-surface-container-high transition-colors"
+            aria-label="Next Month"
+          >
+            <CircleChevronRight className="material-symbols-outlined text-[20px]" />
+          </Link>
+        </div>
+
         <Link href={"/budgets/create-budget"} className="btn-primary">
           <span className="material-symbols-outlined">add</span>
           Add Budget
