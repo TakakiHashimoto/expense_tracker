@@ -1,13 +1,14 @@
-import { HeartPulse, SquarePen } from "lucide-react";
+import { HeartPulse, SquarePen, Trash } from "lucide-react";
 import { BudgetAnalysis } from "../types";
 import { formatCurrency } from "@/features/accounts/lib/formatCurrency";
 
 type Props = {
   budget: BudgetAnalysis;
   onEditClick: (budget: BudgetAnalysis) => void;
+  onDeleteClick: (budget: BudgetAnalysis) => void;
 };
 
-function BudgetCard({ budget, onEditClick }: Props) {
+function BudgetCard({ budget, onEditClick, onDeleteClick }: Props) {
   const status = budget.isOverSpending
     ? "Over Spending"
     : budget.percentUsed > 80
@@ -42,6 +43,14 @@ function BudgetCard({ budget, onEditClick }: Props) {
             aria-label={`Edit ${budget.category.name} budget`}
           >
             <SquarePen size={25} />
+          </button>
+          <button
+            className="bg-tertiary rounded-full p-2 cursor-pointer hover:shadow-primary/30 transition-all"
+            onClick={() => onDeleteClick(budget)}
+            type="button"
+            aria-label={`Delete ${budget.category.name} budget`}
+          >
+            <Trash size={25} />
           </button>
         </div>
       </div>

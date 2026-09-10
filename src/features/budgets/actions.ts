@@ -262,3 +262,26 @@ export async function updateBudget({
   }
   return { ok: true };
 }
+
+export async function deleteBudget({ budgetId }: { budgetId: string }) {
+  const supabase = await createClient();
+  const user = await grabUser(supabase);
+
+  const { data: deletedBudget, error: deleteError } = await supabase
+    .from("budgets")
+    .delete()
+    .eq("id", budgetId)
+    .eq("user_id", user.id)
+    .select("id")
+    .maybeSingle();
+
+  if (deleteError) {
+    throw new Error("Failed to delete budget");
+  }
+
+  if (!deletedBudget) {
+    return { ok: false, error: "Budget not found" };
+  }
+
+  return { ok: true };
+}

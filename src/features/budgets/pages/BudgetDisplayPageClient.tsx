@@ -6,9 +6,10 @@ import BudgetCard from "../components/BudgetCard";
 import { Calendar, CircleChevronLeft, CircleChevronRight } from "lucide-react";
 import { useState } from "react";
 import EditBudgetAmount from "../components/EditBudgetAmount";
-import { updateBudget } from "../actions";
+import { deleteBudget, updateBudget } from "../actions";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import DeleteBudgetModal from "../components/DeleteBudgetModal";
 
 type Props = { budgets: BudgetAnalysis[]; month: string };
 
@@ -60,7 +61,12 @@ function BudgetDisplayPageClient({ budgets, month }: Props) {
   const [selectedBudget, setSelectedBudget] = useState<BudgetAnalysis | null>(
     null,
   );
+  const [deletingBudget, setDeletingBudget] = useState<BudgetAnalysis | null>(
+    null,
+  );
+
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const nextMonth = getNextMonth(month);
   const prevMonth = getPrevMonth(month);
@@ -70,6 +76,14 @@ function BudgetDisplayPageClient({ budgets, month }: Props) {
 
   function onEditClick(budget: BudgetAnalysis) {
     setSelectedBudget(budget);
+  }
+
+  function onDeleteClick(budget: BudgetAnalysis) {
+    setDeletingBudget(budget);
+  }
+
+  function onDeleteModalClose() {
+    setDeletingBudget(null);
   }
 
   function onClose() {
@@ -98,6 +112,33 @@ function BudgetDisplayPageClient({ budgets, month }: Props) {
       toast.error("Failed to update budget amount");
     } finally {
       setIsUpdating(false);
+    }
+  }
+
+  async function onDelete() {
+    if (!deletingBudget) {
+      toast.error("Please select budget", {
+        className:
+          "!bg-tertiary !text-on-tertiary border-tertiary !shadow-lg !text-lg",
+      });
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const res = await deleteBudget({ budgetId: deletingBudget.id });
+      if (!res.ok) {
+        toast.error(res.error ?? "Failed to delete budget");
+        return;
+      }
+
+      toast.success("Successfully deleted budget");
+      onDeleteModalClose();
+      router.refresh();
+    } catch (e) {
+      toast.error("Failed to delete budget ");
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -156,7 +197,12 @@ function BudgetDisplayPageClient({ budgets, month }: Props) {
           </div>
         ) : (
           budgets.map((bdg) => (
-            <BudgetCard key={bdg.id} budget={bdg} onEditClick={onEditClick} />
+            <BudgetCard
+              key={bdg.id}
+              budget={bdg}
+              onEditClick={onEditClick}
+              onDeleteClick={onDeleteClick}
+            />
           ))
         )}
       </div>
@@ -257,6 +303,7 @@ function BudgetDisplayPageClient({ budgets, month }: Props) {
           </div>
         </div>
       </section> */}
+
       {/* Edit modal */}
       {selectedBudget && (
         <EditBudgetAmount
@@ -264,6 +311,16 @@ function BudgetDisplayPageClient({ budgets, month }: Props) {
           onUpdate={onUpdate}
           budget={selectedBudget}
           isUpdating={isUpdating}
+        />
+      )}
+
+      {/* Delete modal */}
+      {deletingBudget && (
+        <DeleteBudgetModal
+          onClose={onDeleteModalClose}
+          onDelete={onDelete}
+          isDeleting={isDeleting}
+          budget={deletingBudget}
         />
       )}
     </main>
