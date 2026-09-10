@@ -1,7 +1,14 @@
+"use client";
+
 import Link from "next/link";
 import { BudgetAnalysis } from "../types";
 import BudgetCard from "../components/BudgetCard";
 import { Calendar, CircleChevronLeft, CircleChevronRight } from "lucide-react";
+import { useState } from "react";
+import EditBudgetAmount from "../components/EditBudgetAmount";
+import { updateBudget } from "../actions";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 type Props = { budgets: BudgetAnalysis[]; month: string };
 
@@ -50,9 +57,49 @@ function formatDate(input: string) {
 }
 
 function BudgetDisplayPageClient({ budgets, month }: Props) {
+  const [selectedBudget, setSelectedBudget] = useState<BudgetAnalysis | null>(
+    null,
+  );
+  const [isUpdating, setIsUpdating] = useState(false);
+
   const nextMonth = getNextMonth(month);
   const prevMonth = getPrevMonth(month);
   const formattedDate = formatDate(month);
+
+  const router = useRouter();
+
+  function onEditClick(budget: BudgetAnalysis) {
+    setSelectedBudget(budget);
+  }
+
+  function onClose() {
+    setSelectedBudget(null);
+  }
+
+  async function onUpdate(amount: number) {
+    if (!selectedBudget) {
+      toast.error("Please select budget", {
+        className:
+          "!bg-tertiary !text-on-tertiary border-tertiary !shadow-lg !text-lg",
+      });
+      return;
+    }
+    setIsUpdating(true);
+    try {
+      const res = await updateBudget({ budgetId: selectedBudget.id, amount });
+      if (!res.ok) {
+        toast.error(res.error ?? "Failed to update budget");
+        return;
+      }
+      toast.success("Successfully updated amount for this budget");
+      onClose();
+      router.refresh();
+    } catch (e) {
+      toast.error("Failed to update budget amount");
+    } finally {
+      setIsUpdating(false);
+    }
+  }
 
   return (
     <main className="flex-1 lg:ml-78 p-12 max-w-container-max mx-auto ">
@@ -108,7 +155,9 @@ function BudgetDisplayPageClient({ budgets, month }: Props) {
             </p>
           </div>
         ) : (
-          budgets.map((bdg) => <BudgetCard key={bdg.id} budget={bdg} />)
+          budgets.map((bdg) => (
+            <BudgetCard key={bdg.id} budget={bdg} onEditClick={onEditClick} />
+          ))
         )}
       </div>
 
@@ -208,6 +257,15 @@ function BudgetDisplayPageClient({ budgets, month }: Props) {
           </div>
         </div>
       </section> */}
+      {/* Edit modal */}
+      {selectedBudget && (
+        <EditBudgetAmount
+          onClose={onClose}
+          onUpdate={onUpdate}
+          budget={selectedBudget}
+          isUpdating={isUpdating}
+        />
+      )}
     </main>
   );
 }

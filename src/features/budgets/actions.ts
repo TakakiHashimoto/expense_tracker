@@ -227,3 +227,38 @@ export async function getBudgets(month: string): Promise<BudgetAnalysisReturn> {
 
   return { ok: true, data: result };
 }
+
+export async function updateBudget({
+  budgetId,
+  amount,
+}: {
+  budgetId: string;
+  amount: number;
+}) {
+  const supabase = await createClient();
+  const user = await grabUser(supabase);
+  if (!Number.isFinite(amount)) {
+    return { ok: false, error: "Amount must be a valid number" };
+  }
+  if (amount <= 0) {
+    return { ok: false, error: "Amount needs to be a positive number" };
+  }
+
+  // fetch the budget that matches with the id
+  const { data: updatedBudget, error: updateError } = await supabase
+    .from("budgets")
+    .update({ amount })
+    .eq("id", budgetId)
+    .eq("user_id", user.id)
+    .select("id")
+    .maybeSingle();
+
+  if (updateError) {
+    throw new Error("Failed to update amount for this budget");
+  }
+
+  if (!updatedBudget) {
+    return { ok: false, error: "Budget not found" };
+  }
+  return { ok: true };
+}

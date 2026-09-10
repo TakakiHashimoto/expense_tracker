@@ -1,16 +1,18 @@
-import { HeartPulse } from "lucide-react";
+import { HeartPulse, SquarePen } from "lucide-react";
 import { BudgetAnalysis } from "../types";
 import { formatCurrency } from "@/features/accounts/lib/formatCurrency";
 
-type Props = { budget: BudgetAnalysis };
+type Props = {
+  budget: BudgetAnalysis;
+  onEditClick: (budget: BudgetAnalysis) => void;
+};
 
-function BudgetCard({ budget }: Props) {
-  const status =
-    budget.percentUsed <= 80
-      ? "On Track"
-      : budget.percentUsed > 80 && budget.percentUsed < 100
-        ? "Warning"
-        : "Over Spending";
+function BudgetCard({ budget, onEditClick }: Props) {
+  const status = budget.isOverSpending
+    ? "Over Spending"
+    : budget.percentUsed > 80
+      ? "Warning"
+      : "On Track";
 
   const budgeColor =
     status === "On Track"
@@ -27,11 +29,21 @@ function BudgetCard({ budget }: Props) {
         <div className="w-12 h-12 bg-surface-container-high rounded-2xl flex items-center justify-center text-primary">
           <HeartPulse className="material-symbols-outlined" />
         </div>
-        <span
-          className={`text-label-bold font-label-bold  px-3 py-1 rounded-full ${budgeColor}`}
-        >
-          {status}
-        </span>
+        <div className="flex flex-row items-center justify-center gap-2">
+          <span
+            className={`text-label-bold font-label-bold  px-3 py-1 rounded-full ${budgeColor}`}
+          >
+            {status}
+          </span>
+          <button
+            className="bg-primary rounded-full p-2 cursor-pointer hover:shadow-primary/30 transition-all"
+            onClick={() => onEditClick(budget)}
+            type="button"
+            aria-label={`Edit ${budget.category.name} budget`}
+          >
+            <SquarePen size={25} />
+          </button>
+        </div>
       </div>
       <h3 className="font-headline-md text-headline-md text-on-surface mb-1">
         {budget.category.name ?? "Unknown"}
