@@ -24,6 +24,11 @@ function SyncDashboardButton() {
     null,
   );
 
+  const isRepairFlow =
+    status === "needs_repair" ||
+    status === "creating_update_link_token" ||
+    status === "ready_to_repair";
+
   const router = useRouter();
 
   function showMessage(
@@ -159,15 +164,11 @@ function SyncDashboardButton() {
 
   return (
     <div className="flex flex-col items-end">
-      {status !== "needs_repair" && (
+      {!isRepairFlow && (
         <button
           className="btn-primary"
           onClick={handleSync}
-          disabled={
-            isSyncing ||
-            status === "creating_update_link_token" ||
-            status === "ready_to_repair"
-          }
+          disabled={isSyncing}
         >
           <RefreshCw className={`h-4 w-4 ${isSyncing ? "animate-spin" : ""}`} />
           {isSyncing ? (
@@ -180,24 +181,21 @@ function SyncDashboardButton() {
           )}
         </button>
       )}
-      {(status === "needs_repair" ||
-        status === "creating_update_link_token" ||
-        status === "ready_to_repair") &&
-        repairPlaidItemId && (
-          <button
-            type="button"
-            className="inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-primary/25 bg-primary/10 px-4 text-xs font-bold text-primary transition-colors hover:border-primary/45 hover:bg-primary/15 disabled:pointer-events-none disabled:opacity-60"
-            onClick={handleRepairClick}
-            disabled={isUpdatingLinkToken}
-          >
-            <Wrench className="h-3.5 w-3.5" />
-            {status === "creating_update_link_token"
-              ? "Preparing update link token"
-              : status === "ready_to_repair"
-                ? "Open Plaid update"
-                : "Update bank connection"}
-          </button>
-        )}
+      {isRepairFlow && repairPlaidItemId && (
+        <button
+          type="button"
+          className="inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-primary/25 bg-primary/10 px-4 text-xs font-bold text-primary transition-colors hover:border-primary/45 hover:bg-primary/15 disabled:pointer-events-none disabled:opacity-60"
+          onClick={handleRepairClick}
+          disabled={isUpdatingLinkToken}
+        >
+          <Wrench className="h-3.5 w-3.5" />
+          {status === "creating_update_link_token"
+            ? "Preparing update link token"
+            : status === "ready_to_repair"
+              ? "Open Plaid update"
+              : "Update bank connection"}
+        </button>
+      )}
     </div>
   );
 }
