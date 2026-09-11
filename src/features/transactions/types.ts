@@ -12,7 +12,11 @@ export type TransactionItem = {
 };
 
 export type TransactionsPageData =
-  | { ok: true; transactions: TransactionItem[] }
+  | {
+      ok: true;
+      transactions: TransactionItem[];
+      summary: { income: number; expense: number; net: number };
+    }
   | { ok: false; error: string };
 
 // type for the filtering

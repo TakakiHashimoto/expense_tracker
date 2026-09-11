@@ -1,7 +1,4 @@
-type Props = {
-  title: "Total Activity" | "Total Income" | "Total Expense";
-  amount: string;
-};
+type Props = { title: "Net" | "Income" | "Spending"; amount: string };
 
 function TransactionStats({ title, amount }: Props) {
   return (
@@ -10,7 +7,7 @@ function TransactionStats({ title, amount }: Props) {
         {title}
       </span>
       <p
-        className={`text-3xl font-display font-bold ${title === "Total Income" && "text-primary"} ${title === "Total Expense" && "text-tertiary"}`}
+        className={`text-3xl font-display font-bold ${title === "Income" && "text-primary"} ${title === "Spending" && "text-tertiary"}`}
       >
         {amount}
       </p>

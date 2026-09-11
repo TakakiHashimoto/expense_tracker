@@ -8,64 +8,76 @@ import {
   TransactionItem,
 } from "./types";
 
-// type TransactionQueryRowType = {
-//   id: string;
-//   amount: number | string;
-//   merchant: string | null;
-//   name: string | null;
-//   posted_date: string;
-//   category_id: string | null;
-//   category: { name: string | null; kind: "income" | "expense" | null } | null;
-//   account: {
-//     name: string | null;
-//     plaid_item: { institution_name: string | null } | null;
-//   } | null;
-// };
-
 type TransactionDetailReturn = {
   transaction: TransactionDetail;
   categories: CategoryType[];
 };
 
-// type TransactionDetailQueryRow = {
-//   id: string;
-//   amount: number | string;
-//   merchant: string | null;
-//   note: string | null;
-//   name: string | null;
+type ArgumentType = { filters: TransactionFilters; q: string; month: string };
 
-//   posted_date: string;
-//   posted_datetime: string | null;
+function isValidMonthDate(input: string) {
+  // regex structure
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(input)) {
+    return false;
+  }
 
-//   payment_channel: string | null;
-//   pending: boolean;
+  // split
+  const [year, month, day] = input.split("-");
+  // convert year/month/day
+  const numYear = Number(year);
+  const numMonth = Number(month);
+  const numDay = Number(day);
 
-//   category: {
-//     id: string;
-//     name: string | null;
-//     kind: "income" | "expense" | null;
-//   } | null;
+  // validate year
+  if (numYear < 1 || numYear > 9999) {
+    return false;
+  }
 
-//   institution_name: { institution_name: string | null } | null;
+  // validate month
+  if (!(numMonth <= 12 && numMonth >= 1)) {
+    return false;
+  }
+  // require day === 1
+  if (numDay !== 1) {
+    return false;
+  }
 
-//   account: { name: string | null; type: string; mask: number } | null;
-// };
+  return true;
+}
 
-type ArgumentType = { filters: TransactionFilters; q: string };
+function getNextMonthStart(input: string) {
+  const [year, month, _day] = input.split("-");
+  const numYear = Number(year);
+  const numMonth = Number(month);
+
+  if (!isValidMonthDate(input)) {
+    throw new Error(`Invalid month: ${input}`);
+  }
+
+  if (numMonth === 12) {
+    if (numYear === 9999) {
+      throw new Error("Month exceeds supported year range");
+    }
+    const nextYear = String(numYear + 1).padStart(4, "0");
+    return `${nextYear}-01-01`;
+  }
+
+  const displayMonth = numMonth + 1;
+
+  return `${year}-${String(displayMonth).padStart(2, "0")}-01`;
+}
 
 export async function getTransactionPageData({
   filters,
   q,
+  month,
 }: ArgumentType): Promise<TransactionsPageData> {
   const supabase = await createClient();
   const user = await grabUser(supabase);
 
-  const shouldFilterCategoryKind =
-    filters.type === "income" || filters.type === "expense";
-
-  const categorySelect = shouldFilterCategoryKind
-    ? "category: categories!inner(name, kind)"
-    : "category: categories(name, kind)";
+  if (!isValidMonthDate(month)) {
+    return { ok: false, error: "Invalid month" };
+  }
 
   const sortColumnName =
     filters.sort === "amount_asc" || filters.sort === "amount_desc"
@@ -76,14 +88,52 @@ export async function getTransactionPageData({
       ? { ascending: true }
       : { ascending: false };
 
+  const nextMonthStart = getNextMonthStart(month);
+
+  const { data: monthlyTransactionData, error: monthlyTransactionError } =
+    await supabase
+      .from("transactions")
+      .select("amount")
+      .eq("user_id", user.id)
+      .eq("is_removed", false)
+      .gte("posted_date", month)
+      .lt("posted_date", nextMonthStart);
+
+  if (monthlyTransactionError) {
+    console.error(
+      "Failed to fetch monthly transaction summary",
+      monthlyTransactionError,
+    );
+
+    return { ok: false, error: "Failed to fetch transaction summary" };
+  }
+
+  let income = 0;
+  let expense = 0;
+  let net = 0;
+
+  for (const transaction of monthlyTransactionData) {
+    const amount = Number(transaction.amount);
+
+    net += amount;
+
+    if (amount > 0) {
+      income += amount;
+    } else if (amount < 0) {
+      expense += Math.abs(amount);
+    }
+  }
+
   // shape the query first before actually fetching data
   let query = supabase
     .from("transactions")
     .select(
-      `id, name, merchant, amount, posted_date, category_id, ${categorySelect}, account: accounts!transactions_user_id_account_id_fkey(name, plaid_item: plaid_items!accounts_user_id_plaid_item_id_fkey(institution_name))`,
+      `id, name, merchant, amount, posted_date, category_id, category: categories(name, kind), account: accounts!transactions_user_id_account_id_fkey(name, plaid_item: plaid_items!accounts_user_id_plaid_item_id_fkey(institution_name))`,
     )
     .eq("user_id", user.id)
-    .eq("is_removed", false);
+    .eq("is_removed", false)
+    .gte("posted_date", month)
+    .lt("posted_date", nextMonthStart);
 
   if (q) {
     query = query.or(`name.ilike.%${q}%,merchant.ilike.%${q}%`);
@@ -94,16 +144,17 @@ export async function getTransactionPageData({
   }
 
   if (filters.type === "income") {
-    query = query.eq("category.kind", "income");
+    query = query.gt("amount", 0);
   }
 
   if (filters.type === "expense") {
-    query = query.eq("category.kind", "expense");
+    query = query.lt("amount", 0);
   }
 
-  const { data: transactionData, error: transactionError } = await query
-    .order(sortColumnName, sortOrder)
-    .limit(50);
+  const { data: transactionData, error: transactionError } = await query.order(
+    sortColumnName,
+    sortOrder,
+  );
 
   if (transactionError) {
     console.error("Failed to fetch transactions", transactionError);
@@ -137,7 +188,7 @@ export async function getTransactionPageData({
     };
   });
 
-  return { ok: true, transactions: result };
+  return { ok: true, transactions: result, summary: { income, expense, net } };
 }
 
 export async function getTransactionDetail(
