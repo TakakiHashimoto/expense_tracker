@@ -127,6 +127,8 @@ function TransactionPageClient({ transactions, filters, month, q }: Props) {
   const nextMonth = getNextMonth(month);
   const formattedDate = formatDate(month);
 
+  const hasActiveFilter = q !== "" || filters.type !== "all";
+
   return (
     <div className="pt-15 pl-70 pb-20 px-10 max-w-7xl mx-auto space-y-10">
       <section>
@@ -187,7 +189,9 @@ function TransactionPageClient({ transactions, filters, month, q }: Props) {
       {transactionData.length === 0 ? (
         <section className="rounded-2xl bg-surface-container-low p-8">
           <p className="text-on-surface-variant">
-            No transactions found yet. Try syncing your bank from the dashboard.
+            {hasActiveFilter
+              ? "No transactions match"
+              : "No transactions found for this month"}
           </p>
         </section>
       ) : (
