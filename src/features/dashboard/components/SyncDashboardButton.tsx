@@ -163,7 +163,7 @@ function SyncDashboardButton() {
   const isUpdatingLinkToken = status === "creating_update_link_token";
 
   return (
-    <div className="flex flex-col items-end">
+    <div className="flex flex-col relative shadow-lg rounded-2xl">
       {!isRepairFlow && (
         <button
           className="btn-primary"

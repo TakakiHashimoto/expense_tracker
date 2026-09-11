@@ -143,7 +143,7 @@ function BudgetDisplayPageClient({ budgets, month }: Props) {
   }
 
   return (
-    <main className="flex-1 lg:ml-78 p-12 max-w-container-max mx-auto ">
+    <main className="flex-1 lg:ml-78 lg:p-12 p-4 pt-20 max-w-container-max mx-auto ">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
           <h2 className="font-display-lg text-display-lg text-on-surface mb-2">

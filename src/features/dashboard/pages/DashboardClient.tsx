@@ -4,7 +4,6 @@ import { formatValue } from "@/lib/formatValue";
 import Link from "next/link";
 import RecentTransactions from "../components/RecentTransactions";
 import SpendingByCategory from "../components/SpendingByCategory";
-import DashboardSidebar from "../components/DashboardSidebar";
 import ConnectedAccounts from "../components/ConnectedAccounts";
 import DashboardHeader from "../components/DashboarHeader";
 
@@ -40,11 +39,9 @@ export default function DashboardClient({ initialValue }: Props) {
 
   return (
     <div className="flex gap-2">
-      <DashboardSidebar />
-
-      <div className="flex flex-col gap-3 px-4 md:px-8 xl:px-12 pb-12 pt-4 ml-72 min-h-screen w-[calc(100%-18rem)]">
+      <div className="flex flex-col pt-20 px-4 pb-6 max-w-7xl mx-auto space-y-10 lg:pt-15 lg:pl-70 lg:pr-10">
         <DashboardHeader />
-        <section className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10 mt-24">
+        <section className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
           <DashboardStats
             title="THIS MONTH SPENDING"
             value={formatValue(initialValue.stats.monthlySpending, "money")}

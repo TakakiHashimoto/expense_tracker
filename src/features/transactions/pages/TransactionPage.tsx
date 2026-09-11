@@ -130,7 +130,7 @@ function TransactionPageClient({ transactions, filters, month, q }: Props) {
   const hasActiveFilter = q !== "" || filters.type !== "all";
 
   return (
-    <div className="pt-15 pl-70 pb-20 px-10 max-w-7xl mx-auto space-y-10">
+    <div className="pt-20 px-4 pb-20 max-w-7xl mx-auto space-y-10 lg:pt-15 lg:pl-70 lg:pr-10">
       <section>
         <h1 className="text-4xl font-black tracking-tight text-on-surface">
           Transactions
@@ -152,9 +152,9 @@ function TransactionPageClient({ transactions, filters, month, q }: Props) {
           />
         ))}
       </section>
-      <section className="flex flex-col gap-6 items-end justify-between">
-        <div className="flex flex-row justify-between items-center w-full">
-          <div className="flex items-center gap-1 bg-surface-container-low border border-white/10 rounded-xl p-1.5 shadow-sm">
+      <section className="flex flex-col gap-6 items-center justify-between">
+        <div className="flex lg:flex-row flex-col justify-between items-center w-full gap-3">
+          <div className="flex items-center gap-1 bg-surface-container-low border border-white/10 rounded-xl p-1.5 shadow-sm w-full justify-center">
             <Link
               href={buildMonthHref(prevMonth)}
               className="w-9 h-9 rounded-lg flex items-center justify-center text-slate-muted hover:text-on-surface hover:bg-surface-container-high transition-colors"
@@ -181,7 +181,7 @@ function TransactionPageClient({ transactions, filters, month, q }: Props) {
           </div>
           <Search placeholder="Search..." />
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-col lg:flex-row justify-center items-center">
           <TransactionSort sort={filters.sort} />
           <TransactionTypeFilter filterType={filters.type} />
         </div>
