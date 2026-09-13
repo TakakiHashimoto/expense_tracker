@@ -32,15 +32,17 @@ function DashboardSidebarClient({
 
   return (
     <>
-      <button
-        type="button"
-        aria-label={isOpen ? "Close navigation" : "Open navigation"}
-        aria-expanded={isOpen}
-        onClick={() => setIsOpen((current) => !current)}
-        className="fixed left-4 top-4 z-60 rounded-xl bg-slate-950 p-3 text-slate-200 shadow-lg lg:hidden"
-      >
-        {isOpen ? <X /> : <Menu />}
-      </button>
+      {!isOpen && (
+        <button
+          type="button"
+          aria-label="Open navigation"
+          aria-expanded={false}
+          onClick={() => setIsOpen(true)}
+          className="fixed left-4 top-4 z-60 rounded-xl bg-slate-950 p-3 text-slate-200 shadow-lg lg:hidden"
+        >
+          <Menu />
+        </button>
+      )}
       {isOpen && (
         <button
           type="button"
@@ -52,13 +54,23 @@ function DashboardSidebarClient({
       <aside
         className={`fixed left-0 top-0 h-screen max-w-72 w-72 bg-slate-950/80 backdrop-blur-3xl flex flex-col p-6 gap-8 shadow-[20px_0_40px_rgba(0,0,0,0.4)] z-50 ${isOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 transition-transform duration-300 ease-in-out`}
       >
-        <div className="flex flex-col gap-1">
-          <h1 className="text-lg font-black tracking-tighter text-emerald-500">
-            BankOS
-          </h1>
-          <p className="text-xs uppercase tracking-widest text-on-surface-variant/50 font-semibold">
-            Private Banking
-          </p>
+        <div className="flex items-start justify-between">
+          <div className="flex flex-col gap-1">
+            <h1 className="text-lg font-black tracking-tighter text-emerald-500">
+              BankOS
+            </h1>
+            <p className="text-xs uppercase tracking-widest text-on-surface-variant/50 font-semibold">
+              Private Banking
+            </p>
+          </div>
+          <button
+            type="button"
+            aria-label="Close navigation"
+            onClick={() => setIsOpen(false)}
+            className="rounded-xl p-2 text-slate-200 lg:hidden"
+          >
+            <X />
+          </button>
         </div>
         <nav className="flex flex-col gap-2" onClick={() => setIsOpen(false)}>
           <Link
