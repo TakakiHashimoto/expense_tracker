@@ -181,7 +181,7 @@ function TransactionPageClient({ transactions, filters, month, q }: Props) {
           </div>
           <Search placeholder="Search..." />
         </div>
-        <div className="flex gap-2 flex-col lg:flex-row justify-center items-center">
+        <div className="flex w-full flex-col gap-2 lg:w-auto lg:flex-row lg:items-center lg:justify-center">
           <TransactionSort sort={filters.sort} />
           <TransactionTypeFilter filterType={filters.type} />
         </div>

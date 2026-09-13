@@ -61,7 +61,7 @@ function BudgetCreatePageClient({ categories }: Props) {
   }
 
   return (
-    <main className="grow lg:ml-72 min-h-screen relative overflow-hidden bg-background">
+    <main className="grow lg:ml-72 min-h-screen relative overflow-hidden bg-background mt-14 px-3">
       <div className="relative z-10 p-gutter md:py-12 md:px-6 max-w-container-max mx-auto">
         <div className="mb-12 w-full">
           {/* <nav className="flex items-center gap-x-2 text-label-bold text-slate-muted mb-4 uppercase tracking-widest">
@@ -73,7 +73,7 @@ function BudgetCreatePageClient({ categories }: Props) {
             </span>
             <span className="text-primary">New Strategy</span>
           </nav> */}
-          <h2 className="font-display-lg text-display-lg text-on-surface tracking-tight">
+          <h2 className="text-4xl font-bold md:font-display-lg md:text-display-lg text-on-surface tracking-tight">
             Define New Budget
           </h2>
           <p className="font-body-lg text-body-lg text-slate-muted max-w-2xl mt-2 w-full">
@@ -83,10 +83,10 @@ function BudgetCreatePageClient({ categories }: Props) {
           </p>
         </div>
         <div className="flex w-full">
-          <div className="xl:col-span-7">
+          <div className="w-full min-w-0 xl:col-span-7">
             <div className="glass-panel rounded-3xl p-card-padding shadow-lg relative overflow-hidden">
               <form
-                className="space-y-10 space-x-6 p-10 relative z-10"
+                className="space-y-10 p-10 relative z-10"
                 onSubmit={(e) => handleSubmit(e)}
               >
                 <div>

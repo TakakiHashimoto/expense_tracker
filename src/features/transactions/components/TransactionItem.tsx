@@ -15,20 +15,22 @@ function TransactionItemRow({ transaction }: Props) {
   return (
     <Link
       href={`/transactions/${transaction.id}`}
-      className="group flex items-center justify-between p-4 hover:bg-white/5 rounded-2xl transition-all cursor-pointer"
+      className="group flex flex-col sm:flex-row items-center justify-between p-4 hover:bg-white/5 rounded-2xl transition-all cursor-pointer"
     >
-      <div className="flex items-center gap-6">
-        <div className="h-12 w-12 rounded-xl bg-surface-container-high flex items-center justify-center">
+      <div className="flex min-w-0 flex-1 items-center gap-6">
+        <div className="h-12 w-12 rounded-xl bg-surface-container-high flex items-center justify-center shrink-0">
           <CategoryIcon className="h-5 w-5 text-secondary" />
         </div>
-        <div>
-          <p className="font-bold text-slate-100">{transaction.name}</p>
+        <div className="min-w-0">
+          <p className="font-bold text-slate-100 wrap-anywhere">
+            {transaction.name}
+          </p>
           <p className="text-sm text-on-surface-variant">
             {transaction.categoryName ?? "Uncategorized"}
           </p>
         </div>
       </div>
-      <div className="hidden md:block text-right">
+      <div className="hidden md:block text-left">
         <p className="text-sm font-medium">
           {transaction.institutionName ?? "Unknown institution"}
         </p>
@@ -36,7 +38,7 @@ function TransactionItemRow({ transaction }: Props) {
           {transaction.accountName ?? "Unknown account"}
         </p>
       </div>
-      <div className="text-right">
+      <div className="shrink-0 text-right md:ml-6">
         <p className={`text-xl font-display font-bold ${textColor}`}>
           {formatAmount(transaction.amount)}
         </p>

@@ -187,7 +187,7 @@ function BudgetDisplayPageClient({ budgets, month }: Props) {
         </Link>
       </div>
 
-      <div className="flex flex-row justify-start gap-3 flex-wrap">
+      <div className="grid w-full grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
         {budgets.length === 0 ? (
           <div className="flex flex-col bg-white/20 rounded-2xl p-5 flex-1">
             <h3 className="text-xl">No budgets yet</h3>
