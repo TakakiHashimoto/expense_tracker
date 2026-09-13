@@ -32,9 +32,9 @@ function TransactionDetailPageClient({ transaction, categories }: Props) {
     }
   }
   return (
-    <main className="lg:ml-64 p-12 min-h-screen">
+    <main className="lg:ml-64 mt-15 md:mt-5 sm:p-12 p-3 min-h-screen">
       <div className="max-w-5xl mx-auto">
-        <header className="flex justify-between items-center mb-16">
+        <header className="flex flex-col items-start gap-6 sm:flex-row sm:justify-between sm:items-center mb-16">
           <Link
             href="/transactions"
             className="flex items-center space-x-6 gap-2 text-primary hover:scale-105 transition-transform"
@@ -42,7 +42,7 @@ function TransactionDetailPageClient({ transaction, categories }: Props) {
             <MoveLeft className="flex items-center text-primary hover:text-primary-container transition-colors font-medium" />
             GO BACK
           </Link>
-          <h2 className="text-3xl font-display font-bold text-on-surface tracking-tight">
+          <h2 className=" text-2xl sm:text-3xl font-display font-bold text-on-surface tracking-tight">
             Transaction Detail
           </h2>
 
@@ -56,12 +56,12 @@ function TransactionDetailPageClient({ transaction, categories }: Props) {
             Download Receipt
           </button>
         </header>
-        <section className="bg-surface-container-low rounded-4xl p-12 mb-12 flex flex-col md:flex-row justify-between items-start md:items-center relative overflow-hidden group hover:bg-surface-container transition-colors duration-500">
+        <section className="bg-surface-container-low rounded-4xl p-5 sm:p-12 mb-12 flex flex-col md:flex-row justify-between items-start md:items-center relative overflow-hidden group hover:bg-surface-container transition-colors duration-500">
           <div className="z-10">
             <p className="text-on-surface-variant text-sm font-medium uppercase tracking-widest mb-3">
               Merchant
             </p>
-            <h3 className="text-5xl font-display font-black text-on-surface tracking-tighter mb-4">
+            <h3 className=" text-3xl sm:text-5xl font-display font-black text-on-surface tracking-tighter mb-4">
               {transaction.merchant || transaction.name || "Unknown"}
             </h3>
             <div className="inline-flex items-center px-3 py-1 rounded-full bg-surface-container-highest text-primary-fixed-dim text-xs font-bold uppercase tracking-wider">
@@ -69,7 +69,7 @@ function TransactionDetailPageClient({ transaction, categories }: Props) {
               {transaction.pending ? "pending" : "completed"}
             </div>
           </div>
-          <div className="z-10 mt-8 md:mt-0 text-right">
+          <div className="z-10 mt-8 md:mt-0 text-left sm:text-right">
             <p className="text-on-surface-variant text-sm font-medium uppercase tracking-widest mb-3">
               Amount
             </p>

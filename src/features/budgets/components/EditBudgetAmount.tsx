@@ -74,10 +74,10 @@ function EditBudgetAmount({ onClose, onUpdate, budget, isUpdating }: Props) {
             </div>
             <div className="text-right">
               <span
-                className="font-headline-md text-headline-md text-on-surface font-bold"
+                className="text-lg sm:font-headline-md text-headline-md text-on-surface font-bold"
                 id="modal-current-spent"
               >
-                ${formatCurrency("CAD", budget.amount)}
+                {formatCurrency("CAD", budget.amount)}
               </span>
             </div>
           </div>
@@ -112,7 +112,7 @@ function EditBudgetAmount({ onClose, onUpdate, budget, isUpdating }: Props) {
             </div>
           </div>
         </div>
-        <div className="pt-6 border-t border-white/10 flex items-center justify-end gap-3">
+        <div className="pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-end gap-3">
           <button
             className="px-6 py-3 rounded-xl border border-white/10 bg-surface-container-low text-on-surface text-label-bold font-label-bold hover:bg-surface-container-high transition-colors"
             id="modal-cancel-btn"
