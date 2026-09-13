@@ -15,7 +15,7 @@ function TransactionItemRow({ transaction }: Props) {
   return (
     <Link
       href={`/transactions/${transaction.id}`}
-      className="group flex flex-col sm:flex-row items-center justify-between p-4 hover:bg-white/5 rounded-2xl transition-all cursor-pointer"
+      className="group flex w-full flex-col sm:flex-row sm:items-center items-start justify-between p-4 hover:bg-white/5 rounded-2xl transition-all cursor-pointer"
     >
       <div className="flex min-w-0 flex-1 items-center gap-6">
         <div className="h-12 w-12 rounded-xl bg-surface-container-high flex items-center justify-center shrink-0">
@@ -28,6 +28,12 @@ function TransactionItemRow({ transaction }: Props) {
           <p className="text-sm text-on-surface-variant">
             {transaction.categoryName ?? "Uncategorized"}
           </p>
+
+          <p
+            className={`mt-1 font-display text-xl font-bold sm:hidden ${textColor}`}
+          >
+            {formatAmount(transaction.amount)}
+          </p>
         </div>
       </div>
       <div className="hidden md:block text-left">
@@ -38,7 +44,7 @@ function TransactionItemRow({ transaction }: Props) {
           {transaction.accountName ?? "Unknown account"}
         </p>
       </div>
-      <div className="shrink-0 text-right md:ml-6">
+      <div className="hidden sm:block shrink-0 text-right md:ml-6">
         <p className={`text-xl font-display font-bold ${textColor}`}>
           {formatAmount(transaction.amount)}
         </p>

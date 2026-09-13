@@ -5,8 +5,8 @@ type Props = { convertedDate: string; transactions: TransactionItem[] };
 
 function TransactionByDate({ convertedDate, transactions }: Props) {
   return (
-    <div>
-      <div className="flex items-center gap-4 px-2">
+    <div className="flex w-full flex-col">
+      <div className="flex items-center gap-4 px-2 w-full">
         <p className="text-xs font-black uppercase tracking-[0.2em] text-on-surface-variant/50">
           {convertedDate}
         </p>
