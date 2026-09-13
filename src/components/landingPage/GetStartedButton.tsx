@@ -1,38 +1,28 @@
 import { getUserOnboardingState } from "@/features/auth/actions";
 import Link from "next/link";
 
-type props = { button: { buttonText: string } };
+async function GetStartedButton() {
+  const onBoardingState = await getUserOnboardingState();
 
-async function GetStartedButton({ button }: props) {
-  const onBoadingState = await getUserOnboardingState();
-
-  if (!onBoadingState.ok) {
+  if (!onBoardingState.ok) {
     return (
-      <Link href="/login" className="btn btn-primary">
-        {button.buttonText}
+      <Link href="/login" className="btn btn-primary mx-3">
+        Try BankOS
       </Link>
     );
   }
 
-  if (!onBoadingState.hasPlaidItems) {
+  if (!onBoardingState.hasPlaidItems) {
     return (
-      <Link
-        href="/connect-bank"
-        className="btn btn-primary
-  "
-      >
-        {button.buttonText}
+      <Link href="/connect-bank" className="btn btn-primary mx-3">
+        Connect a sandbox bank
       </Link>
     );
   }
 
   return (
-    <Link
-      href="/dashboard"
-      className="btn btn-primary
-  "
-    >
-      {button.buttonText}
+    <Link href="/dashboard" className="btn btn-primary mx-3">
+      Open dashboard
     </Link>
   );
 }

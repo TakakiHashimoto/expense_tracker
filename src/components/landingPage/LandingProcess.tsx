@@ -14,7 +14,7 @@ function LandingProcess({ howItWorks }: props) {
   ];
 
   return (
-    <section className="mx-auto mb-48 max-w-7xl px-8">
+    <section className="mx-auto mb-48 max-w-7xl px-4 sm:px-8">
       <div className="mb-20 text-center">
         <h2 className="mb-4 text-4xl font-bold mt-8">{howItWorks.title}</h2>
         <p className="mx-auto max-w-2xl text-on-surface-variant">
@@ -28,7 +28,7 @@ function LandingProcess({ howItWorks }: props) {
           return (
             <div
               key={feature.title}
-              className="group rounded-3xl bg-surface-container-low p-10 transition-all hover:-translate-y-2"
+              className="group min-w-0 rounded-3xl bg-surface-container-low p-6 sm:p-10 transition-all hover:-translate-y-2"
             >
               <div
                 className={`mb-8 flex h-16 w-16 items-center justify-center rounded-2xl transition-transform group-hover:scale-110 ${accent.panel}`}

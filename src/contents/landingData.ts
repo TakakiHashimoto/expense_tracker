@@ -1,55 +1,59 @@
 export const landingContent = {
   hero: {
-    title: "Automatically track your spending by securely connecting your bank",
+    title:
+      "Understand your accounts, transactions, and monthly spending in one place",
     subtitle:
-      "No more manual entry. Get instant insights into your expenses by linking your bank account",
+      "Connect a bank through Plaid Sandbox, sync your transactions, review monthly cash flow, and track category budgets.",
   },
+
   howItWorks: {
-    title: "Sophisticated Simplicity",
+    title: "How BankOS works",
     subtitle:
-      "Three steps to complete financial awareness without the friction of manual entry.",
+      "Connect an account, review your financial activity, and turn transactions into a clearer monthly picture.",
+
     features: [
       {
         logo: "account_balance",
-        title: "Connect your bank",
+        title: "Connect with Plaid",
         description:
-          "Link your accounts in seconds using Plaid's bank-grade security protocols. Support for 12,000+ institutions.",
+          "Use Plaid Link in the Sandbox environment to connect financial accounts and securely sync account and transaction data.",
       },
       {
         logo: "insights",
-        title: "Get instant insights",
+        title: "Understand your transactions",
         description:
-          "Our AI automatically categorizes every transaction, highlighting trends and hidden subscription costs immediately.",
+          "Review transactions by month, search and filter activity, and see monthly income, spending, and net cash flow.",
       },
       {
-        logo: "shield_with_heart",
-        title: "Gain financial clarity",
+        logo: "savings",
+        title: "Track monthly budgets",
         description:
-          "View your net worth, monthly burn rate, and savings potential through a lens of architectural clarity.",
+          "Create category budgets and compare your planned spending with actual transactions throughout the month.",
       },
     ],
   },
 
   security: {
-    question: "Is it safe to connect my bank?",
+    question: "How does BankOS connect to financial accounts?",
     answer:
-      "We prioritize your security above all else. By partnering with Plaid, the industry leader in financial connectivity, we ensure your data is handled with the same rigor as major global banks.",
+      "BankOS uses Plaid Link for account connectivity. This portfolio deployment runs entirely in Plaid Sandbox, so it demonstrates the bank-linking and synchronization flow without connecting to real financial accounts.",
+
     keys: [
       {
         icon: "check_circle",
-        explanation: "We never see or store your bank login credentials",
-      },
-      {
-        icon: "check_circle",
-        explanation: "Your data is encrypted with AES-256 and protected at rest",
+        explanation:
+          "Bank login credentials are not exposed to the BankOS application",
       },
       {
         icon: "check_circle",
         explanation:
-          "Read-Only access - We can never move money or initiate transfers",
+          "Sensitive Plaid credentials are kept on the server rather than exposed to the browser",
+      },
+      {
+        icon: "check_circle",
+        explanation:
+          "BankOS reads account and transaction data and does not provide money-transfer functionality",
       },
     ],
   },
-
-  button: { buttonText: "Get Started" },
 };
