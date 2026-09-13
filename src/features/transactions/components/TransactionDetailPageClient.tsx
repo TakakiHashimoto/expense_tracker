@@ -32,7 +32,7 @@ function TransactionDetailPageClient({ transaction, categories }: Props) {
     }
   }
   return (
-    <main className="ml-64 p-12 min-h-screen">
+    <main className="lg:ml-64 p-12 min-h-screen">
       <div className="max-w-5xl mx-auto">
         <header className="flex justify-between items-center mb-16">
           <Link
@@ -46,7 +46,10 @@ function TransactionDetailPageClient({ transaction, categories }: Props) {
             Transaction Detail
           </h2>
 
-          <button className="flex items-center px-6 py-3 rounded-full bg-linear-to-r from-primary to-primary-container text-on-primary font-bold hover:opacity-90 transition-opacity shadow-[0_8px_32px_rgba(78,222,163,0.15)]">
+          <button
+            className="flex items-center px-6 py-3 rounded-full bg-linear-to-r from-primary to-primary-container text-on-primary font-bold hover:opacity-90 transition-opacity shadow-[0_8px_32px_rgba(78,222,163,0.15)]"
+            disabled
+          >
             <span className="material-symbols-outlined mr-2 text-sm">
               download
             </span>

@@ -14,8 +14,8 @@ function AddAccountsPageClient({ institutions }: Props) {
     string | null
   >(null);
   return (
-    <main className="flex-1 ml-65 md:ml-sidebar-width min-h-screen px-gutter md:px-12 py-12 flex flex-col max-w-350 mx-auto">
-      <header className="mb-12">
+    <main className="flex-1 lg:ml-65 md:ml-sidebar-width min-h-screen px-3 md:px-12 mt-15 py-12 flex flex-col max-w-350 mx-auto">
+      <header className="mb-3">
         <div className="flex items-center gap-2 text-primary font-bold mb-6 group cursor-pointer w-fit">
           <ChevronLeft className="material-symbols-outlined text-[18px] transition-transform group-hover:-translate-x-1" />
           <Link

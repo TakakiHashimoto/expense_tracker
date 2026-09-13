@@ -17,8 +17,8 @@ function AccountPageClient({ accounts }: Props) {
   );
 
   return (
-    <main className="mt-10 px-6 space-y-10 pl-80">
-      <div className="flex justify-between mr-4">
+    <main className="mt-14 px-6 space-y-10 lg:pl-80">
+      <div className="flex flex-col sm:flex-row justify-between items-center">
         <h1 className="headline">Accounts</h1>
         <Link
           href="/accounts/add-accounts"
@@ -28,13 +28,13 @@ function AccountPageClient({ accounts }: Props) {
           Add Account
         </Link>
       </div>
-      <section className="flex justify-between items-end gap-4 py-2 pr-10">
+      <section className="flex flex-col sm:flex-row justify-between items-center sm:items-end gap-4 py-2 pr-10">
         <div className="flex flex-col">
           <span className="text-on-surface-variant font-label text-xs tracking-widest uppercase mb-1">
             Total Assets
           </span>
           <div className="flex items-end gap-3">
-            <span className="text-8xl font-black text-on-surface leading-none tracking-tighter">
+            <span className=" text-4xl md:text-8xl font-black text-on-surface leading-none tracking-tighter">
               {totalAccounts}
             </span>
             <div className="flex flex-col mb-1">
@@ -46,7 +46,7 @@ function AccountPageClient({ accounts }: Props) {
             </div>
           </div>
         </div>
-        <div className="flex flex-col items-end space-y-1.5 text-right pb-1 ">
+        <div className="flex flex-col items-center sm:items-end space-y-1.5 text-right pb-1 ">
           <div className="flex items-center gap-2 bg-surface-container-high px-3 py-1 rounded-full">
             <span className="text-primary text-[10px] font-bold">●</span>
             <span className="text-on-surface-variant font-medium text-sm">
@@ -72,11 +72,6 @@ function AccountPageClient({ accounts }: Props) {
       {accounts.map((insti) => (
         <AccountSection key={insti.plaidItemId} institution={insti} />
       ))}
-      <div className="h-12 w-full flex justify-center items-center opacity-10">
-        <div className="w-1.5 h-1.5 rounded-full bg-primary mx-1"></div>
-        <div className="w-1.5 h-1.5 rounded-full bg-primary mx-1"></div>
-        <div className="w-1.5 h-1.5 rounded-full bg-primary mx-1"></div>
-      </div>
     </main>
   );
 }

@@ -27,7 +27,7 @@ function Transactions({ transactions, filters }: Props) {
       <div className="glass-panel rounded-xl overflow-hidden bg-surface-container border-0">
         <div className="p-4 flex flex-col items-center gap-4 bg-surface-container-high">
           <Search placeholder="Search..." />
-          <div className="flex gap-2">
+          <div className="flex w-full flex-col gap-2 sm:flex-row sm:justify-center">
             <TransactionSort sort={filters.sort} />
             <TransactionTypeFilter filterType={filters.type} />
           </div>

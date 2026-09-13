@@ -65,7 +65,7 @@ function AccountDetailPageClient({ account, transactions, filters }: Props) {
   };
 
   return (
-    <main className="ml-72 mt-8 p-12 max-w-container-max relative overflow-x-hidden">
+    <main className="lg:ml-72 lg:mt-8 lg:p-12 mt-15 px-4 py-8 sm:px-8 max-w-container-max relative">
       <Link
         href={"/accounts"}
         className="mb-8 flex items-center gap-2 text-slate-muted hover:text-primary transition-colors cursor-pointer w-max group"
@@ -75,15 +75,15 @@ function AccountDetailPageClient({ account, transactions, filters }: Props) {
           Back to Accounts
         </span>
       </Link>
-      <section className="glass-panel rounded-2xl p-10 mb-section-gap relative overflow-hidden bg-surface-container-low border-0">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 relative z-10 mb-5">
+      <section className="glass-panel rounded-2xl p-4 sm:p-6 lg:p-10 mb-section-gap relative bg-surface-container-low border-0">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 relative z-10 mb-5">
           <div className="space-y-4 flex-1">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center">
                 <CreditCard className="material-symbols-outlined text-primary text-2xl" />
               </div>
               <div>
-                <h2 className="font-bold text-5xl text-on-surface tracking-tight">
+                <h2 className="font-bold text-3xl sm:text-5xl text-on-surface tracking-tight">
                   {account.name}
                 </h2>
                 <span className="text-slate-muted font-light">
@@ -106,28 +106,22 @@ function AccountDetailPageClient({ account, transactions, filters }: Props) {
                 </span>
               </div>
 
-              <span className="text-slate-muted font-label-bold text-label-bold">
+              <span className="hidden sm:block text-slate-muted font-label-bold text-label-bold">
                 Last Sync: {formatLastSync(account.institution.lastSyncAt)}
               </span>
             </div>
           </div>
-          <div className="text-right space-y-2">
+          <div className="w-full min-w-0 text-left md:text-right space-y-2 md:w-auto md:shrink-0">
             <p className="text-slate-muted font-label-bold text-label-bold uppercase">
               Current Balance
             </p>
-            <h3 className="font-display-xl text-display-xl text-primary tracking-tight">
+            <h3 className="sm:font-display-xl text-4xl font-bold text-primary tracking-tight">
               {formatCurrency(account.currency, account.currentBalance)}
             </h3>
-            <p className="text-slate-muted font-body-md text-body-md flex items-center justify-end gap-2">
+            <p className="text-slate-muted font-body-md text-body-md flex items-center justify-start md:justify-end gap-2">
               Available Balance:{" "}
               <span className="text-on-surface font-medium">
                 {formatCurrency(account.currency, account.availableBalance)}
-              </span>
-              <span
-                className="material-symbols-outlined text-sm cursor-help"
-                data-icon="info"
-              >
-                info
               </span>
             </p>
           </div>
