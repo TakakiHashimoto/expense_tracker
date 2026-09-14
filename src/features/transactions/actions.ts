@@ -20,7 +20,7 @@ type ArgumentType = {
   page: string | undefined;
 };
 
-const PAGE_SIZE = 13;
+const PAGE_SIZE = 50;
 
 function isValidMonthDate(input: string) {
   // regex structure
