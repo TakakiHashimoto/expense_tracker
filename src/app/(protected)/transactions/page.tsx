@@ -13,6 +13,7 @@ type Props = {
     q?: string;
     sort?: string;
     month?: string | string[];
+    page?: string;
   }>;
 };
 
@@ -71,7 +72,32 @@ async function TransactionPage({ searchParams }: Props) {
     filters,
     q: normalizedQuery,
     month: transactionMonth,
+    page: params.page,
   });
+
+  if (
+    !transactions.ok &&
+    "code" in transactions &&
+    transactions.code === "PAGE_OUT_OF_RANGE"
+  ) {
+    const redirectParams = new URLSearchParams();
+
+    redirectParams.set("month", selectedMonth);
+
+    if (filters.type !== "all") {
+      redirectParams.set("type", filters.type);
+    }
+
+    if (filters.sort !== "date_desc") {
+      redirectParams.set("sort", filters.sort);
+    }
+
+    if (normalizedQuery) {
+      redirectParams.set("q", normalizedQuery);
+    }
+
+    redirect(`/transactions?${redirectParams.toString()}`);
+  }
 
   return (
     <TransactionPageClient

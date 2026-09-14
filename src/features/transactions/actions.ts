@@ -13,7 +13,14 @@ type TransactionDetailReturn = {
   categories: CategoryType[];
 };
 
-type ArgumentType = { filters: TransactionFilters; q: string; month: string };
+type ArgumentType = {
+  filters: TransactionFilters;
+  q: string;
+  month: string;
+  page: string | undefined;
+};
+
+const PAGE_SIZE = 13;
 
 function isValidMonthDate(input: string) {
   // regex structure
@@ -67,10 +74,21 @@ function getNextMonthStart(input: string) {
   return `${year}-${String(displayMonth).padStart(2, "0")}-01`;
 }
 
+function parsePageParam(value: string | undefined) {
+  const page = Number(value);
+
+  if (!Number.isInteger(page) || page < 1) {
+    return 1;
+  }
+
+  return page;
+}
+
 export async function getTransactionPageData({
   filters,
   q,
   month,
+  page,
 }: ArgumentType): Promise<TransactionsPageData> {
   const supabase = await createClient();
   const user = await grabUser(supabase);
@@ -79,34 +97,7 @@ export async function getTransactionPageData({
     return { ok: false, error: "Invalid month" };
   }
 
-  const sortColumnName =
-    filters.sort === "amount_asc" || filters.sort === "amount_desc"
-      ? "amount"
-      : "posted_date";
-  const sortOrder =
-    filters.sort === "amount_asc" || filters.sort === "date_asc"
-      ? { ascending: true }
-      : { ascending: false };
-
   const nextMonthStart = getNextMonthStart(month);
-
-  const { data: monthlyTransactionData, error: monthlyTransactionError } =
-    await supabase
-      .from("transactions")
-      .select("amount")
-      .eq("user_id", user.id)
-      .eq("is_removed", false)
-      .gte("posted_date", month)
-      .lt("posted_date", nextMonthStart);
-
-  if (monthlyTransactionError) {
-    console.error(
-      "Failed to fetch monthly transaction summary",
-      monthlyTransactionError,
-    );
-
-    return { ok: false, error: "Failed to fetch transaction summary" };
-  }
 
   const { data: monthlySummaryData, error: monthlySummaryError } =
     await supabase.rpc("get_monthly_transaction_summary", {
@@ -135,11 +126,17 @@ export async function getTransactionPageData({
     .from("transactions")
     .select(
       `id, name, merchant, amount, posted_date, category_id, category: categories(name, kind), account: accounts!transactions_user_id_account_id_fkey(name, plaid_item: plaid_items!accounts_user_id_plaid_item_id_fkey(institution_name))`,
+      { count: "exact" },
     )
     .eq("user_id", user.id)
     .eq("is_removed", false)
     .gte("posted_date", month)
     .lt("posted_date", nextMonthStart);
+
+  const parsedPage = parsePageParam(page);
+
+  const from = (parsedPage - 1) * PAGE_SIZE;
+  const to = from + PAGE_SIZE - 1;
 
   if (q) {
     query = query.or(`name.ilike.%${q}%,merchant.ilike.%${q}%`);
@@ -157,15 +154,54 @@ export async function getTransactionPageData({
     query = query.lt("amount", 0);
   }
 
-  const { data: transactionData, error: transactionError } = await query.order(
-    sortColumnName,
-    sortOrder,
-  );
+  if (filters.sort === "date_desc") {
+    query = query
+      .order("posted_date", { ascending: false })
+      .order("id", { ascending: false });
+  }
+
+  if (filters.sort === "date_asc") {
+    query = query
+      .order("posted_date", { ascending: true })
+      .order("id", { ascending: true });
+  }
+
+  if (filters.sort === "amount_asc") {
+    query = query
+      .order("amount", { ascending: true })
+      .order("posted_date", { ascending: true })
+      .order("id", { ascending: true });
+  }
+
+  if (filters.sort === "amount_desc") {
+    query = query
+      .order("amount", { ascending: false })
+      .order("posted_date", { ascending: false })
+      .order("id", { ascending: false });
+  }
+
+  const {
+    data: transactionData,
+    error: transactionError,
+    count,
+  } = await query.range(from, to);
 
   if (transactionError) {
+    if (transactionError.code === "PGRST103" && parsedPage > 1) {
+      return {
+        ok: false,
+        error: "Page out of range",
+        code: "PAGE_OUT_OF_RANGE",
+      };
+    }
+
     console.error("Failed to fetch transactions", transactionError);
+
     return { ok: false, error: "Failed to fetch transactions" };
   }
+
+  const totalCount = count ?? 0;
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
   const result = transactionData.map((t): TransactionItem => {
     const categoryKind = t.category?.kind ?? null;
@@ -194,7 +230,17 @@ export async function getTransactionPageData({
     };
   });
 
-  return { ok: true, transactions: result, summary };
+  return {
+    ok: true,
+    transactions: result,
+    summary,
+    pagination: {
+      page: parsedPage,
+      pageSize: PAGE_SIZE,
+      totalCount,
+      totalPages,
+    },
+  };
 }
 
 export async function getTransactionDetail(

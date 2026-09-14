@@ -16,8 +16,15 @@ export type TransactionsPageData =
       ok: true;
       transactions: TransactionItem[];
       summary: { income: number; expense: number; net: number };
+      pagination: {
+        page: number;
+        pageSize: number;
+        totalCount: number;
+        totalPages: number;
+      };
     }
-  | { ok: false; error: string };
+  | { ok: false; error: string }
+  | { ok: false; error: string; code?: "PAGE_OUT_OF_RANGE" };
 
 // type for the filtering
 export type TransactionTypeFilter =

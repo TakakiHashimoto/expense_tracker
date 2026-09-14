@@ -10,7 +10,13 @@ import Search from "../components/Search";
 import TransactionTypeFilter from "../components/TransactionTypeFilter";
 import TransactionSort from "../components/TransactionSort";
 import Link from "next/link";
-import { Calendar, CircleChevronLeft, CircleChevronRight } from "lucide-react";
+import {
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  CircleChevronLeft,
+  CircleChevronRight,
+} from "lucide-react";
 
 type Props = {
   transactions: TransactionsPageData;
@@ -104,6 +110,28 @@ function TransactionPageClient({ transactions, filters, month, q }: Props) {
     return `/transactions?${params.toString()}`;
   }
 
+  function buildPageHref(targetPage: number) {
+    const params = new URLSearchParams();
+
+    params.set("month", month);
+
+    if (filters.type !== "all") {
+      params.set("type", filters.type);
+    }
+
+    if (filters.sort !== "date_desc") {
+      params.set("sort", filters.sort);
+    }
+
+    if (q) {
+      params.set("q", q);
+    }
+
+    params.set("page", String(targetPage));
+
+    return `/transactions?${params.toString()}`;
+  }
+
   const transactionData = transactions.transactions;
 
   const dateMap = new Map<string, TransactionItem[]>();
@@ -128,6 +156,10 @@ function TransactionPageClient({ transactions, filters, month, q }: Props) {
   const formattedDate = formatDate(month);
 
   const hasActiveFilter = q !== "" || filters.type !== "all";
+  const { page, totalPages } = transactions.pagination;
+
+  const hasPrevious = page > 1;
+  const hasNext = page < totalPages;
 
   return (
     <div className="pt-20 px-4 pb-20 max-w-7xl mx-auto space-y-10 lg:pt-15 lg:pl-70 lg:pr-10">
@@ -208,6 +240,104 @@ function TransactionPageClient({ transactions, filters, month, q }: Props) {
           )}
         </section>
       )}
+
+      {totalPages > 1 && (
+        <footer className="pt-8 pb-16 flex flex-col md:flex-row items-center justify-between gap-4 border-t border-outline-variant/10">
+          <p className="text-sm text-on-surface-variant">
+            Page <span className="font-semibold text-on-surface">{page}</span>{" "}
+            of{" "}
+            <span className="font-semibold text-on-surface">{totalPages}</span>
+          </p>
+
+          <div className="flex items-center gap-2">
+            {/* Previous */}
+            {hasPrevious ? (
+              <Link
+                href={buildPageHref(page - 1)}
+                className="flex items-center justify-center h-9 px-3 rounded-lg text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors "
+              >
+                <ChevronLeft className="material-symbols-outlined text-base" />
+                <span className="hidden md:inline ml-1">Previous</span>
+              </Link>
+            ) : (
+              <button
+                className="flex items-center justify-center h-9 px-3 rounded-lg text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={!hasPrevious}
+              >
+                <ChevronLeft className="material-symbols-outlined text-base" />
+                Previous
+              </button>
+            )}
+
+            {hasNext ? (
+              <Link
+                href={buildPageHref(page + 1)}
+                className="flex items-center justify-center h-9 px-3 rounded-lg text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
+              >
+                <span className="hidden md:inline ml-1">Next</span>
+                <ChevronRight className="material-symbols-outlined text-base" />
+              </Link>
+            ) : (
+              <button
+                className="flex items-center justify-center h-9 px-3 rounded-lg text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={!hasNext}
+              >
+                Next
+              </button>
+            )}
+
+            {/* Next */}
+          </div>
+        </footer>
+      )}
+      {/* <footer className="pt-8 pb-16 flex flex-col md:flex-row items-center justify-between gap-4 border-t border-outline-variant/10">
+        <div className="text-sm text-on-surface-variant">
+          <p className="">
+            Showing{" "}
+            <span className="font-semibold text-on-surface">
+              {transactions.pagination.page}
+            </span>{" "}
+            of{" "}
+            <span className="font-semibold text-on-surface">
+              {transactions.pagination.totalPages}
+            </span>{" "}
+            pages
+          </p>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <Link
+            href={""}
+            className="flex items-center justify-center h-9 px-3 rounded-lg text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors disabled:opacity-50 disabled:pointer-events-none"
+          >
+            <ChevronLeft className="material-symbols-outlined text-base" />
+            <span className="hidden md:inline ml-1">Previous</span>
+          </Link>
+          <Link
+            href={""}
+            className="h-9 w-9 rounded-lg text-sm font-bold bg-primary text-on-primary shadow-sm flex items-center justify-center transition-transform active:scale-95"
+          >
+            1
+          </Link>
+          <button className="h-9 w-9 rounded-lg text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high flex items-center justify-center transition-colors">
+            2
+          </button>
+          <button className="h-9 w-9 rounded-lg text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high flex items-center justify-center transition-colors">
+            3
+          </button>
+          <span className="h-9 w-8 flex items-center justify-center text-xs font-bold text-on-surface-variant/50">
+            •••
+          </span>
+          <button className="h-9 w-9 rounded-lg text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high flex items-center justify-center transition-colors">
+            12
+          </button>
+          <button className="flex items-center justify-center h-9 px-3 rounded-lg text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors">
+            <span className="hidden md:inline mr-1">Next</span>
+            <span className="material-symbols-outlined text-base">
+              chevron_right
+            </span>
+          </button>
+        </div>
+      </footer> */}
     </div>
   );
 }

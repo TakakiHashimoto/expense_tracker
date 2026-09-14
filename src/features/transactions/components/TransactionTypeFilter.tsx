@@ -18,6 +18,7 @@ function buildHref({
   type: TransactionTypeFilter;
 }) {
   const params = new URLSearchParams(searchParams);
+  params.delete("page");
 
   if (type === "all") {
     params.delete("type");

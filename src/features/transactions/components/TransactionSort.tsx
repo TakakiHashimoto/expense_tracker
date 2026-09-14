@@ -17,6 +17,7 @@ function buildHref({
   sort: TransactionSort;
 }) {
   const params = new URLSearchParams(searchParams);
+  params.delete("page");
   params.set("sort", sort);
 
   const queryString = params.toString();

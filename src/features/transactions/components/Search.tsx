@@ -16,6 +16,7 @@ function Search({ placeholder }: { placeholder: string }) {
   const handleSearch = useCallback(
     (query: string) => {
       const params = new URLSearchParams(searchParams);
+      params.delete("page");
 
       if (query) {
         params.set("q", query);
