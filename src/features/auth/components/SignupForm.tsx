@@ -56,7 +56,7 @@ export default function SignupForm() {
               </span>
             </div>
             <h1 className="text-3xl font-extrabold tracking-tighter text-on-surface">
-              Obsidian Ledger
+              BankOS
             </h1>
           </div>
           <div className="space-y-12">

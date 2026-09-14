@@ -108,21 +108,27 @@ export async function getTransactionPageData({
     return { ok: false, error: "Failed to fetch transaction summary" };
   }
 
-  let income = 0;
-  let expense = 0;
-  let net = 0;
+  const { data: monthlySummaryData, error: monthlySummaryError } =
+    await supabase.rpc("get_monthly_transaction_summary", {
+      start_date: month,
+      end_date: nextMonthStart,
+    });
 
-  for (const transaction of monthlyTransactionData) {
-    const amount = Number(transaction.amount);
-
-    net += amount;
-
-    if (amount > 0) {
-      income += amount;
-    } else if (amount < 0) {
-      expense += Math.abs(amount);
-    }
+  if (monthlySummaryError) {
+    throw monthlySummaryError;
   }
+
+  const monthlySummary = monthlySummaryData[0];
+
+  if (!monthlySummary) {
+    throw new Error("Monthly transaction summary was not returned.");
+  }
+
+  const summary = {
+    income: Number(monthlySummary.income),
+    expense: Number(monthlySummary.expense),
+    net: Number(monthlySummary.net),
+  };
 
   // shape the query first before actually fetching data
   let query = supabase
@@ -188,7 +194,7 @@ export async function getTransactionPageData({
     };
   });
 
-  return { ok: true, transactions: result, summary: { income, expense, net } };
+  return { ok: true, transactions: result, summary };
 }
 
 export async function getTransactionDetail(
