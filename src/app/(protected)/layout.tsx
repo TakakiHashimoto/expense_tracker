@@ -20,7 +20,7 @@ export default async function AppLayout({
   if (!data?.claims) redirect("/login"); // if JWT is not present, redirect to login page
 
   return (
-    <>
+    <div className="max-w-500">
       <DashboardSidebar />
       {children}
       <ToastContainer
@@ -34,6 +34,6 @@ export default async function AppLayout({
         pauseOnHover
         theme="colored"
       />
-    </>
+    </div>
   );
 }
