@@ -39,7 +39,7 @@ export default function DashboardClient({ initialValue }: Props) {
 
   return (
     <div className="flex gap-2">
-      <div className="flex flex-col pt-20 px-4 pb-6 max-w-7xl mx-auto space-y-10 lg:pt-15 lg:pl-70 lg:pr-10">
+      <div className="flex flex-col pt-20 px-4 pb-6 max-w-7xl mx-auto space-y-10 lg:pt-15 lg:pl-80 lg:pr-10">
         <DashboardHeader />
         <section className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
           <DashboardStats

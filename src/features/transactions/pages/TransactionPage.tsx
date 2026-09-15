@@ -162,7 +162,7 @@ function TransactionPageClient({ transactions, filters, month, q }: Props) {
   const hasNext = page < totalPages;
 
   return (
-    <div className="pt-20 px-4 pb-20 max-w-7xl mx-auto space-y-10 lg:pt-15 lg:pl-70 lg:pr-10">
+    <div className="pt-20 px-4 pb-20 max-w-7xl mx-auto space-y-10 lg:pt-15 lg:pl-80 lg:pr-10">
       <section>
         <h1 className="text-4xl font-black tracking-tight text-on-surface">
           Transactions
