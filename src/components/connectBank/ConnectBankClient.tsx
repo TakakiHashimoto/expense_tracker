@@ -3,14 +3,14 @@ import ConnectButtonComponent from "./ConnectButtonComponent";
 
 export default function ConnectBank() {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center lg:ml-80">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center lg:ml-80 mt-15 lg:mt-2 px-3">
       <section className="space-y-10">
         <div className="space-y-6">
-          <h1 className="text-5xl md:text-6xl font-black tracking-tight leading-tight text-on-surface">
+          <h1 className="text-4xl md:text-6xl font-black tracking-tight leading-tight text-on-surface">
             Connect your <br />
             <span className="text-primary-fixed-dim">Bank Account</span>
           </h1>
-          <p className="text-xl text-on-surface-variant max-w-lg leading-relaxed font-medium">
+          <p className="lg:text-xl text-lg text-on-surface-variant max-w-lg leading-relaxed font-medium">
             Securely connect your account to automatically sync transactions and
             start tracking your spending with editorial precision.
           </p>
