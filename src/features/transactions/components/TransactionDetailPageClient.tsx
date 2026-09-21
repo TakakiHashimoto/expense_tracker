@@ -45,16 +45,6 @@ function TransactionDetailPageClient({ transaction, categories }: Props) {
           <h2 className=" text-2xl sm:text-3xl font-display font-bold text-on-surface tracking-tight">
             Transaction Detail
           </h2>
-
-          <button
-            className="flex items-center px-6 py-3 rounded-full bg-linear-to-r from-primary to-primary-container text-on-primary font-bold hover:opacity-90 transition-opacity shadow-[0_8px_32px_rgba(78,222,163,0.15)]"
-            disabled
-          >
-            <span className="material-symbols-outlined mr-2 text-sm">
-              download
-            </span>
-            Download Receipt
-          </button>
         </header>
         <section className="bg-surface-container-low rounded-4xl p-5 sm:p-12 mb-12 flex flex-col md:flex-row justify-between items-start md:items-center relative overflow-hidden group hover:bg-surface-container transition-colors duration-500">
           <div className="z-10">
