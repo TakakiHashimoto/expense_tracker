@@ -1,3 +1,6 @@
+import "server-only";
+
+import { logPlaidError } from "./errors";
 import { normalizeCategory } from "@/lib/transactions.helper";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { RemovedTransaction, Transaction } from "plaid";
@@ -241,7 +244,7 @@ export async function persistSyncResult(
 
     return { success: true, message: "Successfully updated database" };
   } catch (e) {
-    console.error("Failed to persist plaid sync result", e);
+    logPlaidError("persist_transactions", e);
     throw new Error("Failed to persist Plaind sync result");
   }
 }

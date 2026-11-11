@@ -1,3 +1,5 @@
+import { logPlaidError } from "@/features/plaid/server/errors";
+import { withPlaidErrorBoundary } from "../lib/error-boundary";
 import {
   PlaidApi,
   Configuration,
@@ -15,7 +17,7 @@ const plaidSecret = process.env.PLAID_SECRET;
 
 const appBaseUrl = process.env.APP_BASE_URL;
 
-export async function POST() {
+async function handlePost() {
   try {
     const supabase = await createClient();
     const user = await grabUser(supabase);
@@ -55,10 +57,12 @@ export async function POST() {
     const res = await client.linkTokenCreate(linkTokenRequest);
     return NextResponse.json({ link_token: res.data.link_token });
   } catch (e) {
-    console.error("Failed to create link token:", e);
+    logPlaidError("link_token", e);
     return NextResponse.json(
       { error: { message: "Failed to create link token" }, success: false },
       { status: 500 },
     );
   }
 }
+
+export const POST = withPlaidErrorBoundary("link_token", handlePost);

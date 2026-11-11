@@ -1,3 +1,5 @@
+import { logPlaidError } from "@/features/plaid/server/errors";
+import { withPlaidErrorBoundary } from "../lib/error-boundary";
 // call plai "/accounts/get" to get accounts
 // sync accounts
 
@@ -11,7 +13,7 @@ import { syncPlaidItem } from "@/features/plaid/server/syncPlaidItem";
 import { recordSyncFailure } from "@/features/plaid/server/recordSyncFailure";
 import { createServerRoleClient } from "@/lib/supabase/server-role";
 
-export async function POST(req: NextRequest) {
+async function handlePost(req: NextRequest) {
   const { plaidItemUuid } = await req.json();
 
   if (!plaidItemUuid) {
@@ -113,7 +115,7 @@ export async function POST(req: NextRequest) {
             requiresUpdate,
           });
         } catch (recordError) {
-          console.error("Failed to record sync failure", recordError);
+          logPlaidError("refresh_accounts", recordError);
         }
 
         if (requiresUpdate) {
@@ -127,7 +129,7 @@ export async function POST(req: NextRequest) {
           );
         }
 
-        console.error("Plaid Item synchronization failed", syncError);
+        logPlaidError("refresh_accounts", syncError);
 
         return NextResponse.json(
           { error: "Failed to sync transactions" },
@@ -145,14 +147,14 @@ export async function POST(req: NextRequest) {
       });
     } catch (error) {
       // handle error
-      console.error("Failed to add account", error);
+      logPlaidError("refresh_accounts", error);
       return NextResponse.json(
         { error: "Failed to add account" },
         { status: 500 },
       );
     }
   } catch (e) {
-    console.error("Failed to refresh accounts", e);
+    logPlaidError("refresh_accounts", e);
 
     return NextResponse.json(
       { error: "Failed to refresh accounts" },
@@ -160,3 +162,5 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export const POST = withPlaidErrorBoundary("refresh_accounts", handlePost);

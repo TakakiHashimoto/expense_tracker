@@ -1,3 +1,5 @@
+import { logPlaidError } from "@/features/plaid/server/errors";
+import { withPlaidErrorBoundary } from "../lib/error-boundary";
 import { NextRequest, NextResponse } from "next/server";
 import { PlaidWebhookBody } from "../type/plaidwebhook.type";
 import { syncPlaidItem } from "@/features/plaid/server/syncPlaidItem";
@@ -6,7 +8,7 @@ import { createPlaidClient, getPlaidError } from "../lib/plaid.helper";
 import { createServerRoleClient } from "@/lib/supabase/server-role";
 import { verifyPlaidWebhook } from "./verifyWebhooks";
 
-export async function POST(req: NextRequest) {
+async function handlePost(req: NextRequest) {
   const rawBody = await req.text();
   const isVerified = await verifyPlaidWebhook({
     rawBody,
@@ -35,7 +37,7 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (!plaidItem || plaidError) {
-    console.error("Webhook item not found", plaidError);
+    logPlaidError("webhook", plaidError);
     return NextResponse.json({ ok: true, ignored: true });
   }
 
@@ -97,14 +99,6 @@ export async function POST(req: NextRequest) {
     body.webhook_type === "TRANSACTIONS" &&
     body.webhook_code === "SYNC_UPDATES_AVAILABLE"
   ) {
-    //
-
-    console.log("Plaid webhook received", {
-      webhook_type: body.webhook_type,
-      webhook_code: body.webhook_code,
-      item_id: body.item_id,
-    });
-
     const { data: secret, error: secretError } = await supabase
       .from("plaid_item_secrets")
       .select("access_token")
@@ -112,7 +106,7 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (!secret || secretError) {
-      console.error("Webhook secret not found", secretError);
+      logPlaidError("webhook", secretError);
       return NextResponse.json(
         { error: "Missing access token" },
         { status: 500 },
@@ -156,7 +150,7 @@ export async function POST(req: NextRequest) {
           requiresUpdate,
         });
       } catch (recordError) {
-        console.error("Failed to record sync failure", recordError);
+        logPlaidError("webhook", recordError);
         return NextResponse.json(
           { error: "Failed to record sync failure" },
           { status: 500 },
@@ -172,7 +166,7 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      console.error("Plaid Item synchronization failed", e);
+      logPlaidError("webhook", e);
 
       return NextResponse.json(
         { error: "Failed to sync transactions" },
@@ -183,3 +177,5 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ ok: true, ignored: true });
 }
+
+export const POST = withPlaidErrorBoundary("webhook", handlePost);

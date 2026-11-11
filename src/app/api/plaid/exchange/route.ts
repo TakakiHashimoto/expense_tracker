@@ -1,3 +1,5 @@
+import { logPlaidError } from "@/features/plaid/server/errors";
+import { withPlaidErrorBoundary } from "../lib/error-boundary";
 // Here, exchange public token to access token and store access token and plaid items to database
 
 import { fetchPlaidAccounts } from "@/features/plaid/server/accounts";
@@ -12,7 +14,7 @@ const plaidClientId = process.env.PLAID_CLIENT_ID;
 const plaidEnv = process.env.PLAID_ENV || "sandbox";
 const plaidSecret = process.env.PLAID_SECRET;
 
-export async function POST(request: NextRequest) {
+async function handlePost(request: NextRequest) {
   try {
     if (!plaidClientId || !plaidSecret) {
       return NextResponse.json(
@@ -127,7 +129,7 @@ export async function POST(request: NextRequest) {
         snapshotTime,
       });
     } catch (writeError) {
-      console.error("Rolling back failed Plaid exchange writes:", writeError);
+      logPlaidError("exchange", writeError);
 
       await supabase
         .from("plaid_items")
@@ -144,10 +146,12 @@ export async function POST(request: NextRequest) {
     // add those transaction data to database
     // redirect to dashboard
   } catch (e) {
-    console.error("Failed to connect bank account:", e);
+    logPlaidError("exchange", e);
     return NextResponse.json(
       { error: "Failed to connect bank account" },
       { status: 500 },
     );
   }
 }
+
+export const POST = withPlaidErrorBoundary("exchange", handlePost);

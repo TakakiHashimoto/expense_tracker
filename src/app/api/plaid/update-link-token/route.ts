@@ -1,3 +1,5 @@
+import { logPlaidError } from "@/features/plaid/server/errors";
+import { withPlaidErrorBoundary } from "../lib/error-boundary";
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { CountryCode } from "plaid";
@@ -7,7 +9,7 @@ import { createServerRoleClient } from "@/lib/supabase/server-role";
 const plaidClientId = process.env.PLAID_CLIENT_ID;
 const plaidSecret = process.env.PLAID_SECRET;
 
-export async function POST(request: NextRequest) {
+async function handlePost(request: NextRequest) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -89,10 +91,12 @@ export async function POST(request: NextRequest) {
       { status: 200 },
     );
   } catch (e) {
-    console.error("Failed to create/update link token", e);
+    logPlaidError("update_link_token", e);
     return NextResponse.json(
       { error: "Failed to create update link token" },
       { status: 500 },
     );
   }
 }
+
+export const POST = withPlaidErrorBoundary("update_link_token", handlePost);

@@ -1,3 +1,5 @@
+import { getPlaidError, logPlaidError } from "@/features/plaid/server/errors";
+import { withPlaidErrorBoundary } from "../lib/error-boundary";
 // This page is for sync request from dashboard
 import { recordSyncFailure } from "@/features/plaid/server/recordSyncFailure";
 import { syncPlaidItem } from "@/features/plaid/server/syncPlaidItem";
@@ -10,19 +12,7 @@ const plaidClientId = process.env.PLAID_CLIENT_ID;
 const plaidEnv = process.env.PLAID_ENV || "sandbox";
 const plaidSecret = process.env.PLAID_SECRET;
 
-type PlaidErrorResponse = {
-  response?: { data?: { error_code?: string; error_message?: string } };
-};
-
-function getPlaidError(error: unknown) {
-  if (typeof error === "object" && error !== null && "response" in error) {
-    return (error as PlaidErrorResponse).response?.data ?? null;
-  }
-
-  return null;
-}
-
-export async function POST() {
+async function handlePost() {
   try {
     const supabase = await createClient();
 
@@ -129,7 +119,7 @@ export async function POST() {
             requiresUpdate,
           });
         } catch (recordError) {
-          console.error("Failed to record sync failure", recordError);
+          logPlaidError("sync_all", recordError);
         }
 
         if (requiresUpdate) {
@@ -143,7 +133,7 @@ export async function POST() {
           );
         }
 
-        console.error("Plaid Item synchronization failed", syncError);
+        logPlaidError("sync_all", syncError);
 
         return NextResponse.json(
           { error: "Failed to sync transactions" },
@@ -160,7 +150,7 @@ export async function POST() {
       syncedItemCount: syncedCount,
     });
   } catch (e) {
-    console.error("Sync all transactions failed", e);
+    logPlaidError("sync_all", e);
 
     return NextResponse.json(
       { error: "Failed to sync dashboard transactions" },
@@ -168,3 +158,5 @@ export async function POST() {
     );
   }
 }
+
+export const POST = withPlaidErrorBoundary("sync_all", handlePost);

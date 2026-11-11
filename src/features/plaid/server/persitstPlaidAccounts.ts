@@ -1,3 +1,6 @@
+import "server-only";
+
+import { logPlaidError } from "./errors";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { AccountBase } from "plaid";
 
@@ -53,7 +56,7 @@ export async function persistPlaidAccounts({
       });
 
     if (error) {
-      console.error("Failed to persist plaid accounts", error);
+      logPlaidError("persist_accounts", error);
       throw new Error("Failed to persist Plaid accounts", { cause: error });
     }
   }

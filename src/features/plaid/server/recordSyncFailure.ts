@@ -1,3 +1,6 @@
+import "server-only";
+
+import { logPlaidError } from "./errors";
 // This function is for recording failure into db when sync failed
 // Update last_sync_error, last_sync_status, updated_at
 // If it's a ITEM_LOGIN_REQUIRED, status: "need_update"
@@ -38,22 +41,13 @@ export async function recordSyncFailure({
     .single();
 
   if (error) {
-    console.error("recordSyncFailure Supabase error", {
-      error,
-      updateData,
-      userId,
-      plaidItemUuid,
-    });
+    logPlaidError("record_sync_failure", error);
 
     throw new Error("Failed to record plaid_items failure");
   }
 
   if (!data) {
-    console.error("recordSyncFailure updated no rows", {
-      userId,
-      plaidItemUuid,
-      updateData,
-    });
+    logPlaidError("record_sync_failure", null);
 
     throw new Error("Failed to record plaid_items failure");
   }
