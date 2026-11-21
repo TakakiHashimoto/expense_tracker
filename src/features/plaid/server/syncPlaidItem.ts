@@ -64,15 +64,17 @@ export async function syncPlaidItem({
       });
     }
 
-    await persistSyncResult(
-      supabase,
+    // transaction syncing is integrated to one big db transaction to maintain atomicity
+    await persistSyncResult({
       userId,
+      itemUuid: plaidItemUuid,
+      leaseToken: lease.token,
+      expectedCursor: lease.cursor,
+      cursor,
       added,
       modified,
       removed,
-      cursor,
-      plaidItemUuid,
-    );
+    });
     return {
       status: "synced" as const,
       addedCount: added.length,
@@ -80,7 +82,19 @@ export async function syncPlaidItem({
       removedCount: removed.length,
     };
   } finally {
-    // once the transaction is finished, release the lease
-    await unlockLease({ plaidItemUuid, userId, supabase, token: lease.token });
+    try {
+      await unlockLease({
+        plaidItemUuid,
+        userId,
+        supabase,
+        token: lease.token,
+      });
+    } catch (error) {
+      console.error("Failed to release Plaid sync lease", {
+        plaidItemUuid,
+        message:
+          error instanceof Error ? error.message : "Unknown cleanup error",
+      });
+    }
   }
 }
