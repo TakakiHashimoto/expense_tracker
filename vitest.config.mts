@@ -6,12 +6,14 @@ export default defineConfig({
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
       // Only tests replace this marker. Next's production compiler enforces it.
-      "server-only": fileURLToPath(new URL("./tests/server-only.ts", import.meta.url)),
+      "server-only": fileURLToPath(
+        new URL("./tests/server-only.ts", import.meta.url),
+      ),
     },
   },
   test: {
     environment: "node",
-    include: ["tests/**/*.test.ts"],
+    include: ["tests/**/*.test.ts", "src/**/*.test.ts"],
     setupFiles: ["./tests/setup.ts"],
     clearMocks: true,
   },
