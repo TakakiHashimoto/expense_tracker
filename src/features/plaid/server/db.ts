@@ -82,6 +82,9 @@ export async function persistSyncResult({
   });
 
   if (error) {
+    // PostgreSQL SQLSTATE または PostgREST エラーコード
+    console.error("[Atomic Sync RPC] Failure:", { code: error.code });
+
     throw new Error("Atomic Plaid sync commit failed", { cause: error });
   }
 
