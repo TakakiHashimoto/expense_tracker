@@ -207,4 +207,28 @@ describe("findRecurringTriple", () => {
 
     expect(result?.map((t) => t.id)).toEqual(["aug", "sep", "oct"]);
   });
+
+  it("finds a valid triple among multiple amount candidates deterministically", () => {
+    const transactions = [
+      makeTx("aug", "2026-08-15", -1599),
+
+      makeTx("sep-invalid", "2026-09-15", -1690),
+      makeTx("sep-a", "2026-09-15", -1650),
+      makeTx("sep-b", "2026-09-15", -1599),
+
+      makeTx("oct-invalid", "2026-10-15", -1750),
+      makeTx("oct-a", "2026-10-15", -1660),
+      makeTx("oct-b", "2026-10-15", -1550),
+    ];
+
+    const expected = ["aug", "sep-a", "oct-a"];
+
+    expect(findRecurringTriple(transactions)?.map((tx) => tx.id)).toEqual(
+      expected,
+    );
+
+    expect(
+      findRecurringTriple([...transactions].reverse())?.map((tx) => tx.id),
+    ).toEqual(expected);
+  });
 });
