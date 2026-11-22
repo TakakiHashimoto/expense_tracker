@@ -8,6 +8,7 @@ import { persistPlaidAccounts } from "./persitstPlaidAccounts";
 import { persistSyncResult } from "./db";
 import { aquireSyncLease } from "./syncLease";
 import { unlockLease } from "./unlockRelase";
+import { logPlaidError, type PlaidOperation } from "./errors";
 
 interface ArgTypes {
   supabase: SupabaseClient;
@@ -28,13 +29,13 @@ type SyncPlaidItemResult =
     };
 
 async function traceSyncStage<T>(
-  stage: string,
+  stage: PlaidOperation,
   operation: () => Promise<T>,
 ): Promise<T> {
   try {
     return await operation();
   } catch (error) {
-    console.error("[Plaid Sync] Failed stage:", stage);
+    logPlaidError(stage, error);
     throw error;
   }
 }
@@ -109,11 +110,7 @@ export async function syncPlaidItem({
         token: lease.token,
       });
     } catch (error) {
-      console.error("Failed to release Plaid sync lease", {
-        plaidItemUuid,
-        message:
-          error instanceof Error ? error.message : "Unknown cleanup error",
-      });
+      logPlaidError("release_lease", error);
     }
   }
 }

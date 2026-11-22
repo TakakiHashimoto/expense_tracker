@@ -3,6 +3,7 @@ import "server-only";
 import { normalizeCategory } from "@/lib/transactions.helper";
 import { RemovedTransaction, Transaction } from "plaid";
 import { createServerRoleClient } from "@/lib/supabase/server-role";
+import { logPlaidError } from "./errors";
 
 type PersistSyncResultArgs = {
   userId: string;
@@ -83,7 +84,7 @@ export async function persistSyncResult({
 
   if (error) {
     // PostgreSQL SQLSTATE または PostgREST エラーコード
-    console.error("[Atomic Sync RPC] Failure:", { code: error.code });
+    logPlaidError("persist_transactions", error);
 
     throw new Error("Atomic Plaid sync commit failed", { cause: error });
   }

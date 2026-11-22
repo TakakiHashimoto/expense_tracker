@@ -4,6 +4,19 @@ import type { TransactionInput } from "./types";
 
 type MonthBucket = { lastDay: number; byDay: Map<number, TransactionInput[]> };
 
+function compareTransactions(a: TransactionInput, b: TransactionInput): number {
+  // 金額が違うなら金額順
+  if (a.amountMinor !== b.amountMinor) {
+    return a.amountMinor - b.amountMinor;
+  }
+
+  // 金額が同じならID順
+  if (a.id < b.id) return -1;
+  if (a.id > b.id) return 1;
+
+  return 0;
+}
+
 // Sorted transactionsから許容範囲内の金額を探す
 function findAmountMatch(
   transactions: TransactionInput[],
@@ -116,7 +129,7 @@ export function findRecurringTriple(
   // Step 2: 各日の取引を金額順にソート
   for (const bucket of months.values()) {
     for (const payments of bucket.byDay.values()) {
-      payments.sort((a, b) => a.amountMinor - b.amountMinor);
+      payments.sort(compareTransactions);
     }
   }
 
@@ -133,7 +146,24 @@ export function findRecurringTriple(
     }
 
     // Case A: 毎月同じ日に支払い
-    for (const [day, firstPayments] of first.byDay) {
+
+    // Case B: 月末パターンを先に検証
+    const monthEndTriple = findMatchingTriple(
+      first.byDay.get(first.lastDay) ?? [],
+      second.byDay.get(second.lastDay) ?? [],
+      third.byDay.get(third.lastDay) ?? [],
+    );
+
+    if (monthEndTriple) {
+      return monthEndTriple;
+    }
+
+    // Case A: 毎月同じ日付に支払い
+    // 最新の日付から探索する
+    const daysDescending = [...first.byDay.keys()].sort((a, b) => b - a);
+
+    for (const day of daysDescending) {
+      const firstPayments = first.byDay.get(day)!;
       const secondPayments = second.byDay.get(day);
       const thirdPayments = third.byDay.get(day);
 
@@ -150,17 +180,6 @@ export function findRecurringTriple(
       if (triple) {
         return triple;
       }
-    }
-
-    // Case B: 毎月の月末日に支払い
-    const triple = findMatchingTriple(
-      first.byDay.get(first.lastDay) ?? [],
-      second.byDay.get(second.lastDay) ?? [],
-      third.byDay.get(third.lastDay) ?? [],
-    );
-
-    if (triple) {
-      return triple;
     }
   }
 
