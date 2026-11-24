@@ -1,9 +1,11 @@
 import { groupTransactions } from "./groupTransactions";
 import type { TransactionInput, SubscriptionCandidate } from "./types";
 import { findRecurringTriples } from "./findRecurringTriples";
+import { evaluateSubscriptionRecency } from "./evaluateSubscriptionRecency";
 
 export function detectSubscriptions(
   transactions: TransactionInput[],
+  asOfDate?: string,
 ): SubscriptionCandidate[] {
   const groups = groupTransactions(transactions);
 
@@ -34,6 +36,11 @@ export function detectSubscriptions(
         confidence: 0.7,
         accountId: first.accountId,
       };
+
+      // Preserve detection-only callers without introducing a domain clock.
+      if (asOfDate !== undefined) {
+        candidate.recency = evaluateSubscriptionRecency(recurringTriple, asOfDate);
+      }
 
       candidates.push(candidate);
     }

@@ -1,5 +1,5 @@
 import { CalendarSync, Clock3, Info, ScanLine, Wallet } from "lucide-react";
-import type { SubscriptionCandidate } from "../domain/types";
+import type { SubscriptionCandidate, SubscriptionRecency } from "../domain/types";
 import {
   formatSubscriptionAmount,
   formatSubscriptionDate,
@@ -7,6 +7,14 @@ import {
 import { SubscriptionShell } from "./SubscriptionShell";
 
 const currencyNames = new Intl.DisplayNames("en-US", { type: "currency" });
+
+const recencyLabels: Record<SubscriptionRecency["status"], string> = {
+  recent: "Recent payment observed",
+  grace_period: "Within payment observation grace period",
+  payment_not_observed: "Expected payment not observed",
+  long_unobserved: "No payment observed through two expected cycles",
+  unknown: "Payment recency unknown",
+};
 
 export function SubscriptionDashboard({
   candidates,
@@ -131,7 +139,7 @@ export function SubscriptionDashboard({
 
                 return (
                   <li
-                    key={JSON.stringify([candidate.accountId, candidate.merchantName, candidate.currency])}
+                    key={JSON.stringify([candidate.accountId, candidate.merchantName, candidate.currency, candidate.transactionIds])}
                     className="grid min-w-0 grid-cols-2 items-center gap-x-4 gap-y-5 rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5 md:grid-cols-[minmax(0,1.6fr)_minmax(0,0.8fr)_minmax(0,1fr)_minmax(0,1fr)] md:rounded-none md:border-0 md:border-b md:last:border-b-0"
                   >
                     <div className="order-1 flex min-w-0 items-center gap-3">
@@ -167,6 +175,17 @@ export function SubscriptionDashboard({
                       </p>
                       <p className="mt-1 text-xs text-on-surface-variant">{candidate.currency}</p>
                     </div>
+                    <div className="order-5 col-span-full min-w-0 space-y-1 border-t border-outline-variant/30 pt-3 text-xs leading-relaxed text-on-surface-variant">
+                      <p>{recencyLabels[candidate.recency?.status ?? "unknown"]}</p>
+                      {candidate.recency?.nextExpectedPaymentDate ? (
+                        <p>
+                          Expected after last payment (estimate):{" "}
+                          <time dateTime={candidate.recency.nextExpectedPaymentDate}>
+                            {formatSubscriptionDate(candidate.recency.nextExpectedPaymentDate)}
+                          </time>
+                        </p>
+                      ) : null}
+                    </div>
                   </li>
                 );
               })}
@@ -178,6 +197,12 @@ export function SubscriptionDashboard({
           Recurring payments are identified from payment timing and merchant
           descriptions in your recent transaction history. BankOS does not manage
           or alter your merchant agreements.
+        </p>
+        <p className="text-xs leading-relaxed text-on-surface-variant">
+          Payment observations do not confirm an active or cancelled subscription,
+          or an unpaid bill. An unobserved payment may reflect stale Plaid
+          synchronization, delayed posting, missing history, or merchant
+          normalization. Estimates use a five-day observation grace period.
         </p>
       </section>
     </SubscriptionShell>

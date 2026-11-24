@@ -1,8 +1,8 @@
 # BankOS Development Progress
 
-最終監査日: **2026-11-22（America/Vancouver）**
+最終監査日: **2026-11-24（America/Vancouver）**
 
-監査対象: `feat/subscription-detection` / `ac0cece`
+監査対象: `feat/subscription-detection` / `e640ffe` ＋既存の未コミットP05-RECENCY変更
 
 この文書は実装・検証・未解決事項を区別して管理する進捗の基準資料です。完了判定は項目ごとの範囲に限定し、実装やユニットテストの存在だけで本番運用可能とは判断しません。
 
@@ -10,11 +10,11 @@
 
 BankOSはNext.js App Router、React、TypeScript、Tailwind CSS、Supabase Auth/PostgreSQL、Plaidを使う個人向け家計管理アプリです。認証、銀行口座接続、取引同期、取引一覧、ダッシュボード、予算管理、定期支払い検出の実装があります。PlaidはSandbox中心の検証段階です。
 
-今回の監査はリポジトリの読み取りとネットワークを遮断した既存テストの実行に限定しました。変更対象は本ファイルのみです。DBへの接続・データ変更、マイグレーション適用、環境ファイル変更、デプロイ、コミット、pushは実施していません。
+今回の監査はリポジトリの読み取りとネットワークを遮断した既存テストの実行に限定しました。今回の変更は本ファイルと`SUBSCRIPTION_RECENCY.md`の状態参照文のみです。開始時から存在する実装・テストの未コミット変更は維持しました。DBへの接続・データ変更、マイグレーション適用、環境ファイル変更、デプロイ、コミット、pushは実施していません。
 
 **Detected Recurring Payment != Confirmed Active Subscription**
 
-検出対象は過去の取引に見られる月次パターンです。現在有効な契約、次回請求、解約可能性を保証しません。`confidence: 0.7`は固定のヒューリスティック値で、統計的な確率ではありません。
+検出対象は過去の取引に見られる月次パターンです。現在有効な契約、確定した次回請求、解約可能性を保証しません。画面の予測日は選択された支払いパターンに基づく推定です。`confidence: 0.7`は固定のヒューリスティック値で、統計的な確率ではありません。
 
 証拠を次のように区別します。
 
@@ -27,69 +27,47 @@ BankOSはNext.js App Router、React、TypeScript、Tailwind CSS、Supabase Auth/
 
 ## 2. Current Development Snapshot
 
-| 項目                     | 今回確認した状態                                                                     |
-| ------------------------ | ------------------------------------------------------------------------------------ |
-| Branch                   | `feat/subscription-detection`                                                        |
-| HEAD                     | `ac0cece`（完全SHA: `ac0cece9e0b715c85c986f02cd9f36351ff07e66`）                     |
-| 監査開始時のworking tree | `git status --short`の出力なし。クリーン。以前の会話にあった未コミット状態とは異なる |
-| 文書作成後のworking tree | `?? docs/BANKOS_PROGRESS.md`のみ。既存ファイルは保持                                 |
-| Subscription             | Domain、Adapter、UI、19件の追加テストがcommitに含まれる。Hardeningは未完了           |
-| Subscriptionテスト       | **9ファイル、84件成功**（今回実行）                                                  |
-| 全体Vitest               | **15ファイル、204件中203件成功・1件失敗**（今回実行）                                |
-| TypeScript / ESLint      | 型チェック成功。lintは0 errors / 5 warnings                                          |
-| Release                  | このcommitの本番デプロイ・承認・稼働状態は`UNVERIFIED`                               |
+| 項目 | 今回確認した状態 |
+| --- | --- |
+| Branch / HEAD | `feat/subscription-detection` / `e640ffe` |
+| 検証対象 | HEADに加え、作業ツリー上のP05-RECENCY実装・3テストファイル・仕様文書。292件成功はHEAD単独の結果ではない |
+| 開始時working tree | tracked 4ファイル変更＋untracked 5ファイル。既存変更を保持 |
+| 今回の変更 | `docs/BANKOS_PROGRESS.md`更新と、既存untracked `docs/SUBSCRIPTION_RECENCY.md`の状態参照文1箇所。アプリ・テストは変更していない |
+| 個別タスク | P01-LOG、P05-TRIPLE、P05-MULTI、P05-RECENCYを限定された実装・ローカル検証範囲でDONE |
+| Phase 5 | **IN PROGRESS**。DB、authentication/RLS、browser/HTTP E2Eは未完了 |
+| Subscriptionテスト | **12ファイル、172件成功**（全体実行の結果を集計） |
+| 全体Vitest | **18ファイル、292件成功、失敗0** |
+| TypeScript / ESLint | `npx tsc --noEmit`成功。lintは0 errors / 5 existing warnings |
+| Release | このworking treeの本番リリース・デプロイ状態は`UNVERIFIED`。commit/push/deployは未実施 |
 
-直近8件のcommit（`git log -8 --oneline`）:
+開始時から存在する変更:
 
 ```text
+M  src/features/subscriptions/components/SubscriptionDashboard.tsx
+M  src/features/subscriptions/domain/detectSubscriptions.ts
+M  src/features/subscriptions/domain/types.ts
+M  src/features/subscriptions/server/getDetectedSubscriptions.ts
+?? docs/SUBSCRIPTION_RECENCY.md
+?? src/features/subscriptions/__tests__/SubscriptionRecencyDisplay.test.ts
+?? src/features/subscriptions/__tests__/evaluateSubscriptionRecency.test.ts
+?? src/features/subscriptions/__tests__/subscriptionRecency.integration.test.ts
+?? src/features/subscriptions/domain/evaluateSubscriptionRecency.ts
+```
+
+直近8件のcommit（2026-11-24確認）:
+
+```text
+e640ffe feat(subscriptions): implement findRecurringTriples function and update detectSubscriptions logic
+5568495 Refactor error handling and logging for Plaid sync operations
 ac0cece feat(subscriptions): add subscription loading and error components, enhance dashboard with detected subscriptions
 a42f8dc feat(subscriptions): implement subscription detection and conversion logic
 88d0821 feat(subscriptions): add subscription detection and related tests
 19ad6c9 feat(plaid): implement atomic sync RPC and integration tests
 a13f08f fix(db): reproduce sync leases and monthly summary RPC
 bbdddb6 feat(plaid): implement error logging and webhook verification improvements
-d5adbd0 Update README.md
-0d9d02e Revise README for BankOS project overview and setup
 ```
 
-`ac0cece`にはUIとテストだけでなくPlaid同期のログ変更も含まれます。今回見つかったセキュリティ境界テストの失敗を、Subscriptionの84件成功で覆い隠してはいけません。
-
-## 2026-11-22 — Follow-up Verification
-
-Branch: feat/subscription-detection
-Status: Uncommitted changes verified
-
-### Verification
-
-- Full Vitest: 209/209 PASS (15 files)
-- Subscription: 89/89 PASS
-- TypeScript: PASS
-- ESLint: 0 errors / 5 existing warnings
-- git diff --check: PASS
-
-### P01-LOG — DONE
-
-- Removed raw console calls from Plaid sync helpers.
-- Reused allowlisted sanitized logging.
-- Preserved error propagation and lease cleanup behavior.
-- Security boundary and logger tests passed.
-- Full regression suite passed.
-
-### P05-TRIPLE — IN PROGRESS
-
-- Latest valid three-month window selection verified.
-- Latest payment date prioritized within a window.
-- Month-end patterns prioritized.
-- Same-amount transaction ties sorted by ID.
-- Fourteen findRecurringTriple tests passed.
-- Remaining: verify combinations involving multiple
-  amount candidates inside the allowed tolerance.
-
-### Remaining
-
-- Actual DB concurrency behavior not reverified.
-- Production security and deployment not verified.
-- Existing lint warnings remain.
+11月22日の`ac0cece`監査では203/204件成功、後続検証では209/209件成功と記録されていました。これらは履歴としてChange Logへ統合し、現在値は上表を基準にします。P01-LOG修正は`5568495`、複数候補検出は`e640ffe`、recencyは未コミットの作業ツリー上にあります。
 
 ## 3. Master Roadmap
 
@@ -98,12 +76,12 @@ Phaseの番号・順序・名称は従来のロードマップを維持してい
 | Phase | Description              | 従来報告                                              | 現在の監査状態 | 判定根拠 / 残件                                                                                              |
 | ----- | ------------------------ | ----------------------------------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------ |
 | 0     | Architecture Audit       | Complete                                              | UNVERIFIED     | 既存の構成資料はあるが古い記述を含む。Phase全体の完了条件・承認記録は未確認。`P00-AUDIT`                     |
-| 1     | Security Baseline        | Complete                                              | IN PROGRESS    | セキュリティ実装と120件の既存テストはあるが、現在119件成功・1件失敗。`P01-LOG`                               |
+| 1 | Security Baseline | Complete | IN PROGRESS | P01-LOG回帰は解消し既存security系120件が成功。現commitのsecurity build・dependency再検証はP01-RECHECKで未完了 |
 | 2     | Database Reproducibility | Local/Hosted migrations verified                      | UNVERIFIED     | 3本のmigrationは存在。Local/Hostedへの適用結果・現時点の差分は今回未検証。`P02-REPRO`                        |
 | 3.1   | Atomic Plaid Sync        | Main integration tests passed                         | UNVERIFIED     | atomic RPCと11項目のSQLテストは実装済み。今回SQLは未実行。口座更新はRPCの対象外。`P31-VERIFY`                |
 | 3.2   | Sync Hardening           | Incomplete                                            | IN PROGRESS    | leaseやWebhook検証は一部実装済み。下記13項目を継続管理                                                       |
 | 4     | Financial Correctness    | Not started                                           | TODO           | Subscription内のminor-unit対応はあるが、アプリ全体の通貨・pending・丸め・期間の整合性検証は未完了。`P04-FIN` |
-| 5     | Subscription Detection   | Domain, Adapter and UI implemented; Hardening pending | IN PROGRESS    | 84件成功。実DB・認証付きPositive UI E2Eと12項目のHardeningが残る                                             |
+| 5 | Subscription Detection | Domain, Adapter and UI implemented; Hardening pending | IN PROGRESS | 172件成功。TRIPLE/MULTI/RECENCYの限定実装はDONE。DB・authentication/RLS・browser E2Eとその他hardeningは未完了 |
 | 6     | AI Insights              | Future                                                | TODO           | 対応する実装・評価証拠は今回の検索で確認できず。`P06-AI`                                                     |
 | 7     | Production Readiness     | Future                                                | TODO           | リリースゲート未充足。Subscriptionはdevelopment限定。`P07-RELEASE`                                           |
 | 8     | AWS / Terraform          | Future                                                | TODO           | Terraform構成を確認できず。`P08-INFRA`                                                                       |
@@ -118,14 +96,14 @@ Phaseの番号・順序・名称は従来のロードマップを維持してい
 | 項目                        | 状態 | 確認した実装・証拠                                                                                                                                                                                                                                                                    | 検証の限界                                                                    |
 | --------------------------- | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
 | 認証・保護ルートの構造      | DONE | [Protected layout](<../src/app/(protected)/layout.tsx>)、[Supabase server client](../src/lib/supabase/server.ts)、[認証redirectテスト](../tests/auth-redirect.test.ts)                                                                                                                | 実セッション・Hosted RLSのE2Eではない                                         |
-| セキュリティ基盤の導入      | DONE | [security-baseline.md](security-baseline.md)、server-only、allowlist型logger、各Plaid routeのerror boundary                                                                                                                                                                           | 全体の現在の合格状態は失われている。`P01-LOG`参照                             |
+| セキュリティ基盤の導入 | DONE | [security-baseline.md](security-baseline.md)、server-only、allowlist型logger、各Plaid routeのerror boundary | P01-LOG回帰は解消し全体テスト成功。実運用・dependency/security buildの再検証はP01-RECHECKで別管理 |
 | DB定義のリポジトリ管理      | DONE | [基礎schema/RLS](../supabase/migrations/20260903011843_remote_schema.sql)、[lease・月次summary](../supabase/migrations/20261112000000_add_sync_lease_and_monthly_summary.sql)、[atomic commit](../supabase/migrations/20261113130431_plaid_sync_atomic_commit.sql)                    | ファイルの存在・内容を確認。現DBへの反映は未検証                              |
 | Atomic transaction sync実装 | DONE | [db.ts](../src/features/plaid/server/db.ts)がservice-role clientから`commit_plaid_sync`を呼ぶ。SQLは取引・カテゴリ・cursorを同一RPC内で更新                                                                                                                                           | account snapshot、failure記録、lease取得・解放は別操作                        |
 | SQL統合テスト定義           | DONE | [atomic_sync_integration.sql](../supabase/tests/atomic_sync_integration.sql)に11項目                                                                                                                                                                                                  | 成功メッセージのSQL定義は実行ログではない。今回未実行                         |
-| Subscription Domain         | DONE | [detectSubscriptions](../src/features/subscriptions/domain/detectSubscriptions.ts)、[findRecurringTriple](../src/features/subscriptions/domain/findRecurringTriple.ts)、[groupTransactions](../src/features/subscriptions/domain/groupTransactions.ts)                                | 活動中判定・誤検知率・全境界ケースの保証はない                                |
+| Subscription Domain | DONE | [detectSubscriptions](../src/features/subscriptions/domain/detectSubscriptions.ts)、[findRecurringTriple](../src/features/subscriptions/domain/findRecurringTriple.ts)、[findRecurringTriples](../src/features/subscriptions/domain/findRecurringTriples.ts)、[evaluateSubscriptionRecency](../src/features/subscriptions/domain/evaluateSubscriptionRecency.ts) | TRIPLE/MULTI/RECENCYの限定された決定規則を検証。契約活動判定・誤検知率・すべての入力に対する最適分割は保証しない |
 | Subscription Adapter        | DONE | [取得処理](../src/features/subscriptions/server/getSubscriptionTransactions.ts)、[変換処理](../src/features/subscriptions/server/toTransactionInput.ts)、[orchestration](../src/features/subscriptions/server/getDetectedSubscriptions.ts)                                            | orchestrationテストはDB取得をmock。実PostgREST pagination/RLSを検証していない |
 | Subscription UI             | DONE | [Dashboard](../src/features/subscriptions/components/SubscriptionDashboard.tsx)、[formatting](../src/features/subscriptions/components/formatSubscription.ts)、[loading](<../src/app/(protected)/subscription/loading.tsx>)、[error](<../src/app/(protected)/subscription/error.tsx>) | HTMLテストはCSSレイアウト、hydration、実サービスを含まない                    |
-| Subscription自動テスト      | DONE | [tests](../src/features/subscriptions/__tests__)の既存7ファイル65件＋UI/formatting 2ファイル19件＝84件が今回成功                                                                                                                                                                      | UI4件、formatting15件。loading/errorの専用永続テストはこの19件に含まれない    |
+| Subscription自動テスト | DONE | [tests](../src/features/subscriptions/__tests__)の12ファイル172件が今回成功。既存検出・adapter・SSR/formatting 95件＋recency 77件 | Recencyはdomain 64件＋mocked server/detection 6件＋SSR 7件。実DB・認証・browser E2Eではない |
 
 Atomic RPCのコードにはItem行の`FOR UPDATE`、所有者、lease token・期限、expected cursor、revoked状態の検査があります。`SECURITY INVOKER`で、実行権限は`PUBLIC`・`anon`・`authenticated`からrevokeし`service_role`に付与する定義です。このRPCの保護と、認証済みユーザーによるテーブル直接更新権限は別問題です。
 
@@ -163,7 +141,9 @@ SQLテストの11項目は、通常commit、manual category保持、replayの重
 PostgreSQL / Supabase PostgREST
   → getSubscriptionTransactions(fromDate)
   → toTransactionInput()
-  → detectSubscriptions()
+  → detectSubscriptions(transactions, asOfDate)
+      → findRecurringTriples()
+      → evaluateSubscriptionRecency()
   → SubscriptionCandidate[]
   → SubscriptionDashboard
 ```
@@ -179,21 +159,35 @@ PostgreSQL / Supabase PostgREST
 | 候補金額                             | 選択した3件の絶対額の中央値。候補は正のminor units                                                                           |
 | PostgreSQL adapter・pagination       | 認証ユーザーを取得しuser_idで絞り込み。500件単位のoffset pagination、posted_date/idの降順                                    |
 | 認証                                 | `getUser()`で拒否し、protected layoutでもclaimsを確認。RLSの実環境動作確認とは別                                             |
-| 検索期間                             | UTCの当月1日から6か月前を下限とする既存計算。直近180日固定ではない。取得に上限日はなく、future date方針も未定                |
-| Dashboard                            | 通貨ごとの推定月額・件数、merchant、月次cadence、最終支払日。通貨換算・混在合計はしない                                      |
+| 検索期間 | UTCの当月1日から6か月前を下限とする既存計算。取得上限日はなく候補選択は維持。future last paymentのrecencyはunknown |
+| Dashboard | 通貨別の推定月額・件数、merchant、cadence、最終支払日、観測recencyと予測日。recencyで候補や合計を除外しない。予測日は確定請求日ではない |
 | Empty / Loading / Error              | 完全なEmpty State、route-level skeleton、client error boundaryの`reset()`。エラーを空配列に置き換えない                      |
 | 表示・accessibility                  | monogram fallback、長いmerchant名の折返し、モバイル用配置、reduced-motion対応。SSRテストだけで視覚・操作品質全体は保証しない |
 | 日付                                 | ISO日付をUTCで解釈しUTCで表示。4タイムゾーンの自動テストあり                                                                 |
 
+### 今回の完了判定とレビュー範囲
+
+- **P05-TRIPLE — DONE**: [15件の回帰テスト](../src/features/subscriptions/__tests__/findRecurringTriple.test.ts)に、以前の残件だった`finds a valid triple among multiple amount candidates deterministically`が含まれる。金額は最初の支払いに対する±5%で比較し、許容範囲で最も近い額ではなく、ソート済み候補の先頭を選ぶ決定規則として確認した。
+- **P05-MULTI — DONE**: [detectSubscriptions tests](../src/features/subscriptions/__tests__/detectSubscriptions.test.ts)で同一merchantの異日、同日異額、月末と固定日の併存、6か月の非重複分割、入力逆順を検証。月末優先と料金帯の貪欲な消費が現在のMVP仕様。異なる契約を常に識別できるという完了判定ではない。
+- **P05-RECENCY — DONE**: [domain tests](../src/features/subscriptions/__tests__/evaluateSubscriptionRecency.test.ts)、[mocked integration tests](../src/features/subscriptions/__tests__/subscriptionRecency.integration.test.ts)、[SSR tests](../src/features/subscriptions/__tests__/SubscriptionRecencyDisplay.test.ts)の計77件成功。[仕様](SUBSCRIPTION_RECENCY.md)に従う支払い観測の推定として完了。純粋関数、UTC、月単位計算、元の固定日を維持するclamp、graceの包含境界、未来/不正入力のunknown、同一requestで一度の評価日確定を確認した。
+- **P01-LOG — DONE**: [db.ts](../src/features/plaid/server/db.ts)・[syncPlaidItem.ts](../src/features/plaid/server/syncPlaidItem.ts)は[allowlisted logger](../src/features/plaid/server/errors.ts)を使用。任意のerror messageやItem IDを直接ログへ渡す旧経路はなく、raw-console禁止・sentinel・routeテストが通過。lease cleanupと再throwの維持はコード確認であり、実DBの並行性を試験したという意味ではない。
+
+互換性: `detectSubscriptions(transactions)`は従来の結果形を維持し、明示的な評価日を渡したときだけoptionalな`recency`を追加する。通常server経路は必ず評価日を渡す。recencyがunknownでも既存の検出候補・金額は保持する。同じmerchantの複数行は選択transaction IDsもReact keyに含めて区別する。
+
+UI wording: `Recent payment observed`等の5ラベルと`Expected after last payment (estimate)`を使用する。予測日は最後の観測後の最初の予測日で、過去日になる場合もある。active/cancelled/unpaidを断定せず、stale sync・delayed posting・missing history・merchant normalizationの限界を明記する。HTML出力の検証であり、実browserレイアウト・操作の完了を意味しない。
+
+今回のレビューでアプリコード修正を要する重大な正しさの問題は確認していない。下記の曖昧性・追加検証は残件として保持する。
+
 ### Phase 5 — Hardening backlog
 
-下記12項目を従来どおり追跡します。既存機能を重複実装するための一覧ではなく、仕様・境界条件・検証の残件です。
+従来の12項目のID・依存関係を維持し、今回指定されたP05-MULTIを台帳に追加しました。完了項目と残件を同じ表で追跡します。Phase 5全体の完了表ではありません。
 
 | Task ID         | Phase | Description / 現在の根拠                                                                                                                                            | Priority | Status      | Dependencies                       | Verification requirements                                                                               |
 | --------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| P05-RECENCY     | 5     | Recency and subscription activity estimation。過去のtripleがあれば候補になる。現在有効な契約とは判定できない                                                        | P1       | TODO        | P05-TRIPLE                         | 途絶・再開・直近支払い欠落・future dateを含む仕様とテスト。推測と確認済み状態を明確に分離               |
+| P05-RECENCY | 5 | Payment observation recency estimation。明示asOfDate・UTC暦日・5観測状態・既定5日grace、serverで評価日を一度確定、SSR表示を実装。契約活動状態は対象外 | P1 | DONE | P05-TRIPLE | 64 domain＋6 mocked integration＋7 SSR tests成功。固定日/月末/閏年/年跨ぎ/不正・未来日/境界/決定性/legacy互換を確認。実DB・browserはP05-AUTH/P05-E2Eで別管理 |
 | P05-FALSEPOS    | 5     | False-positive reduction。同額の月次購入を契約と区別する根拠や評価データはない                                                                                      | P2       | TODO        | P05-RECENCY                        | 通常購入と定期課金の評価fixture、誤検知/見逃しの評価基準を定義。confidenceを確率として扱わない          |
-| P05-TRIPLE      | 5     | Latest recurring triple selection。**月bucketを降順に探索する処理は既にある**。同じ最新window内の候補は日bucketの入力順等に依存し、複数windowの最新選択テストがない | P1       | IN PROGRESS | なし                               | 新旧の有効window、最新不成立、同月の複数候補、入力順変更について選択仕様・lastPaymentDate・決定性を検証 |
+| P05-TRIPLE | 5 | Latest recurring triple selection。最新有効3か月window、月末優先、固定日の降順、金額順と同額ID順で候補選択。許容幅内複数金額の回帰テストも存在 | P1 | DONE | なし | findRecurringTriple 15件成功。新旧window、最新不成立時fallback、同月複数候補、month-end、ID tie、複数許容金額、入力逆順・非破壊性を確認。全候補の最適性は主張しない |
+| P05-MULTI | 5 | 同じaccount/merchant/currency内で異なる日・分離できる金額帯の定期支払いを複数検出。同料金帯の6か月を重複分割せず、使用済みIDを共有しない | P1 | DONE | P05-TRIPLE | detectSubscriptions 10件中の5つのmulti回帰ケースが成功。同日異額、月末と固定日、6か月連続、逆順を確認。重なる料金帯の契約識別は既知制限 |
 | P05-MERCHANT    | 5     | Merchant display name versus grouping key。group化時にlowercaseした値が候補の表示名にも流れる                                                                       | P2       | TODO        | なし                               | 表示名と正規化キーの契約、大文字小文字・空白・表記差・nullの扱いを定義して検証                          |
 | P05-DUPLICATE   | 5     | Duplicate transaction protection。DBのUNIQUEはあるがDomainでIDによるdedupはない。取得時の重複・競合も未試験                                                         | P1       | IN PROGRESS | P32-INDEX, P05-PAGINATION          | 同じIDの繰返し、replay、別IDの同日支払いを区別し、候補金額・件数が不正に増えないこと                    |
 | P05-MONEY       | 5     | Money correctness。minor-unit変換とmedianは実装済み。±5%境界、丸め、合算overflow等の全経路保証はない                                                                | P1       | IN PROGRESS | P04-FIN                            | DB numeric→JS number→minor units→推定合計の境界テストと許容誤差仕様。DB桁上限・safe integerも確認       |
@@ -208,22 +202,26 @@ PostgreSQL / Supabase PostgREST
 
 ### 履歴と現在の証拠の差分
 
-1. **Phase 1は過去に120件成功と報告されているが、現在は全体テストが失敗する。** [server-boundaries.test.ts](../tests/server-boundaries.test.ts)のraw console禁止テストが`db.ts`で失敗した。さらに`syncPlaidItem.ts`にも直接console呼び出しがあり、cleanupログにはItem識別子と任意のerror messageを含む。実際の秘密漏洩を観測したわけではないが、従来のallowlist契約からの逸脱である。
+1. **P01-LOG回帰は解消済み。** 11月22日の`ac0cece`監査ではraw console禁止テストが失敗したが、`5568495`でsanitized loggerへ統一され、今回はsecurity系120件・全体292件が成功した。失敗履歴はChange Logに残し、現在の未解決問題とは扱わない。P01-RECHECKのsecurity build・dependency確認は未完了。
 2. **READMEと構成資料は現在の実装より古い。** [README](../README.md)の「専用テストスクリプトなし」「同期保存が非原子的」、[PROJECT_SUMMARY_MODIFIED](../PROJECT_SUMMARY_MODIFIED.md)の「migration/RLS定義なし」は現在のリポジトリと一致しない。ただしaccount snapshotまで原子的になったわけではない。本監査では既存文書を編集しない。
 3. **migrationやSQLテストの存在は、現在のLocal/Hosted DBの一致を証明しない。** Phase 2適用成功、Phase 3.1統合成功、Netflix統合成功とcleanupは過去報告として保持する。
-4. **最新triple探索は未実装ではない。** 降順month探索を確認したため、残件は選択仕様の精密化と回帰テストに限定して記述する。
+4. **P05-TRIPLEの旧残件は検証済み。** 最新window、日付優先、同額ID tieに加え、許容幅内の複数金額候補を選ぶテストが現在は存在する。IN PROGRESSという旧記載をDONEへ統一した。
 5. **Positive UIの検証範囲を区別する。** 過去の会話には隔離HTML・fixtureによるdesktop/mobile previewの報告がある。しかし認証済み実ページ→実DBのPositive E2Eではない。「最新DashboardのPositive実データbrowser検証は未完了」という依頼文と矛盾しない。最新Empty State smoke成功も今回は再実行していない。
 6. **Financial Correctnessはアプリ全体では未完了。** [summary SQL](../supabase/migrations/20261112000000_add_sync_lease_and_monthly_summary.sql)は通貨別groupを持たず、[formatValue](../src/lib/formatValue.ts)はCAD固定。dashboard/budget等のqueryはSubscriptionと同じpending除外方針に統一されていない。Subscription内の通貨分離を全機能へ一般化してはいけない。
 7. **再現用設定に確認残件がある。** `supabase/config.toml`はseedを有効にして`./seed.sql`を参照するが、そのファイルは存在しない。これが実際の起動・migration検証へどう影響するかは未実行で、失敗すると断定しない。
 
-### その他の未完了タスク
+8. **P05-MULTIは契約識別ではなく支払いパターンのMVP分割。** 同じ日・同じまたは重なる±5%料金帯の別契約は統合され得る。料金変更が別料金帯に入ると別候補になり得る。月末優先で料金帯の取引をまとめて消費するため、重なるパターンの全組合せや最適分割を保証しない。P05-FALSEPOS/P05-MONEY/P05-DUPLICATEを開いたままにする。
+9. **決定性の範囲を限定する。** 同一group内のwindow/日付/金額/ID選択と複数候補順はテスト済み。`detectSubscriptions`の異なるmerchant/account/currency group間はMapの挿入順で、全体配列のグローバル順序不変は保証しない。同じIDを持つ矛盾した入力は未検証でP05-DUPLICATEの範囲。
+10. **P05-RECENCYは選択tripleの観測推定。** 後続の不規則な支払いを含む全履歴の在否や契約の停止・再開は確定しない。祝日・週末の請求調整、merchant独自grace、ページ表示後の自動日付更新は対象外。fixed-day clampはforecastのみで、元の検出器が受け付ける日付パターンを拡張しない。recencyのDONEはP05-AUTH/P05-E2Eの未完了状態を変更しない。
 
-この表とPhase 3.2/5の表を未完了タスク台帳とします。依存関係は着手・完了の前提であり、今回実行する許可ではありません。
+### その他のタスク状態
+
+この表とPhase 3.2/5の表をタスク台帳とします。DONEも証拠と依存関係を保持するため残します。依存関係は着手・完了の前提であり、今回実行する許可ではありません。
 
 | Task ID     | Phase | Description                                                                     | Priority | Status     | Dependencies                                                 | Verification requirements                                                                                 |
 | ----------- | ----- | ------------------------------------------------------------------------------- | -------- | ---------- | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
 | P00-AUDIT   | 0     | 過去architecture auditの完了条件を照合し、古いREADME/構成資料の扱いを整理       | P2       | UNVERIFIED | 本文書レビュー                                               | source map・既存指摘・解消証拠を対応付け、文書差分の更新方針を承認                                        |
-| P01-LOG     | 1     | 新しいPlaidログ経路を既存のsanitized logging契約へ戻す                          | P0       | TODO       | 本文書レビュー                                               | raw-console禁止テスト、機密sentinelテスト、全体Vitestの合格。テストを弱めて回避しない                     |
+| P01-LOG | 1 | Plaid sync helpersのraw consoleをallowlisted sanitized loggerへ統一済み。stage失敗の再throwとfinallyのlease解放構造を保持 | P0 | DONE | 本文書レビュー | server-boundaries 16件、plaid-errors 10件、mocked plaid-routes 25件と全体292件成功。実DB並行動作・全stage障害注入はこの完了範囲外 |
 | P01-RECHECK | 1     | dependency/security buildの過去成功を現commitで再検証                           | P1       | UNVERIFIED | P01-LOG                                                      | lockfileに対するaudit、隔離security build、client secret scanとnegative import試験の結果を保存            |
 | P02-REPRO   | 2     | Local DB再現性、seed設定、migration適用手順の再確認                             | P1       | UNVERIFIED | 対象DB・実行範囲の明示と承認                                 | 隔離DBで3本のmigration、schema/権限/関数、seed有無の契約を再現し、結果を保存                              |
 | P31-VERIFY  | 3.1   | 11項目のatomic SQL統合テストの現commit再検証                                    | P1       | UNVERIFIED | P02-REPRO                                                    | 指定された空の隔離DBのみで実行し11項目成功とrollback後fixture不在を確認。今回は禁止範囲                   |
@@ -239,14 +237,14 @@ PostgreSQL / Supabase PostgREST
 
 ## 7. Verification Matrix
 
-すべての「今回実行」は2026-11-22の上記HEADに対する結果です。失敗結果も進捗の証拠として保持します。
+すべての「今回実行」は2026-11-24の`e640ffe`＋開始時の未コミットP05-RECENCY変更に対する結果です。過去の失敗と後続の成功はChange Logで区別します。
 
 | 対象 / コマンド                                                    | 証拠区分                 | 結果                                                          | 状態 / 限界                                                                            |
 | ------------------------------------------------------------------ | ------------------------ | ------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| `git status --short` / branch / HEAD / log -8                      | 今回実行                 | 開始時clean、branch/commitはSection 2記載                     | DONE：ローカルcheckoutの確認のみ                                                       |
-| `npx --no-install vitest run src/features/subscriptions/__tests__` | 今回実行                 | 9 files / **84 passed**                                       | DONE：65 original＋19 UI/formatting。DB・HTTP実接続なし                                |
-| `npm test`                                                         | 今回実行                 | 14 files passed / 1 failed。**203 passed / 1 failed**         | TODO：`P01-LOG`。失敗はraw console禁止の1件                                            |
-| `npm run typecheck`                                                | 今回実行                 | exit 0                                                        | DONE：`--noEmit --incremental false`で既存build infoを書き換えない                     |
+| `git status --short` / branch / HEAD / log -8 | 今回実行 | 開始時tracked 4件変更＋untracked 5件。branch/HEADはSection 2記載 | DONE：ローカルcheckoutの確認のみ |
+| Subscription tests（今回の全体実行から集計） | 今回実行 | 12 files / **172 passed** | DONE：既存95件＋recency 77件。DB・HTTP実接続なし |
+| `npm test`（verbose/JSON reporterを指定） | 今回実行 | 18 files / **292 passed、0 failed** | DONE：P01-LOG回帰解消。DB・auth・browser E2Eとは別 |
+| `npx tsc --noEmit` | 今回実行 | exit 0 | DONE：アプリソースの変更なし。既存設定のincremental cacheはGit ignored |
 | `npm run lint`                                                     | 今回実行                 | exit 0、0 errors / 5 warnings                                 | DONE：warning残件は`MAINT-LINT`                                                        |
 | Phase 1 security build・dependency audit                           | 過去報告                 | security-baseline.mdは成功・脆弱性0を報告                     | UNVERIFIED：現在の再実行結果ではない。公開時点で再確認が必要                           |
 | Phase 2 Local/Hosted migration適用                                 | 過去報告＋コード確認     | 3本のmigrationあり。適用成功は依頼文の報告                    | UNVERIFIED：DB未接続、drift未比較                                                      |
@@ -257,13 +255,13 @@ PostgreSQL / Supabase PostgREST
 | Isolated UI fixture browser preview                                | 過去の会話の報告         | 複数幅・各UI状態のpreview成功                                 | UNVERIFIED：今回未再実行。認証・DB・実route E2Eを代替しない                            |
 | 最新Positive UIの実データbrowser E2E                               | 未検証                   | 完了証拠なし                                                  | UNVERIFIED：`P05-E2E`                                                                  |
 | Hosted auth/RLS、並行接続、HTTP E2E                                | コード確認のみ           | 関連実装・mock testsはある                                    | UNVERIFIED：`P05-AUTH`、`P32-CONCURRENT`、`P32-HTTP`                                   |
-| `git diff --check`、新規文書のwhitespace/変更範囲確認              | 今回実行                 | 本文書のみ追加、既存ファイル不変、whitespaceエラーなし        | DONE：未追跡の新規文書も別途検査                                                       |
+| `git diff --check`、新規文書のwhitespace/変更範囲確認 | 今回実行 | exit 0。新規untrackedファイルもwhitespace確認。今回の差分は進捗文書＋recency文書の状態参照文のみ | DONE：開始時の未コミット実装・テストを変更していない |
 
 [test setup](../tests/setup.ts)は合成設定を使用しfetch/HTTP/socketアクセスを拒否します。[Vitest config](../vitest.config.mts)はNode環境で`.test.ts`を収集します。route testsのmockやSQLファイルを読み取るだけの確認を、実際の認証・RLS・HTTP検証と数えません。
 
 ## 8. Environment and Deployment Status
 
-環境ファイルは値を出力せず、存在、キーの有無、接続先の分類、Git ignoreだけを確認しました。URL、project reference、credential値は本書へ記録しません。
+以下の環境ファイル確認は2026-11-22の監査記録であり、今回は再読込・DB接続・deployment照会をしていません。前回は値を出力せず、存在、キーの有無、接続先の分類、Git ignoreだけを確認しました。URL、project reference、credential値は本書へ記録しません。
 
 | 項目                     | 確認結果                                                                                                                                                              | 未検証事項                                                                                                    |
 | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
@@ -279,9 +277,9 @@ PostgreSQL / Supabase PostgREST
 
 ## 9. Next Action Queue
 
-次の5件を優先候補とします。**本文書のレビュー後に別途着手する作業**であり、今回実装は進めません。各IDの状態・依存・完了検証は上の台帳を参照してください。
+既存の優先順・チーム方針を維持し、次の5枠の状態だけを更新します。**本文書のレビュー後に別途着手する作業**であり、今回実装は進めません。各IDの状態・依存・完了検証は上の台帳を参照してください。
 
-1. **P01-LOG** — raw consoleによるセキュリティ回帰を修正し、全204件のテストを合格へ戻す。
+1. **P01-LOG — DONE** — sanitized loggingと全292件成功を確認済み。再実装せず、既存の回帰テストを維持する。
 2. **P32-WRITE** — authenticated roleが直接変更できる列の契約を定義し、金融データ・同期metadataの書込み境界を検証する。
 3. **P32-STALE** — 古いworkerの`recordSyncFailure()`が新しい同期状態を壊さないようにする。
 4. **P32-ACCOUNTS** — 口座snapshot更新とtransaction syncの部分失敗・競合に対する整合性を保証する。
@@ -301,9 +299,9 @@ Local再現性・実DB試験・Hosted比較は各項目の必要な前提とし�
 - UIは実routeと認証を含むPositive/Empty/Loading/Error、mobile/desktop、keyboard/retryを必要な範囲で検証する。
 - 更新理由と証拠をChange Logへ追記する。試験の存在、過去の成功報告、pushのみで完了にしない。
 
-Phase 5完了には実装だけでなく12項目のHardeningと`P05-E2E`の解決、または明示された仕様上の除外・リスク承認が必要です。Phase 7完了には公開判断、対応するdeployment証拠、smoke、監視・rollback責任が必要です。開発専用guardの解除は自動的な後続作業ではありません。
+Phase 5完了には従来の12項目のHardening、追加管理した`P05-MULTI`、`P05-E2E`の解決、または明示された仕様上の除外・リスク承認が必要です。Phase 7完了には公開判断、対応するdeployment証拠、smoke、監視・rollback責任が必要です。開発専用guardの解除は自動的な後続作業ではありません。
 
-今回の文書作成自体の完了条件は、11セクション・全ロードマップ・13＋12の残件・検証区分を満たし、本ファイル以外が不変であることです。プロジェクトの実装完了を意味しません。
+今回の文書更新の完了条件は、既存11セクション・ロードマップの順序・既存Task IDと依存関係を維持し、13件のSync Hardeningと従来12項目＋P05-MULTIの状態・証拠を整合させることです。変更は進捗文書とrecency仕様の状態参照文に限定し、既存の未コミット実装・テストは保持します。プロジェクトの実装完了を意味しません。
 
 ## 11. Change Log
 
@@ -314,40 +312,7 @@ Phase 5完了には実装だけでなく12項目のHardeningと`P05-E2E`の解�
 | 2026-11-22                | Phase 1 / 全体検証   | 全体204件中1件失敗を新規記録。TypeScript成功、lint 0 errors / 5 warnings。修正は未実施                                                                                             |
 | 2026-11-22                | 環境・証拠の整理     | Local/Hosted設定の分類を値非公開で確認。DB試験・cleanup・smokeの過去報告を独立検証と区別                                                                                           |
 | 2026-11-22                | 文書検証             | ファイル存在、内部リンク、11見出し、固定Task ID、13＋12の残件、次の5件を確認。`git diff --check`と新規文書のwhitespace検査を通過。最終statusは本ファイルのみ追加、既存ファイル不変 |
-
-## 2026-11-22 — Follow-up Verification
-
-Branch: feat/subscription-detection
-Status: Uncommitted changes verified
-
-### Verification
-
-- Full Vitest: 209/209 PASS (15 files)
-- Subscription: 89/89 PASS
-- TypeScript: PASS
-- ESLint: 0 errors / 5 existing warnings
-- git diff --check: PASS
-
-### P01-LOG — DONE
-
-- Removed raw console calls from Plaid sync helpers.
-- Reused allowlisted sanitized logging.
-- Preserved error propagation and lease cleanup behavior.
-- Security boundary and logger tests passed.
-- Full regression suite passed.
-
-### P05-TRIPLE — IN PROGRESS
-
-- Latest valid three-month window selection verified.
-- Latest payment date prioritized within a window.
-- Month-end patterns prioritized.
-- Same-amount transaction ties sorted by ID.
-- Fourteen findRecurringTriple tests passed.
-- Remaining: verify combinations involving multiple
-  amount candidates inside the allowed tolerance.
-
-### Remaining
-
-- Actual DB concurrency behavior not reverified.
-- Production security and deployment not verified.
-- Existing lint warnings remain.
+| 2026-11-22 | Follow-up Verification（過去報告を統合） | 元文書に重複していた記録を統合。209/209件・Subscription 89/89件成功、型・lint・diff成功、P01-LOG DONE、当時P05-TRIPLE IN PROGRESS。現在値はSection 2/7を参照 |
+| 2026-11-24 | Finalization review / `e640ffe`＋既存working tree | P05-TRIPLE、P05-MULTI、P05-RECENCY、P01-LOGを限定実装・ローカル検証範囲でDONE。P05-MULTIを欠けていた台帳へ追加。既存ID・依存は維持 |
+| 2026-11-24 | Verification | 全体292/292件（18 files）、Subscription 172/172件（12 files）。npx tsc --noEmit成功、lint 0 errors / 5 existing warnings、git diff --check成功 |
+| 2026-11-24 | Remaining / scope | Phase 5はIN PROGRESS。実DB・auth/RLS・browser E2E、料金帯の曖昧性等を保持。アプリ・テスト・DB schema変更、commit/push/deployなし。既存の未コミット実装を保持 |

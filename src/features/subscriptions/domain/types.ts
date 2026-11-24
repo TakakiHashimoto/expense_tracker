@@ -13,6 +13,16 @@ export type TransactionInput = {
   removed: boolean;
 };
 
+export type SubscriptionRecency = {
+  status:
+    | "recent"
+    | "grace_period"
+    | "payment_not_observed"
+    | "long_unobserved"
+    | "unknown";
+  nextExpectedPaymentDate: string | null;
+};
+
 export type SubscriptionCandidate = {
   merchantName: string | null;
   currency: string;
@@ -22,4 +32,6 @@ export type SubscriptionCandidate = {
   transactionIds: string[];
   confidence: number;
   accountId: string; // which account pays for it (TD checking account)
+  // Optional for legacy detection-only callers; the server always evaluates it.
+  recency?: SubscriptionRecency;
 };

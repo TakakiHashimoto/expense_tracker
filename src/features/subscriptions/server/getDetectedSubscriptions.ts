@@ -9,6 +9,9 @@ import type { TransactionInput, SubscriptionCandidate } from "../domain/types";
 export async function getDetectedSubscriptions(
   fromDate: string,
 ): Promise<SubscriptionCandidate[]> {
+  // One UTC calendar date for all candidates, even if fetching crosses midnight.
+  const asOfDate = new Date().toISOString().slice(0, 10);
+
   // Step 1: DBから取引を取得
   const rows = await getSubscriptionTransactions(fromDate);
 
@@ -24,5 +27,5 @@ export async function getDetectedSubscriptions(
   }
 
   // Step 3: Subscriptionを検出
-  return detectSubscriptions(transactions);
+  return detectSubscriptions(transactions, asOfDate);
 }
