@@ -1,3 +1,5 @@
+import "server-only";
+
 import { PlaidApi, Transaction, RemovedTransaction } from "plaid";
 
 export async function syncTransactions(

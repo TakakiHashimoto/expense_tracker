@@ -1,3 +1,6 @@
+import "server-only";
+
+import { logPlaidError } from "@/features/plaid/server/errors";
 import { decodeProtectedHeader, importJWK, jwtVerify, type JWK } from "jose";
 import { createHash, timingSafeEqual } from "node:crypto";
 import { createPlaidClient } from "../lib/plaid.helper";
@@ -71,7 +74,7 @@ export async function verifyPlaidWebhook(input: {
 
     return constantTimeEqual(actualBodyHash, payload.request_body_sha256);
   } catch (error) {
-    console.error("Plaid webhook verification failed", error);
+    logPlaidError("verify_webhook", error);
     return false;
   }
 }

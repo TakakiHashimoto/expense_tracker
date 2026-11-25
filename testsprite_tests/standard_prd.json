@@ -132,12 +132,6 @@
         "file": "src/app/(protected)/connect-bank/page.tsx",
         "auth_required": true,
         "description": "Protected bank connection page using Plaid"
-      },
-      {
-        "path": "/dev/seed",
-        "file": "src/app/(protected)/dev/seed/page.tsx",
-        "auth_required": true,
-        "description": "Development seed page for testing"
       }
     ],
     "features": [

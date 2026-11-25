@@ -1,3 +1,5 @@
+import { logPlaidError } from "@/features/plaid/server/errors";
+import { withPlaidErrorBoundary } from "../lib/error-boundary";
 // 1. determine which plaid item user wants to add account to
 // 2. get access_token needed for exchanging link_token
 // 3. hit "/link/token/create " to obtain link_token.
@@ -12,7 +14,7 @@ import { CountryCode } from "plaid";
 import { createPlaidClient } from "../lib/plaid.helper";
 import { createServerRoleClient } from "@/lib/supabase/server-role";
 
-export async function POST(req: NextRequest) {
+async function handlePost(req: NextRequest) {
   const supabase = await createClient();
   const user = await grabUser(supabase);
 
@@ -35,7 +37,7 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (!plaidItem || plaidError) {
-    console.error("Failed to fetch plaid item", plaidError);
+    logPlaidError("add_account", plaidError);
     return NextResponse.json(
       { error: "Failed to fetch palid item" },
       { status: 500 },
@@ -53,7 +55,7 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (!accessToken || secretError) {
-      console.error("Failed to fetch access token", secretError);
+      logPlaidError("add_account", secretError);
       return NextResponse.json(
         { error: "Failed to fetch access token" },
         { status: 500 },
@@ -80,7 +82,7 @@ export async function POST(req: NextRequest) {
       { status: 200 },
     );
   } catch (e) {
-    console.error("Failed to refresh accounts", e);
+    logPlaidError("add_account", e);
 
     return NextResponse.json(
       { error: "Failed to refresh accounts" },
@@ -88,3 +90,5 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export const POST = withPlaidErrorBoundary("add_account", handlePost);

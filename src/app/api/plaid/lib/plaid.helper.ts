@@ -1,5 +1,7 @@
+import "server-only";
+
 import { Configuration, PlaidApi, PlaidEnvironments } from "plaid";
-import { PlaidErrorResponse } from "../sync-transactions/route";
+export { getPlaidError } from "@/features/plaid/server/errors";
 
 export function createPlaidClient() {
   const plaidClientId = process.env.PLAID_CLIENT_ID;
@@ -22,12 +24,4 @@ export function createPlaidClient() {
   const client = new PlaidApi(config);
 
   return client;
-}
-
-export function getPlaidError(error: unknown) {
-  if (typeof error === "object" && error !== null && "response" in error) {
-    return (error as PlaidErrorResponse).response?.data ?? null;
-  }
-
-  return null;
 }

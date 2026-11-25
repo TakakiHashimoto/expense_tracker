@@ -136,7 +136,6 @@ Files named `*Client` are not automatically Client Components. A file is a Clien
 | `/accounts/add-accounts`        | `src/app/(protected)/accounts/add-accounts/page.tsx`        | Protected                             | Adds/selects accounts within an already connected Plaid Item.                 |
 | `/budgets`                      | `src/app/(protected)/budgets/page.tsx`                      | Protected                             | Budget analysis cards.                                                        |
 | `/budgets/create-budget`        | `src/app/(protected)/budgets/create-budget/page.tsx`        | Protected                             | Creates a category/month budget.                                              |
-| `/dev/seed`                     | `src/app/(protected)/dev/seed/page.tsx`                     | Protected; action is development-only | Destructive per-user sample-data reset and seed.                              |
 
 The protected layout renders a sidebar for every protected route and checks Supabase JWT claims. Individual data operations then call `auth.getUser()` again and apply ownership filters.
 
@@ -776,12 +775,6 @@ GET /budgets
 
 Some marketing copy describes AI categorization, net worth, subscription discovery, AES-256 protection, 12,000+ institution support, and bank-grade/read-only properties. The implemented categorization is deterministic rules, and several other claims are not demonstrated by this code. Production copy should be limited to verified capabilities.
 
-### Development seed
-
-`/dev/seed` submits the `seedData()` server action. The action refuses to run outside `NODE_ENV=development`, authenticates the user, deletes that user's transactions, categories, and accounts, inserts one TD account, one Food category, and one `-40` Save-On-Foods transaction, then redirects to dashboard.
-
-It intentionally mutates data and can fail when other tables—such as budgets—still reference categories or when Plaid-linked foreign-key constraints require additional cleanup. It does not delete Plaid Items or secrets.
-
 ### Design system and global shell
 
 `src/app/layout.tsx` loads Geist, Geist Mono, Poppins, additional Google font/material-symbol links, global CSS, and Sonner. `src/app/globals.css` defines the dark emerald fintech palette, type/spacing tokens, shared buttons, cards, and landing utilities. The protected layout separately mounts React Toastify, so two notification systems currently coexist.
@@ -901,7 +894,6 @@ Useful accurate statements:
 | `src/app/(protected)/connect-bank/page.tsx`                 | First-bank gate and connection UI.                                                     |
 | `src/app/(protected)/budgets/page.tsx`                      | Loads budget analysis.                                                                 |
 | `src/app/(protected)/budgets/create-budget/page.tsx`        | Loads categories for budget creation.                                                  |
-| `src/app/(protected)/dev/seed/page.tsx`                     | Form entry for the development seed action.                                            |
 | `src/middleware.ts`                                         | Runs Supabase session propagation/refresh on matched requests.                         |
 
 ### Plaid Route Handlers
@@ -1022,7 +1014,6 @@ Useful accurate statements:
 | `src/features/budgets/pages/BudgetDisplayPageClient.tsx`   | Budget page layout and empty state.                             |
 | `src/features/budgets/components/SelectCategoryButton.tsx` | Category choice tile.                                           |
 | `src/features/budgets/components/BudgetCard.tsx`           | Budget status, amounts, and utilization bar.                    |
-| `src/features/dev/seed/action.ts`                          | Development-only per-user destructive seed action.              |
 
 ### Shared connection, landing, and common UI
 

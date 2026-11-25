@@ -1,3 +1,5 @@
+import { logPlaidError } from "@/features/plaid/server/errors";
+import { withPlaidErrorBoundary } from "../lib/error-boundary";
 // Here, exchange public token to access token and store access token and plaid items to database
 
 import { fetchPlaidAccounts } from "@/features/plaid/server/accounts";
@@ -12,7 +14,7 @@ const plaidClientId = process.env.PLAID_CLIENT_ID;
 const plaidEnv = process.env.PLAID_ENV || "sandbox";
 const plaidSecret = process.env.PLAID_SECRET;
 
-export async function POST(request: NextRequest) {
+async function handlePost(request: NextRequest) {
   try {
     if (!plaidClientId || !plaidSecret) {
       return NextResponse.json(
@@ -80,8 +82,10 @@ export async function POST(request: NextRequest) {
     const accounts = await fetchPlaidAccounts(client, access_token);
     const snapshotTime = new Date().toISOString();
 
+    const serverSupabase = createServerRoleClient();
+
     // fill up the plaid_item database
-    const { data, error } = await supabase
+    const { data, error } = await serverSupabase
       .from("plaid_items")
       .insert({
         user_id: user.id,
@@ -106,8 +110,6 @@ export async function POST(request: NextRequest) {
     // database id for plaid_items
     const plaidItemUuid = data.id;
 
-    const serverSupabase = createServerRoleClient();
-
     try {
       // add access_token and item_id to database
       const { error: plaidSecretsError } = await serverSupabase
@@ -120,16 +122,16 @@ export async function POST(request: NextRequest) {
 
       // add accounts to database
       await persistPlaidAccounts({
-        supabase,
+        supabase: serverSupabase,
         userId: user.id,
         plaidItemUuid,
         accounts,
         snapshotTime,
       });
     } catch (writeError) {
-      console.error("Rolling back failed Plaid exchange writes:", writeError);
+      logPlaidError("exchange", writeError);
 
-      await supabase
+      await serverSupabase
         .from("plaid_items")
         .delete()
         .eq("id", plaidItemUuid)
@@ -144,10 +146,12 @@ export async function POST(request: NextRequest) {
     // add those transaction data to database
     // redirect to dashboard
   } catch (e) {
-    console.error("Failed to connect bank account:", e);
+    logPlaidError("exchange", e);
     return NextResponse.json(
       { error: "Failed to connect bank account" },
       { status: 500 },
     );
   }
 }
+
+export const POST = withPlaidErrorBoundary("exchange", handlePost);

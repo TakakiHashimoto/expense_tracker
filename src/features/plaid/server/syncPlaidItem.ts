@@ -1,3 +1,5 @@
+import "server-only";
+
 import { SupabaseClient } from "@supabase/supabase-js";
 import { syncTransactions } from "./sync";
 import { PlaidApi } from "plaid";
@@ -6,6 +8,7 @@ import { persistPlaidAccounts } from "./persitstPlaidAccounts";
 import { persistSyncResult } from "./db";
 import { aquireSyncLease } from "./syncLease";
 import { unlockLease } from "./unlockRelase";
+import { logPlaidError, type PlaidOperation } from "./errors";
 
 interface ArgTypes {
   supabase: SupabaseClient;
@@ -25,6 +28,18 @@ type SyncPlaidItemResult =
       removedCount: number;
     };
 
+async function traceSyncStage<T>(
+  stage: PlaidOperation,
+  operation: () => Promise<T>,
+): Promise<T> {
+  try {
+    return await operation();
+  } catch (error) {
+    logPlaidError(stage, error);
+    throw error;
+  }
+}
+
 export async function syncPlaidItem({
   supabase,
   userId,
@@ -34,7 +49,9 @@ export async function syncPlaidItem({
   refreshAccount,
 }: ArgTypes): Promise<SyncPlaidItemResult> {
   // aquire owner ship and whoever owns owenership gets cursor.
-  const lease = await aquireSyncLease({ plaidItemUuid, supabase, userId });
+  const lease = await traceSyncStage("acquire_lease", () =>
+    aquireSyncLease({ plaidItemUuid, supabase, userId }),
+  );
 
   // if operation is locked
   if (!lease.acquired) {
@@ -42,34 +59,41 @@ export async function syncPlaidItem({
   }
 
   try {
-    const { added, modified, removed, cursor } = await syncTransactions(
-      accessToken,
-      lease.cursor,
-      plaidClient,
+    const { added, modified, removed, cursor } = await traceSyncStage(
+      "plaid_transactions",
+      () => syncTransactions(accessToken, lease.cursor, plaidClient),
     );
 
     // You are renewing accouts as well.
     if (refreshAccount) {
       // fetch latest accounts
-      const accounts = await fetchPlaidAccounts(plaidClient, accessToken);
+      const accounts = await traceSyncStage("fetch_accounts", () =>
+        fetchPlaidAccounts(plaidClient, accessToken),
+      );
       const snapshotTime = new Date().toISOString();
-      await persistPlaidAccounts({
-        supabase,
-        userId: userId,
-        plaidItemUuid: plaidItemUuid,
-        accounts,
-        snapshotTime,
-      });
+      await traceSyncStage("persist_accounts", () =>
+        persistPlaidAccounts({
+          supabase,
+          userId,
+          plaidItemUuid,
+          accounts,
+          snapshotTime,
+        }),
+      );
     }
 
-    await persistSyncResult(
-      supabase,
-      userId,
-      added,
-      modified,
-      removed,
-      cursor,
-      plaidItemUuid,
+    // transaction syncing is integrated to one big db transaction to maintain atomicity
+    await traceSyncStage("atomic_commit", () =>
+      persistSyncResult({
+        userId,
+        itemUuid: plaidItemUuid,
+        leaseToken: lease.token,
+        expectedCursor: lease.cursor,
+        cursor,
+        added,
+        modified,
+        removed,
+      }),
     );
     return {
       status: "synced" as const,
@@ -78,7 +102,15 @@ export async function syncPlaidItem({
       removedCount: removed.length,
     };
   } finally {
-    // once the transaction is finished, release the lease
-    await unlockLease({ plaidItemUuid, userId, supabase, token: lease.token });
+    try {
+      await unlockLease({
+        plaidItemUuid,
+        userId,
+        supabase,
+        token: lease.token,
+      });
+    } catch (error) {
+      logPlaidError("release_lease", error);
+    }
   }
 }

@@ -1,3 +1,5 @@
+import { getPlaidError, logPlaidError } from "@/features/plaid/server/errors";
+import { withPlaidErrorBoundary } from "../lib/error-boundary";
 // here in this page syncs transactions data which is associated with access-token
 
 import { createClient } from "@/lib/supabase/server";
@@ -12,19 +14,7 @@ const plaidClientId = process.env.PLAID_CLIENT_ID;
 const plaidEnv = process.env.PLAID_ENV || "sandbox";
 const plaidSecret = process.env.PLAID_SECRET;
 
-export type PlaidErrorResponse = {
-  response?: { data?: { error_code?: string; error_message?: string } };
-};
-
-function getPlaidError(error: unknown) {
-  if (typeof error === "object" && error !== null && "response" in error) {
-    return (error as PlaidErrorResponse).response?.data ?? null;
-  }
-
-  return null;
-}
-
-export async function POST(request: NextRequest) {
+async function handlePost(request: NextRequest) {
   try {
     if (!plaidClientId || !plaidSecret) {
       return NextResponse.json(
@@ -91,7 +81,7 @@ export async function POST(request: NextRequest) {
 
     try {
       const data = await syncPlaidItem({
-        supabase,
+        supabase: serverRoleSupabase,
         userId: user.id,
         plaidClient: client,
         plaidItemUuid: cursorData.id,
@@ -123,14 +113,14 @@ export async function POST(request: NextRequest) {
       const requiresUpdate = errorCode === "ITEM_LOGIN_REQUIRED";
       try {
         await recordSyncFailure({
-          supabase,
+          supabase: serverRoleSupabase,
           userId: user.id,
           plaidItemUuid: cursorData.id,
           errorCode,
           requiresUpdate,
         });
       } catch (recordError) {
-        console.error("Failed to record sync failure", recordError);
+        logPlaidError("sync_transactions", recordError);
       }
 
       if (requiresUpdate) {
@@ -144,7 +134,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      console.error("Plaid Item synchronization failed", syncError);
+      logPlaidError("sync_transactions", syncError);
 
       return NextResponse.json(
         { error: "Failed to sync transactions" },
@@ -152,10 +142,12 @@ export async function POST(request: NextRequest) {
       );
     }
   } catch (e) {
-    console.error("Sync transactions failed", e);
+    logPlaidError("sync_transactions", e);
     return NextResponse.json(
       { error: "Failed to sync transactions" },
       { status: 500 },
     );
   }
 }
+
+export const POST = withPlaidErrorBoundary("sync_transactions", handlePost);

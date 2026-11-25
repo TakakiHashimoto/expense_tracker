@@ -1,12 +1,20 @@
-function page() {
-  return (
-    <div className="w-full h-screen flex flex-col justify-center items-center ">
-      <p className="text-4xl font-bold">
-        This feature is under construction...👷‍♂️
-      </p>
-      <p>Stay tuned!</p>
-    </div>
-  );
-}
+import { notFound } from "next/navigation";
+import { SubscriptionDashboard } from "@/features/subscriptions/components/SubscriptionDashboard";
+import { getDetectedSubscriptions } from "@/features/subscriptions/server/getDetectedSubscriptions";
 
-export default page;
+export default async function SubscriptionsPage() {
+  if (process.env.NODE_ENV !== "development") {
+    notFound();
+  }
+
+  const now = new Date();
+  const fromDate = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 6, 1),
+  )
+    .toISOString()
+    .slice(0, 10);
+
+  const candidates = await getDetectedSubscriptions(fromDate);
+
+  return <SubscriptionDashboard candidates={candidates} />;
+}

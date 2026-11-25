@@ -1,3 +1,5 @@
+import "server-only";
+
 import { PlaidApi } from "plaid";
 
 export async function fetchPlaidAccounts(

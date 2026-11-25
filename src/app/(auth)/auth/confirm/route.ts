@@ -5,16 +5,14 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { getSafeAuthRedirect } from "@/lib/auth/redirect";
 
 export async function GET(request: Request) {
   // creating url object so that it is easier to manipulate
   // request.url === "http://localhost:3000/auth/confirm?code=abc123&next=/connect-bank"
   const url = new URL(request.url);
   const code = url.searchParams.get("code"); // code is needed to exchange with session
-  const next = url.searchParams.get("next") ?? "/connect-bank"; // ?? means if the leftside is null, returns right side.
-
-  const safeUrl =
-    next.startsWith("/") && !next.startsWith("//") ? next : "/connect-bank";
+  const destination = getSafeAuthRedirect(url.searchParams.get("next"), url.origin);
 
   // if code is not provided, can't exchange for session, thus safe escape
   // url.origin = protocol + // + host (+ port) ex) http://localhost:3000
@@ -32,5 +30,5 @@ export async function GET(request: Request) {
     );
   }
 
-  return NextResponse.redirect(new URL(safeUrl, url.origin));
+  return NextResponse.redirect(destination);
 }
