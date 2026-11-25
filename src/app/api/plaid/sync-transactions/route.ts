@@ -81,7 +81,7 @@ async function handlePost(request: NextRequest) {
 
     try {
       const data = await syncPlaidItem({
-        supabase,
+        supabase: serverRoleSupabase,
         userId: user.id,
         plaidClient: client,
         plaidItemUuid: cursorData.id,
@@ -113,7 +113,7 @@ async function handlePost(request: NextRequest) {
       const requiresUpdate = errorCode === "ITEM_LOGIN_REQUIRED";
       try {
         await recordSyncFailure({
-          supabase,
+          supabase: serverRoleSupabase,
           userId: user.id,
           plaidItemUuid: cursorData.id,
           errorCode,

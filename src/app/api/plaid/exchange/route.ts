@@ -82,8 +82,10 @@ async function handlePost(request: NextRequest) {
     const accounts = await fetchPlaidAccounts(client, access_token);
     const snapshotTime = new Date().toISOString();
 
+    const serverSupabase = createServerRoleClient();
+
     // fill up the plaid_item database
-    const { data, error } = await supabase
+    const { data, error } = await serverSupabase
       .from("plaid_items")
       .insert({
         user_id: user.id,
@@ -108,8 +110,6 @@ async function handlePost(request: NextRequest) {
     // database id for plaid_items
     const plaidItemUuid = data.id;
 
-    const serverSupabase = createServerRoleClient();
-
     try {
       // add access_token and item_id to database
       const { error: plaidSecretsError } = await serverSupabase
@@ -122,7 +122,7 @@ async function handlePost(request: NextRequest) {
 
       // add accounts to database
       await persistPlaidAccounts({
-        supabase,
+        supabase: serverSupabase,
         userId: user.id,
         plaidItemUuid,
         accounts,
@@ -131,7 +131,7 @@ async function handlePost(request: NextRequest) {
     } catch (writeError) {
       logPlaidError("exchange", writeError);
 
-      await supabase
+      await serverSupabase
         .from("plaid_items")
         .delete()
         .eq("id", plaidItemUuid)

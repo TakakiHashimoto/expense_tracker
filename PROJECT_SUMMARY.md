@@ -85,7 +85,6 @@ Most protected data is loaded on the server. Client components are used where br
 | `/dashboard`    | Protected                             | Shows monthly spending, today's spending, monthly income, recent activity count, connected accounts, recent transactions, and category breakdown | Implemented                                                                           |
 | `/transactions` | Protected                             | Shows the latest 50 active transactions, summary totals, date groups, and URL-based type filters                                                 | Implemented; search and “View older activity” are visual only                         |
 | `/accounts`     | Protected                             | Intended to show institutions, account balances, connection health, and last-sync information                                                    | In progress; query exists, route returns a placeholder, detailed UI uses mock content |
-| `/dev/seed`     | Protected and development-only action | Deletes the signed-in user's sample transactions/categories/accounts and inserts one sample account, category, and transaction                   | Development utility                                                                   |
 
 All routes pass through middleware so Supabase can validate and refresh auth cookies. The protected route-group layout additionally checks JWT claims and redirects unauthenticated users to `/login`.
 

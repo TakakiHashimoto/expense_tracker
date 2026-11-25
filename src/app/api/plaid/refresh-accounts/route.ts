@@ -70,7 +70,7 @@ async function handlePost(req: NextRequest) {
       const snapshotTime = new Date().toISOString();
       // sync accounts to database
       await persistPlaidAccounts({
-        supabase,
+        supabase: serverSupabase,
         userId: user.id,
         plaidItemUuid: plaidItem.id,
         accounts,
@@ -83,7 +83,7 @@ async function handlePost(req: NextRequest) {
       let modifiedCount = 0;
       try {
         const result = await syncPlaidItem({
-          supabase,
+          supabase: serverSupabase,
           userId: user.id,
           plaidClient,
           plaidItemUuid: plaidItem.id,
@@ -108,7 +108,7 @@ async function handlePost(req: NextRequest) {
         const requiresUpdate = errorCode === "ITEM_LOGIN_REQUIRED";
         try {
           await recordSyncFailure({
-            supabase,
+            supabase: serverSupabase,
             userId: user.id,
             plaidItemUuid: plaidItem.id,
             errorCode,
