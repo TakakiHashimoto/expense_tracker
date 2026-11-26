@@ -1,9 +1,8 @@
 import { logPlaidError } from "@/features/plaid/server/errors";
 import { withPlaidErrorBoundary } from "../lib/error-boundary";
-// Here, exchange public token to access token and store access token and plaid items to database
-
 import { fetchPlaidAccounts } from "@/features/plaid/server/accounts";
-import { persistPlaidAccounts } from "@/features/plaid/server/persitstPlaidAccounts";
+import { toPlaidAccountPayload } from "@/features/plaid/server/accountPayload";
+import { isConfirmedCommitRejection } from "@/features/plaid/server/rpcCommitOutcome";
 import { grabUser } from "@/lib/getUser";
 import { createClient } from "@/lib/supabase/server";
 import { createServerRoleClient } from "@/lib/supabase/server-role";
@@ -14,6 +13,17 @@ const plaidClientId = process.env.PLAID_CLIENT_ID;
 const plaidEnv = process.env.PLAID_ENV || "sandbox";
 const plaidSecret = process.env.PLAID_SECRET;
 
+function unconfirmedInitializationResponse() {
+  return NextResponse.json(
+    {
+      error:
+        "Bank connection outcome is unconfirmed. Check your dashboard before reconnecting.",
+      code: "CONNECTION_OUTCOME_UNCONFIRMED",
+    },
+    { status: 503 },
+  );
+}
+
 async function handlePost(request: NextRequest) {
   try {
     if (!plaidClientId || !plaidSecret) {
@@ -23,7 +33,22 @@ async function handlePost(request: NextRequest) {
       );
     }
 
+    // 1. Authenticate user
+
     const supabase = await createClient();
+    const user = await grabUser(supabase);
+
+    const { public_token, metadata } = await request.json();
+
+    if (typeof public_token !== "string" || public_token.trim() === "") {
+      return NextResponse.json(
+        { error: "public_token is not provided" },
+        { status: 400 },
+      );
+    }
+
+    // 2. Initialize Plaid client
+
     const config = new Configuration({
       basePath: PlaidEnvironments[plaidEnv],
       baseOptions: {
@@ -36,117 +61,104 @@ async function handlePost(request: NextRequest) {
 
     const client = new PlaidApi(config);
 
-    const user = await grabUser(supabase);
+    // 3. Exchange public token
+    const res = await client.itemPublicTokenExchange({ public_token });
 
-    // destructure  client-sent publick_token, neccessary for exchanging access_token
-    const { public_token, metadata } = await request.json();
+    const { access_token, item_id } = res.data;
 
-    if (!public_token) {
-      return NextResponse.json(
-        { error: "public_token is not provided" },
-        { status: 400 },
-      );
+    // 4. Fetch authoritative account snapshot
+
+    const accounts = await fetchPlaidAccounts(client, access_token);
+
+    const snapshotTime = new Date().toISOString();
+
+    const accountPayload = toPlaidAccountPayload(accounts);
+
+    const institutionName = metadata?.institution?.name ?? null;
+
+    const institutionId = metadata?.institution?.institution_id ?? null;
+
+    // 5. Initialize Item, Secret and Accounts atomically
+
+    const serverSupabase = createServerRoleClient();
+
+    let data: unknown;
+    let error: unknown;
+    let status: number;
+
+    try {
+      ({ data, error, status } = await serverSupabase
+        .rpc("initialize_plaid_item", {
+          p_user_id: user.id,
+          p_plaid_item_id: item_id,
+          p_access_token: access_token,
+          p_institution_id: institutionId,
+          p_institution_name: institutionName,
+          p_accounts: accountPayload,
+          p_snapshot_time: snapshotTime,
+        })
+        .retry(false));
+    } catch (cause) {
+      logPlaidError("exchange", cause);
+
+      return unconfirmedInitializationResponse();
     }
 
-    // change the public token to access token
-    const res = await client.itemPublicTokenExchange({
-      public_token: public_token,
-    });
-    const { access_token, item_id } = res.data;
-    // item_id = one item_id for one institution like TD
+    // 6. Classify RPC errors
 
-    const { data: existingItem, error: existingItemError } = await supabase
-      .from("plaid_items")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("plaid_item_id", item_id)
-      .maybeSingle();
+    if (
+      error !== null ||
+      !Number.isInteger(status) ||
+      !(status >= 200 && status < 300)
+    ) {
+      logPlaidError("exchange", error);
 
-    if (existingItemError) {
+      if (!isConfirmedCommitRejection(error, status)) {
+        return unconfirmedInitializationResponse();
+      }
+
       return NextResponse.json(
-        { error: "Failed to check existing bank connection" },
+        { error: "Failed to connect bank account" },
         { status: 500 },
       );
     }
 
-    if (existingItem) {
+    // 7. Validate response shape
+
+    if (typeof data !== "object" || data === null || Array.isArray(data)) {
+      return unconfirmedInitializationResponse();
+    }
+
+    const result = data as Record<string, unknown>;
+
+    // 8. Handle duplicate connection
+
+    if (result.status === "already_connected") {
       return NextResponse.json(
-        { error: "This bank connection is already connected." },
+        {
+          error: "This bank connection is already connected.",
+          code: "ALREADY_CONNECTED",
+        },
         { status: 409 },
       );
     }
 
-    const institutionName = metadata?.institution?.name ?? null;
-    const institutionId = metadata?.institution?.institution_id ?? null;
-    // get authorative accounts from plaid
-    const accounts = await fetchPlaidAccounts(client, access_token);
-    const snapshotTime = new Date().toISOString();
+    // 9. Return confirmed initialization
 
-    const serverSupabase = createServerRoleClient();
-
-    // fill up the plaid_item database
-    const { data, error } = await serverSupabase
-      .from("plaid_items")
-      .insert({
-        user_id: user.id,
-        plaid_item_id: item_id,
-        institution_id: institutionId,
-        institution_name: institutionName,
-        transactions_cursor: null,
-        status: "active",
-        last_sync_status: "never_synced",
-        last_sync_error: null,
-      })
-      .select("id")
-      .single();
-
-    if (error || !data) {
-      return NextResponse.json(
-        { error: "Failed to create plaid item" },
-        { status: 500 },
-      );
+    if (
+      result.status === "created" &&
+      typeof result.item_id === "string" &&
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        result.item_id,
+      )
+    ) {
+      return NextResponse.json({ plaid_item_uuid: result.item_id });
     }
 
-    // database id for plaid_items
-    const plaidItemUuid = data.id;
+    return unconfirmedInitializationResponse();
+  } catch (error) {
+    logPlaidError("exchange", error);
 
-    try {
-      // add access_token and item_id to database
-      const { error: plaidSecretsError } = await serverSupabase
-        .from("plaid_item_secrets")
-        .insert({ access_token: access_token, plaid_item_id: plaidItemUuid });
-
-      if (plaidSecretsError) {
-        throw plaidSecretsError;
-      }
-
-      // add accounts to database
-      await persistPlaidAccounts({
-        supabase: serverSupabase,
-        userId: user.id,
-        plaidItemUuid,
-        accounts,
-        snapshotTime,
-      });
-    } catch (writeError) {
-      logPlaidError("exchange", writeError);
-
-      await serverSupabase
-        .from("plaid_items")
-        .delete()
-        .eq("id", plaidItemUuid)
-        .eq("user_id", user.id);
-
-      throw writeError;
-    }
-
-    return NextResponse.json({ plaid_item_uuid: plaidItemUuid });
-
-    // get necessary data from another
-    // add those transaction data to database
-    // redirect to dashboard
-  } catch (e) {
-    logPlaidError("exchange", e);
     return NextResponse.json(
       { error: "Failed to connect bank account" },
       { status: 500 },

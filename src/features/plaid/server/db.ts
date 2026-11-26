@@ -4,6 +4,7 @@ import { normalizeCategory } from "@/lib/transactions.helper";
 import { RemovedTransaction, Transaction } from "plaid";
 import { createServerRoleClient } from "@/lib/supabase/server-role";
 import { logPlaidError } from "./errors";
+import { isConfirmedCommitRejection } from "./rpcCommitOutcome";
 
 type PersistSyncResultArgs = {
   userId: string;
@@ -30,28 +31,6 @@ export class SyncCommitUnconfirmedError extends Error {
 // commit_plaid_sync (including its lease/cursor/argument checks).
 // https://docs.postgrest.org/en/v14/references/transactions.html#aborting-transactions
 // https://docs.postgrest.org/en/v14/references/errors.html#http-status-codes
-const COMMIT_REJECTION_STATUS = new Map<string, number>([
-  ["23502", 400], // not_null_violation
-  ["23503", 409], // foreign_key_violation
-  ["23505", 409], // unique_violation
-  ["23514", 400], // check_violation
-  ["40001", 500], // serialization_failure
-  ["40P01", 500], // deadlock_detected
-  ["P0001", 400], // raise_exception
-]);
-
-function isConfirmedCommitRejection(error: unknown, status: number): boolean {
-  if (typeof error !== "object" || error === null) return false;
-  const fields = error as Record<string, unknown>;
-  return (
-    Number.isInteger(status) &&
-    typeof fields.code === "string" &&
-    typeof fields.message === "string" &&
-    (fields.details === null || typeof fields.details === "string") &&
-    (fields.hint === null || typeof fields.hint === "string") &&
-    COMMIT_REJECTION_STATUS.get(fields.code) === status
-  );
-}
 
 // take Plaid’s sync changes and apply those changes into your own database
 export async function persistSyncResult({
@@ -129,7 +108,11 @@ export async function persistSyncResult({
     throw new SyncCommitUnconfirmedError(cause);
   }
 
-  if (error !== null || !Number.isInteger(status) || !(status >= 200 && status < 300)) {
+  if (
+    error !== null ||
+    !Number.isInteger(status) ||
+    !(status >= 200 && status < 300)
+  ) {
     // PostgreSQL SQLSTATE または PostgREST エラーコード
     logPlaidError("persist_transactions", error);
 

@@ -14,6 +14,7 @@ type ConnectStatus =
   | "exchanging"
   | "syncing"
   | "success"
+  | "connect_unconfirmed"
   | "connect_error"
   | "sync_error";
 
@@ -68,9 +69,7 @@ function ConnectButtonComponent({ title }: { title: string }) {
   const { open, ready } = usePlaidLink({
     token: linkToken ?? "",
 
-    onExit: (err, metadata) => {
-      console.log("Plaid Link exited", { err, metadata });
-
+    onExit: (err) => {
       if (err) {
         console.error("Exiting open link failed", err);
         setStatus("connect_error");
@@ -86,6 +85,7 @@ function ConnectButtonComponent({ title }: { title: string }) {
       // send public_token to a server
       const passData = { public_token, metadata };
       let connectedPlaidUuid: string | null = null;
+      let exchangeRejected = false;
 
       // change the public token to access token request for server
       try {
@@ -98,14 +98,24 @@ function ConnectButtonComponent({ title }: { title: string }) {
           body: JSON.stringify(passData),
         });
 
-        if (res.status === 409) {
+        const data = await res.json();
+
+        if (res.status === 409 && data?.code === "ALREADY_CONNECTED") {
+          setStatus("success");
           router.push("/dashboard");
           return;
         }
 
-        const data = await res.json();
+        // A gateway can return a JSON 5xx without the application's error code.
+        // It cannot prove that initialization rolled back.
+        if (res.status === 409 || data?.code === "CONNECTION_OUTCOME_UNCONFIRMED" || res.status >= 500) {
+          setStatus("connect_unconfirmed");
+          setFrontError("Bank connection outcome is unconfirmed. Check your dashboard before reconnecting.");
+          return;
+        }
 
         if (!res.ok) {
+          exchangeRejected = true;
           throw new Error(
             getErrorMessage(data, "Failed to exchange access-token"),
           );
@@ -121,10 +131,11 @@ function ConnectButtonComponent({ title }: { title: string }) {
         // exchanging public_token with access_teken is done here and move onto syncing part
         setPlaidItemUuid(plaid_item_uuid);
       } catch (e) {
-        console.error("Bank exchange failed: ", e);
-        setStatus("connect_error");
+        setStatus(exchangeRejected ? "connect_error" : "connect_unconfirmed");
         setFrontError(
-          e instanceof Error
+          !exchangeRejected
+            ? "Bank connection outcome is unconfirmed. Check your dashboard before reconnecting."
+            : e instanceof Error
             ? e.message
             : "Failed to connect your bank. Please try again",
         );
@@ -212,7 +223,7 @@ function ConnectButtonComponent({ title }: { title: string }) {
       <button
         className="btn-primary shadow-lg"
         onClick={handleClick}
-        disabled={!ready || isBusy}
+        disabled={!ready || isBusy || status === "connect_unconfirmed"}
       >
         {isBusy && <Spinner />}
         {status === "loading_link_token" && "Preparing connection..."}
@@ -226,8 +237,13 @@ function ConnectButtonComponent({ title }: { title: string }) {
       </button>
       {frontError && (
         <div className="rounded-xl bg-tertiary border border-tertiary/30 p-4 text-sm text-on-tertiary absolute top-13 ">
-          <p className="font-semibold">Something went wrong</p>
+          <p className="font-semibold">{status === "connect_unconfirmed" ? "Check connection status" : "Something went wrong"}</p>
           <p>{frontError}</p>
+          {status === "connect_unconfirmed" && (
+            <button type="button" className="underline" onClick={() => router.push("/dashboard")}>
+              Check dashboard
+            </button>
+          )}
         </div>
       )}
 

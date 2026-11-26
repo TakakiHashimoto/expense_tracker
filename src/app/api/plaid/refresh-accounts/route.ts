@@ -3,12 +3,11 @@ import { withPlaidErrorBoundary } from "../lib/error-boundary";
 import { grabUser } from "@/lib/getUser";
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
-import { AccountsGetRequest } from "plaid";
 import { createPlaidClient, getPlaidError } from "../lib/plaid.helper";
-import { persistPlaidAccounts } from "@/features/plaid/server/persitstPlaidAccounts";
 import { syncPlaidItem } from "@/features/plaid/server/syncPlaidItem";
 import { createServerRoleClient } from "@/lib/supabase/server-role";
 import { SyncFailureError } from "@/features/plaid/server/syncFailureError";
+import { SyncCommitUnconfirmedError } from "@/features/plaid/server/db";
 
 async function handlePost(req: NextRequest) {
   const { plaidItemUuid } = await req.json();
@@ -55,112 +54,119 @@ async function handlePost(req: NextRequest) {
       );
     }
 
-    // fetch accounts
     const plaidClient = createPlaidClient();
-    const request: AccountsGetRequest = {
-      access_token: accessToken.access_token,
-    };
-    try {
-      const response = await plaidClient.accountsGet(request);
-      const accounts = response.data.accounts;
 
-      const snapshotTime = new Date().toISOString();
-      // sync accounts to database
-      await persistPlaidAccounts({
+    try {
+      const result = await syncPlaidItem({
         supabase: serverSupabase,
         userId: user.id,
+        plaidClient,
         plaidItemUuid: plaidItem.id,
-        accounts,
-        snapshotTime,
+        accessToken: accessToken.access_token,
+        refreshAccount: true,
+        refreshAccountsFirst: true,
       });
 
-      // sync transactions
-      let addedCount = 0;
-      let removedCount = 0;
-      let modifiedCount = 0;
-      try {
-        const result = await syncPlaidItem({
-          supabase: serverSupabase,
-          userId: user.id,
-          plaidClient,
-          plaidItemUuid: plaidItem.id,
-          accessToken: accessToken.access_token,
-          refreshAccount: false,
-        });
-
-        // if session is ocupied,
-        if (result.status === "busy") {
-          return NextResponse.json({
-            success: true,
-            accountRefreshSucceeded: true,
-            transactionSyncStatus: "busy",
-          });
-        }
-        addedCount += result.addedCount;
-        modifiedCount += result.modifiedCount;
-        removedCount += result.removedCount;
-      } catch (syncError) {
-        const originalError =
-          syncError instanceof SyncFailureError ? syncError.originalError : syncError;
-        logPlaidError("refresh_accounts", originalError);
-        if (
-          syncError instanceof SyncFailureError &&
-          syncError.recordingStatus === "skipped"
-        ) {
-          return NextResponse.json(
-            {
-              error: "SYNC_SUPERSEDED",
-              message: "This sync attempt is no longer valid.",
-              accountRefreshSucceeded: true,
-            },
-            { status: 409 },
-          );
-        }
-        const plaidError = getPlaidError(originalError);
-        const errorCode = plaidError?.error_code ?? "SYNC_FAILED";
-        const requiresUpdate = errorCode === "ITEM_LOGIN_REQUIRED";
-
-        if (
-          requiresUpdate &&
-          syncError instanceof SyncFailureError &&
-          syncError.recordingStatus === "recorded"
-        ) {
-          return NextResponse.json(
-            {
-              error: "ITEM_LOGIN_REQUIRED",
-              message: "Your bank connection needs to be updated.",
-              plaidItemId: plaidItem.id,
-              accountRefreshSucceeded: true,
-            },
-            { status: 409 },
-          );
-        }
-
+      if (result.status === "busy") {
         return NextResponse.json(
-          { error: "Failed to sync transactions", accountRefreshSucceeded: true },
-          { status: 500 },
+          {
+            success: false,
+            error: "SYNC_BUSY",
+            accountRefreshSucceeded: false,
+            accountRefreshStatus: "not_completed",
+            transactionSyncStatus: "busy",
+          },
+          { status: 409 },
         );
       }
 
       return NextResponse.json({
         success: true,
         accountRefreshSucceeded: true,
+        accountRefreshStatus: "succeeded",
         transactionSyncStatus: "synced",
-        addedCount,
-        modifiedCount,
-        removedCount,
+        addedCount: result.addedCount,
+        modifiedCount: result.modifiedCount,
+        removedCount: result.removedCount,
       });
-    } catch (error) {
-      // handle error
-      logPlaidError("refresh_accounts", error);
+    } catch (syncError) {
+      const originalError =
+        syncError instanceof SyncFailureError
+          ? syncError.originalError
+          : syncError;
+
+      const accountRefreshStatus =
+        syncError instanceof SyncFailureError
+          ? syncError.accountRefreshStatus
+          : "not_completed";
+
+      const accountRefreshSucceeded = accountRefreshStatus === "succeeded";
+
+      const accountResult = { accountRefreshSucceeded, accountRefreshStatus };
+
+      logPlaidError("refresh_accounts", originalError);
+
+      if (originalError instanceof SyncCommitUnconfirmedError) {
+        return NextResponse.json(
+          {
+            error: "TRANSACTION_SYNC_OUTCOME_UNCONFIRMED",
+            ...accountResult,
+            transactionSyncStatus: "unconfirmed",
+          },
+          { status: 500 },
+        );
+      }
+
+      if (
+        syncError instanceof SyncFailureError &&
+        syncError.recordingStatus === "skipped"
+      ) {
+        return NextResponse.json(
+          {
+            error: "SYNC_SUPERSEDED",
+            message: "This sync attempt is no longer valid.",
+            ...accountResult,
+          },
+          { status: 409 },
+        );
+      }
+
+      const plaidError = getPlaidError(originalError);
+      const errorCode = plaidError?.error_code ?? "SYNC_FAILED";
+      const requiresUpdate = errorCode === "ITEM_LOGIN_REQUIRED";
+
+      if (
+        requiresUpdate &&
+        syncError instanceof SyncFailureError &&
+        syncError.recordingStatus === "recorded"
+      ) {
+        return NextResponse.json(
+          {
+            error: "ITEM_LOGIN_REQUIRED",
+            message: "Your bank connection needs to be updated.",
+            plaidItemId: plaidItem.id,
+            ...accountResult,
+          },
+          { status: 409 },
+        );
+      }
+
       return NextResponse.json(
-        { error: "Failed to add account" },
+        {
+          error:
+            accountRefreshStatus === "unconfirmed"
+              ? "Account refresh outcome is unconfirmed"
+              : accountRefreshSucceeded
+                ? "Failed to sync transactions"
+                : "Failed to refresh accounts",
+          ...accountResult,
+        },
         { status: 500 },
       );
     }
-  } catch (e) {
-    logPlaidError("refresh_accounts", e);
-
+  } catch (error) {
+    // handle error
+    logPlaidError("refresh_accounts", error);
     return NextResponse.json(
       { error: "Failed to refresh accounts" },
       { status: 500 },

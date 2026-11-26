@@ -12,8 +12,12 @@ import { getPlaidError, logPlaidError, type PlaidOperation } from "./errors";
 import {
   SyncFailureError,
   type FailureRecordingStatus,
+  type AccountRefreshStatus,
 } from "./syncFailureError";
-
+import {
+  AccountFencingRejectedError,
+  AccountCommitUnconfirmedError,
+} from "./rpcCommitOutcome";
 import { recordSyncFailure } from "./recordSyncFailure";
 
 interface ArgTypes {
@@ -23,6 +27,7 @@ interface ArgTypes {
   plaidItemUuid: string;
   accessToken: string;
   refreshAccount: boolean;
+  refreshAccountsFirst?: boolean;
 }
 
 type SyncPlaidItemResult =
@@ -53,6 +58,7 @@ export async function syncPlaidItem({
   plaidItemUuid,
   accessToken,
   refreshAccount,
+  refreshAccountsFirst = false,
 }: ArgTypes): Promise<SyncPlaidItemResult> {
   // aquire owner ship and whoever owns owenership gets cursor.
   const lease = await traceSyncStage("acquire_lease", () =>
@@ -64,28 +70,44 @@ export async function syncPlaidItem({
     return { status: "busy" as const };
   }
 
+  let accountRefreshStatus: AccountRefreshStatus = refreshAccount
+    ? "not_completed"
+    : "not_requested";
+
+  const refreshAccounts = async () => {
+    const accounts = await traceSyncStage("fetch_accounts", () =>
+      fetchPlaidAccounts(plaidClient, accessToken),
+    );
+
+    const snapshotTime = new Date().toISOString();
+
+    await traceSyncStage("persist_accounts", () =>
+      persistPlaidAccounts({
+        supabase,
+        userId,
+        plaidItemUuid,
+        accounts,
+        snapshotTime,
+        leaseToken: lease.token,
+        expectedCursor: lease.cursor,
+      }),
+    );
+
+    accountRefreshStatus = "succeeded";
+  };
+
   try {
+    if (refreshAccount && refreshAccountsFirst) {
+      await refreshAccounts();
+    }
+
     const { added, modified, removed, cursor } = await traceSyncStage(
       "plaid_transactions",
       () => syncTransactions(accessToken, lease.cursor, plaidClient),
     );
 
-    // You are renewing accouts as well.
-    if (refreshAccount) {
-      // fetch latest accounts
-      const accounts = await traceSyncStage("fetch_accounts", () =>
-        fetchPlaidAccounts(plaidClient, accessToken),
-      );
-      const snapshotTime = new Date().toISOString();
-      await traceSyncStage("persist_accounts", () =>
-        persistPlaidAccounts({
-          supabase,
-          userId,
-          plaidItemUuid,
-          accounts,
-          snapshotTime,
-        }),
-      );
+    if (refreshAccount && !refreshAccountsFirst) {
+      await refreshAccounts();
     }
 
     // Compute the response before commit; no fallible follow-up work belongs
@@ -111,9 +133,23 @@ export async function syncPlaidItem({
     );
     return result;
   } catch (syncError) {
-    if (syncError instanceof SyncCommitUnconfirmedError) {
-      throw new SyncFailureError(syncError, "failed");
+    // Account persistence outcome is unknown.
+    if (syncError instanceof AccountCommitUnconfirmedError) {
+      accountRefreshStatus = "unconfirmed";
+
+      throw new SyncFailureError(syncError, "failed", accountRefreshStatus);
     }
+
+    // Account persistence was rejected by fencing.
+    if (syncError instanceof AccountFencingRejectedError) {
+      throw new SyncFailureError(syncError, "skipped", accountRefreshStatus);
+    }
+
+    // Transaction persistence outcome is unknown.
+    if (syncError instanceof SyncCommitUnconfirmedError) {
+      throw new SyncFailureError(syncError, "failed", accountRefreshStatus);
+    }
+
     const plaidError = getPlaidError(syncError);
     const errorCode = plaidError?.error_code ?? "SYNC_FAILED";
     const requiresUpdate = errorCode === "ITEM_LOGIN_REQUIRED";
@@ -136,7 +172,11 @@ export async function syncPlaidItem({
       logPlaidError("record_sync_failure", recordError);
     }
 
-    throw new SyncFailureError(syncError, recordingStatus);
+    throw new SyncFailureError(
+      syncError,
+      recordingStatus,
+      accountRefreshStatus,
+    );
   } finally {
     try {
       await unlockLease({
