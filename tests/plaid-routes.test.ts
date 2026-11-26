@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { sensitiveError, sentinels } from "./fixtures";
+import { SyncFailureError } from "@/features/plaid/server/syncFailureError";
 
 const mocks = vi.hoisted(() => ({
   createClient: vi.fn(),
@@ -12,6 +13,7 @@ const mocks = vi.hoisted(() => ({
   syncPlaidItem: vi.fn(),
   persistPlaidAccounts: vi.fn(),
   recordSyncFailure: vi.fn(),
+  recordItemError: vi.fn(),
   verifyPlaidWebhook: vi.fn(),
 }));
 vi.mock("@/lib/supabase/server", () => ({ createClient: mocks.createClient }));
@@ -39,6 +41,9 @@ vi.mock("@/features/plaid/server/persitstPlaidAccounts", () => ({
 vi.mock("@/features/plaid/server/recordSyncFailure", () => ({
   recordSyncFailure: mocks.recordSyncFailure,
 }));
+vi.mock("@/features/plaid/server/recordItemError", () => ({
+  recordItemError: mocks.recordItemError,
+}));
 vi.mock("@/app/api/plaid/webhook/verifyWebhooks", () => ({
   verifyPlaidWebhook: mocks.verifyPlaidWebhook,
 }));
@@ -58,7 +63,7 @@ const item = {
   plaid_item_id: "provider-item",
   transactions_cursor: null,
 };
-function database(owned = true) {
+function database(owned = true, items = [item]) {
   return {
     auth: {
       getUser: vi
@@ -84,7 +89,7 @@ function database(owned = true) {
         single: vi.fn().mockResolvedValue({ data, error: null }),
         maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
         then: (resolve: (value: unknown) => unknown) =>
-          Promise.resolve({ data: owned ? [item] : [], error: null }).then(
+          Promise.resolve({ data: owned ? items : [], error: null }).then(
             resolve,
           ),
       };
@@ -163,6 +168,7 @@ beforeEach(() => {
   });
   mocks.persistPlaidAccounts.mockResolvedValue(undefined);
   mocks.recordSyncFailure.mockResolvedValue(item);
+  mocks.recordItemError.mockResolvedValue(true);
   mocks.verifyPlaidWebhook.mockResolvedValue(true);
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
@@ -213,19 +219,14 @@ it("rejects unauthenticated sync-all before privileged access", async () => {
 });
 
 it("preserves login-required recovery without exposing the original error", async () => {
-  mocks.syncPlaidItem.mockRejectedValue(sensitiveError("ITEM_LOGIN_REQUIRED"));
+  mocks.syncPlaidItem.mockRejectedValue(new SyncFailureError(sensitiveError("ITEM_LOGIN_REQUIRED"), "recorded"));
   const response = await sync(itemRequest());
   expect(response.status).toBe(409);
   expect(await response.json()).toMatchObject({
     error: "ITEM_LOGIN_REQUIRED",
     plaidItemId: item.id,
   });
-  expect(mocks.recordSyncFailure).toHaveBeenCalledWith(
-    expect.objectContaining({
-      requiresUpdate: true,
-      errorCode: "ITEM_LOGIN_REQUIRED",
-    }),
-  );
+  expect(mocks.recordSyncFailure).not.toHaveBeenCalled();
 });
 
 it("preserves the busy-sync contract", async () => {
@@ -258,6 +259,7 @@ it.each([
   { name: "sync-transactions", run: () => sync(itemRequest()) },
   { name: "sync-all", run: () => syncAll() },
   { name: "refresh-accounts", run: () => refresh(itemRequest()) },
+  { name: "verified webhook", run: () => webhook(webhookRequest()) },
 ])("$name uses Service Role Client for synchronization", async ({ run }) => {
   // Create a distinct Service Role mock.
   const adminClient = database();
@@ -306,7 +308,7 @@ it.each([
     run: () => refresh(itemRequest()),
   },
 ])(
-  "$name uses Service Role Client when recording sync failures",
+  "$name leaves failure recording to the worker",
   async ({ run }) => {
     // User Clientとは異なるオブジェクト
     const adminClient = database();
@@ -324,13 +326,114 @@ it.each([
 
     expect(response.status).toBe(500);
 
-    // 失敗記録にもService Roleが使われること
-    expect(mocks.recordSyncFailure).toHaveBeenCalledWith(
-      expect.objectContaining({
-        supabase: adminClient,
-      }),
-    );
-
-    expect(mocks.recordSyncFailure).toHaveBeenCalledTimes(1);
+    expect(mocks.recordSyncFailure).not.toHaveBeenCalled();
+    expect(mocks.recordItemError).not.toHaveBeenCalled();
   },
 );
+
+const syncRoutes = [
+  { name: "sync", run: () => sync(itemRequest()) },
+  { name: "refresh", run: () => refresh(itemRequest()) },
+  { name: "all", run: () => syncAll() },
+];
+describe.each(syncRoutes)("$name fenced failure responses", ({ run }) => {
+  it.each([
+    { code: "ITEM_LOGIN_REQUIRED", recording: "recorded", status: 409, error: "ITEM_LOGIN_REQUIRED" },
+    { code: "INSTITUTION_DOWN", recording: "recorded", status: 500, error: "Failed to sync transactions" },
+    { code: "ITEM_LOGIN_REQUIRED", recording: "skipped", status: 409, error: "SYNC_SUPERSEDED" },
+    { code: "INSTITUTION_DOWN", recording: "skipped", status: 409, error: "SYNC_SUPERSEDED" },
+    { code: "ITEM_LOGIN_REQUIRED", recording: "failed", status: 500, error: "Failed to sync transactions" },
+    { code: "INSTITUTION_DOWN", recording: "failed", status: 500, error: "Failed to sync transactions" },
+  ] as const)("$code / $recording", async ({ code, recording, status, error }) => {
+    mocks.syncPlaidItem.mockRejectedValue(new SyncFailureError(sensitiveError(code), recording));
+    const response = await run();
+    expect(response.status).toBe(status);
+    const body = await response.json();
+    expect(body.error).toBe(error);
+    if (error !== "ITEM_LOGIN_REQUIRED") expect(body.plaidItemId).toBeUndefined();
+    expect(mocks.recordSyncFailure).not.toHaveBeenCalled();
+    expect(mocks.recordItemError).not.toHaveBeenCalled();
+    expect(console.error).toHaveBeenCalledWith(expect.objectContaining({ code }));
+    for (const secret of sentinels) expect(JSON.stringify(body) + JSON.stringify(vi.mocked(console.error).mock.calls)).not.toContain(secret);
+  });
+  it("does not prompt repair for unwrapped pre-acquisition errors", async () => {
+    mocks.syncPlaidItem.mockRejectedValue(sensitiveError("ITEM_LOGIN_REQUIRED"));
+    expect((await run()).status).toBe(500);
+    expect(mocks.recordSyncFailure).not.toHaveBeenCalled();
+  });
+});
+it.each(["skipped", "recorded", "failed"] as const)("sync-all continues other Items after %s", async (recording) => {
+  mocks.createClient.mockResolvedValue(database(true, [item, { ...item, id: "second" }, { ...item, id: "third" }]));
+  mocks.syncPlaidItem.mockRejectedValueOnce(new SyncFailureError(sensitiveError("ITEM_LOGIN_REQUIRED"), recording))
+    .mockResolvedValueOnce({ status: "busy" });
+  const response = await syncAll();
+  expect(response.status).toBe(recording === "failed" ? 500 : 409);
+  expect(await response.json()).toMatchObject({ success: false, syncedItemCount: 1, busyItemCount: 1, addedCount: 2, failedItems: [{ plaidItemId: item.id, error: recording === "skipped" ? "SYNC_SUPERSEDED" : recording === "failed" ? "SYNC_FAILED" : "ITEM_LOGIN_REQUIRED" }] });
+  expect(mocks.syncPlaidItem).toHaveBeenCalledTimes(3);
+});
+it("aggregates multiple failures and prioritizes unconfirmed failures over repair prompts", async () => {
+  mocks.createClient.mockResolvedValue(database(true, [item, { ...item, id: "second" }]));
+  mocks.syncPlaidItem.mockRejectedValueOnce(new SyncFailureError(sensitiveError("ITEM_LOGIN_REQUIRED"), "recorded"))
+    .mockRejectedValueOnce(new SyncFailureError(sensitiveError(), "failed"));
+  const response = await syncAll();
+  expect(response.status).toBe(500);
+  const body = await response.json();
+  expect(body.failedItems).toHaveLength(2);
+  expect(body.plaidItemId).toBeUndefined();
+});
+it("retains refresh and aggregate busy contracts", async () => {
+  mocks.syncPlaidItem.mockResolvedValue({ status: "busy" });
+  expect(await (await refresh(itemRequest())).json()).toMatchObject({ accountRefreshSucceeded: true, transactionSyncStatus: "busy" });
+  expect(await (await syncAll()).json()).toMatchObject({ success: true, busyItemCount: 1, syncedItemCount: 0 });
+});
+it.each([
+  { code: "ITEM_LOGIN_REQUIRED", recording: "recorded", status: 200 },
+  { code: "INSTITUTION_DOWN", recording: "recorded", status: 500 },
+  { code: "ITEM_LOGIN_REQUIRED", recording: "skipped", status: 429 },
+  { code: "INSTITUTION_DOWN", recording: "skipped", status: 429 },
+  { code: "ITEM_LOGIN_REQUIRED", recording: "failed", status: 500 },
+  { code: "INSTITUTION_DOWN", recording: "failed", status: 500 },
+] as const)("webhook $code / $recording", async ({ code, recording, status }) => {
+  mocks.syncPlaidItem.mockRejectedValue(new SyncFailureError(sensitiveError(code), recording));
+  const response = await webhook(webhookRequest());
+  expect(response.status).toBe(status);
+  const body = await response.json();
+  if (recording === "skipped") {
+    expect(body).toEqual({ ok: false, retry: true, reason: "SYNC_SUPERSEDED" });
+    expect(response.headers.get("retry-after")).toBe("30");
+  }
+  expect(mocks.recordItemError).not.toHaveBeenCalled();
+  expect(mocks.recordSyncFailure).not.toHaveBeenCalled();
+  for (const secret of sentinels) expect(JSON.stringify(body)).not.toContain(secret);
+});
+it("does not acknowledge an unrecorded unwrapped webhook login failure", async () => {
+  mocks.syncPlaidItem.mockRejectedValue(sensitiveError("ITEM_LOGIN_REQUIRED"));
+  expect((await webhook(webhookRequest())).status).toBe(500);
+  expect(mocks.recordItemError).not.toHaveBeenCalled();
+});
+const itemErrorRequest = () => request({ item_id: item.plaid_item_id, webhook_type: "ITEM", webhook_code: "ERROR", error: { error_code: "ITEM_LOGIN_REQUIRED" } });
+it.each([true, false])("uses only the verified ITEM ERROR path for Item writes (%s)", async (recorded) => {
+  mocks.recordItemError.mockResolvedValue(recorded);
+  const response = await webhook(itemErrorRequest());
+  expect(response.status).toBe(200);
+  if (!recorded) expect(await response.json()).toEqual({ ok: true, ignored: true });
+  expect(mocks.recordItemError).toHaveBeenCalledExactlyOnceWith({ supabase: mocks.createServerRoleClient.mock.results[0].value, userId: item.user_id, plaidItemUuid: item.id });
+  expect(mocks.syncPlaidItem).not.toHaveBeenCalled();
+});
+it("returns a retryable error when an Item event write is unconfirmed", async () => {
+  mocks.recordItemError.mockRejectedValue(sensitiveError());
+  expect((await webhook(itemErrorRequest())).status).toBe(500);
+});
+it("verifies the raw body before handling an Item error", async () => {
+  mocks.verifyPlaidWebhook.mockResolvedValue(false);
+  const req = itemErrorRequest();
+  const rawBody = await req.clone().text();
+  expect((await webhook(req)).status).toBe(401);
+  expect(mocks.verifyPlaidWebhook).toHaveBeenCalledWith({ rawBody, plaidVerificationHeader: null });
+  expect(mocks.recordItemError).not.toHaveBeenCalled();
+});
+it.each([sync, refresh])("does not use privileged access when user lookup fails", async (route) => {
+  mocks.grabUser.mockRejectedValue(new Error("Unauthenticated"));
+  expect((await route(itemRequest())).status).toBeGreaterThanOrEqual(400);
+  expect(mocks.createServerRoleClient).not.toHaveBeenCalled();
+});

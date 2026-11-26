@@ -1,12 +1,11 @@
 import { getPlaidError, logPlaidError } from "@/features/plaid/server/errors";
 import { withPlaidErrorBoundary } from "../lib/error-boundary";
-// This page is for sync request from dashboard
-import { recordSyncFailure } from "@/features/plaid/server/recordSyncFailure";
 import { syncPlaidItem } from "@/features/plaid/server/syncPlaidItem";
 import { createClient } from "@/lib/supabase/server";
 import { createServerRoleClient } from "@/lib/supabase/server-role";
 import { NextResponse } from "next/server";
 import { Configuration, PlaidApi, PlaidEnvironments } from "plaid";
+import { SyncFailureError } from "@/features/plaid/server/syncFailureError";
 
 const plaidClientId = process.env.PLAID_CLIENT_ID;
 const plaidEnv = process.env.PLAID_ENV || "sandbox";
@@ -72,6 +71,10 @@ async function handlePost() {
     // track how many item is busy
     let busyItemCount = 0;
     let syncedCount = 0;
+    const failedItems: Array<{
+      plaidItemId: string;
+      error: "SYNC_SUPERSEDED" | "ITEM_LOGIN_REQUIRED" | "SYNC_FAILED";
+    }> = [];
 
     const serverSupabase = createServerRoleClient();
 
@@ -107,39 +110,46 @@ async function handlePost() {
         removedCount += result.removedCount;
         syncedCount += 1;
       } catch (syncError) {
-        const plaidError = getPlaidError(syncError);
-        const errorCode = plaidError?.error_code ?? "SYNC_FAILED";
-        const requiresUpdate = errorCode === "ITEM_LOGIN_REQUIRED";
-        try {
-          await recordSyncFailure({
-            supabase: serverSupabase,
-            userId: user.id,
-            plaidItemUuid: plaidItem.id,
-            errorCode,
-            requiresUpdate,
-          });
-        } catch (recordError) {
-          logPlaidError("sync_all", recordError);
+        const originalError =
+          syncError instanceof SyncFailureError ? syncError.originalError : syncError;
+        logPlaidError("sync_all", originalError);
+        let error: "SYNC_SUPERSEDED" | "ITEM_LOGIN_REQUIRED" | "SYNC_FAILED" = "SYNC_FAILED";
+        if (syncError instanceof SyncFailureError) {
+          if (syncError.recordingStatus === "skipped") {
+            error = "SYNC_SUPERSEDED";
+          } else if (
+            syncError.recordingStatus === "recorded" &&
+            getPlaidError(originalError)?.error_code === "ITEM_LOGIN_REQUIRED"
+          ) {
+            error = "ITEM_LOGIN_REQUIRED";
+          }
         }
-
-        if (requiresUpdate) {
-          return NextResponse.json(
-            {
-              error: "ITEM_LOGIN_REQUIRED",
-              message: "Your bank connection needs to be updated.",
-              plaidItemId: plaidItem.id,
-            },
-            { status: 409 },
-          );
-        }
-
-        logPlaidError("sync_all", syncError);
-
-        return NextResponse.json(
-          { error: "Failed to sync transactions" },
-          { status: 500 },
-        );
+        failedItems.push({ plaidItemId: plaidItem.id, error });
       }
+    }
+    // Process every Item while preserving non-2xx errors for existing clients.
+    if (failedItems.length > 0) {
+      const failure =
+        failedItems.find((item) => item.error === "SYNC_FAILED") ??
+        failedItems.find((item) => item.error === "ITEM_LOGIN_REQUIRED") ??
+        failedItems[0];
+      return NextResponse.json(
+        {
+          success: false,
+          error: failure.error === "SYNC_FAILED" ? "Failed to sync transactions" : failure.error,
+          message: failure.error === "ITEM_LOGIN_REQUIRED"
+            ? "Your bank connection needs to be updated."
+            : "Some bank connections could not be synchronized. Please retry.",
+          ...(failure.error === "ITEM_LOGIN_REQUIRED" ? { plaidItemId: failure.plaidItemId } : {}),
+          addedCount,
+          modifiedCount,
+          removedCount,
+          busyItemCount,
+          syncedItemCount: syncedCount,
+          failedItems,
+        },
+        { status: failure.error === "SYNC_FAILED" ? 500 : 409 },
+      );
     }
     return NextResponse.json({
       success: true,

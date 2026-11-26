@@ -1,14 +1,12 @@
 import { getPlaidError, logPlaidError } from "@/features/plaid/server/errors";
 import { withPlaidErrorBoundary } from "../lib/error-boundary";
-// here in this page syncs transactions data which is associated with access-token
-
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { Configuration, PlaidApi, PlaidEnvironments } from "plaid";
-import { recordSyncFailure } from "@/features/plaid/server/recordSyncFailure";
 import { syncPlaidItem } from "@/features/plaid/server/syncPlaidItem";
 import { grabUser } from "@/lib/getUser";
 import { createServerRoleClient } from "@/lib/supabase/server-role";
+import { SyncFailureError } from "@/features/plaid/server/syncFailureError";
 
 const plaidClientId = process.env.PLAID_CLIENT_ID;
 const plaidEnv = process.env.PLAID_ENV || "sandbox";
@@ -107,23 +105,30 @@ async function handlePost(request: NextRequest) {
         modifiedCount: data.modifiedCount,
       });
     } catch (syncError) {
-      // When sycn failed, update sync status in plaid_items db
-      const plaidError = getPlaidError(syncError);
+      const originalError =
+        syncError instanceof SyncFailureError ? syncError.originalError : syncError;
+      logPlaidError("sync_transactions", originalError);
+      if (
+        syncError instanceof SyncFailureError &&
+        syncError.recordingStatus === "skipped"
+      ) {
+        return NextResponse.json(
+          {
+            error: "SYNC_SUPERSEDED",
+            message: "This sync attempt is no longer valid.",
+          },
+          { status: 409 },
+        );
+      }
+      const plaidError = getPlaidError(originalError);
       const errorCode = plaidError?.error_code ?? "SYNC_FAILED";
       const requiresUpdate = errorCode === "ITEM_LOGIN_REQUIRED";
-      try {
-        await recordSyncFailure({
-          supabase: serverRoleSupabase,
-          userId: user.id,
-          plaidItemUuid: cursorData.id,
-          errorCode,
-          requiresUpdate,
-        });
-      } catch (recordError) {
-        logPlaidError("sync_transactions", recordError);
-      }
 
-      if (requiresUpdate) {
+      if (
+        requiresUpdate &&
+        syncError instanceof SyncFailureError &&
+        syncError.recordingStatus === "recorded"
+      ) {
         return NextResponse.json(
           {
             error: "ITEM_LOGIN_REQUIRED",
@@ -134,15 +139,13 @@ async function handlePost(request: NextRequest) {
         );
       }
 
-      logPlaidError("sync_transactions", syncError);
-
       return NextResponse.json(
         { error: "Failed to sync transactions" },
         { status: 500 },
       );
     }
-  } catch (e) {
-    logPlaidError("sync_transactions", e);
+  } catch (syncError) {
+    logPlaidError("sync_transactions", syncError);
     return NextResponse.json(
       { error: "Failed to sync transactions" },
       { status: 500 },

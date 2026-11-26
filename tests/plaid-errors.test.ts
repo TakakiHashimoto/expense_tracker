@@ -47,3 +47,14 @@ it("preserves framework authentication redirects", async () => {
   const handler = withPlaidErrorBoundary("add_account", async () => redirect("/login"));
   await expect(handler()).rejects.toMatchObject({ digest: expect.stringContaining("NEXT_REDIRECT") });
 });
+
+it("logs allowlisted cause codes without exposing wrapped database details", () => {
+  const log = vi.spyOn(console, "error").mockImplementation(() => {});
+  logPlaidError("webhook", new Error(sentinels[0], { cause: { code: "23514", details: sentinels } }));
+  expect(log).toHaveBeenCalledExactlyOnceWith({ event: "plaid_operation_failed", operation: "webhook", code: "23514" });
+});
+
+it("tolerates a throwing cause getter", () => {
+  vi.spyOn(console, "error").mockImplementation(() => {});
+  expect(() => logPlaidError("record_sync_failure", { get cause() { throw sensitiveError(); } })).not.toThrow();
+});
