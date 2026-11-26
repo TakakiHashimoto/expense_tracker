@@ -16,6 +16,43 @@ type PersistSyncResultArgs = {
   removed: RemovedTransaction[];
 };
 
+// A lost RPC response cannot establish whether the atomic commit succeeded.
+export class SyncCommitUnconfirmedError extends Error {
+  constructor(cause: unknown) {
+    super("Plaid sync commit outcome is unconfirmed", { cause });
+    this.name = "SyncCommitUnconfirmedError";
+  }
+}
+
+// Only reviewed PostgreSQL rejections, paired with PostgREST's HTTP mapping.
+// Constraint failures abort the request transaction; serialization/deadlock
+// failures abort it as well. P0001 is the uncaught RAISE EXCEPTION used by
+// commit_plaid_sync (including its lease/cursor/argument checks).
+// https://docs.postgrest.org/en/v14/references/transactions.html#aborting-transactions
+// https://docs.postgrest.org/en/v14/references/errors.html#http-status-codes
+const COMMIT_REJECTION_STATUS = new Map<string, number>([
+  ["23502", 400], // not_null_violation
+  ["23503", 409], // foreign_key_violation
+  ["23505", 409], // unique_violation
+  ["23514", 400], // check_violation
+  ["40001", 500], // serialization_failure
+  ["40P01", 500], // deadlock_detected
+  ["P0001", 400], // raise_exception
+]);
+
+function isConfirmedCommitRejection(error: unknown, status: number): boolean {
+  if (typeof error !== "object" || error === null) return false;
+  const fields = error as Record<string, unknown>;
+  return (
+    Number.isInteger(status) &&
+    typeof fields.code === "string" &&
+    typeof fields.message === "string" &&
+    (fields.details === null || typeof fields.details === "string") &&
+    (fields.hint === null || typeof fields.hint === "string") &&
+    COMMIT_REJECTION_STATUS.get(fields.code) === status
+  );
+}
+
 // take Plaid’s sync changes and apply those changes into your own database
 export async function persistSyncResult({
   userId,
@@ -71,20 +108,37 @@ export async function persistSyncResult({
   const adminClient = createServerRoleClient();
 
   // syncing logic is now operated in one big rpc to maintain atomicity
-  const { error } = await adminClient.rpc("commit_plaid_sync", {
-    p_user_id: userId,
-    p_item_id: itemUuid,
-    p_lease_token: leaseToken,
-    p_expected_cursor: expectedCursor,
-    p_next_cursor: cursor,
-    p_added: normalizedAdded,
-    p_modified: normalizedModified,
-    p_removed: normalizedRemoved,
-  });
+  let error;
+  let status;
+  try {
+    // postgrest-js does not retry POST today. Disable retries explicitly:
+    // a replay's rejection would not establish that the FIRST call rolled back.
+    ({ error, status } = await adminClient
+      .rpc("commit_plaid_sync", {
+        p_user_id: userId,
+        p_item_id: itemUuid,
+        p_lease_token: leaseToken,
+        p_expected_cursor: expectedCursor,
+        p_next_cursor: cursor,
+        p_added: normalizedAdded,
+        p_modified: normalizedModified,
+        p_removed: normalizedRemoved,
+      })
+      .retry(false));
+  } catch (cause) {
+    throw new SyncCommitUnconfirmedError(cause);
+  }
 
-  if (error) {
+  if (error !== null || !Number.isInteger(status) || !(status >= 200 && status < 300)) {
     // PostgreSQL SQLSTATE または PostgREST エラーコード
     logPlaidError("persist_transactions", error);
+
+    // Unknown codes (even five-character ones), shutdown, connection errors,
+    // gateway errors and malformed responses are not evidence of rollback.
+    // The cursor can stay unchanged even after a successful commit.
+    if (!isConfirmedCommitRejection(error, status)) {
+      throw new SyncCommitUnconfirmedError(error);
+    }
 
     throw new Error("Atomic Plaid sync commit failed", { cause: error });
   }

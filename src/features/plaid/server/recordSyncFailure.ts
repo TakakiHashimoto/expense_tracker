@@ -1,55 +1,42 @@
 import "server-only";
 
-import { logPlaidError } from "./errors";
-// This function is for recording failure into db when sync failed
-// Update last_sync_error, last_sync_status, updated_at
-// If it's a ITEM_LOGIN_REQUIRED, status: "need_update"
-
 import { SupabaseClient } from "@supabase/supabase-js";
+
+interface RecordSyncFailureArgs {
+  supabase: SupabaseClient;
+  userId: string;
+  plaidItemUuid: string;
+  leaseToken: string;
+  expectedCursor: string | null;
+  errorCode: string;
+  requiresUpdate: boolean;
+}
 
 export async function recordSyncFailure({
   supabase,
   userId,
   plaidItemUuid,
+  leaseToken,
+  expectedCursor,
   errorCode,
   requiresUpdate,
-}: {
-  supabase: SupabaseClient;
-  userId: string;
-  plaidItemUuid: string;
-  errorCode: string;
-  requiresUpdate: boolean;
-}) {
-  const updateData = requiresUpdate
-    ? {
-        last_sync_status: "failed",
-        updated_at: new Date().toISOString(),
-        last_sync_error: errorCode,
-        status: "error",
-      }
-    : {
-        last_sync_status: "failed",
-        updated_at: new Date().toISOString(),
-        last_sync_error: errorCode,
-      };
-  const { data, error } = await supabase
-    .from("plaid_items")
-    .update(updateData)
-    .eq("user_id", userId)
-    .eq("id", plaidItemUuid)
-    .select("id")
-    .single();
+}: RecordSyncFailureArgs): Promise<boolean> {
+  const { data, error } = await supabase.rpc("record_plaid_sync_failure", {
+    p_user_id: userId,
+    p_item_id: plaidItemUuid,
+    p_lease_token: leaseToken,
+    p_expected_cursor: expectedCursor,
+    p_error_code: errorCode,
+    p_requires_update: requiresUpdate,
+  });
 
   if (error) {
-    logPlaidError("record_sync_failure", error);
-
-    throw new Error("Failed to record plaid_items failure");
+    // The worker logs once, while it still owns the failure-recording outcome.
+    throw new Error("Failed to record Plaid sync failure", { cause: error });
   }
 
-  if (!data) {
-    logPlaidError("record_sync_failure", null);
-
-    throw new Error("Failed to record plaid_items failure");
+  if (typeof data !== "boolean") {
+    throw new Error("Invalid sync failure RPC response");
   }
 
   return data;

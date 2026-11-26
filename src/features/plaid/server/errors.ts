@@ -87,7 +87,7 @@ export function logPlaidError(operation: PlaidOperation, error: unknown): void {
   let code = "UNKNOWN_ERROR";
   let httpStatus: number | undefined;
   try {
-    const directCode = record(error)?.code;
+    const directCode = record(error)?.code ?? record(record(error)?.cause)?.code;
     code =
       getPlaidError(error)?.error_code ??
       (typeof directCode === "string" && OTHER_CODES.has(directCode)
@@ -105,10 +105,14 @@ export function logPlaidError(operation: PlaidOperation, error: unknown): void {
   } catch {
     // Logging must also tolerate malformed errors and throwing getters.
   }
-  console.error({
-    event: "plaid_operation_failed",
-    operation: OPERATIONS.includes(operation) ? operation : "unknown",
-    code,
-    ...(httpStatus === undefined ? {} : { httpStatus }),
-  });
+  try {
+    console.error({
+      event: "plaid_operation_failed",
+      operation: OPERATIONS.includes(operation) ? operation : "unknown",
+      code,
+      ...(httpStatus === undefined ? {} : { httpStatus }),
+    });
+  } catch {
+    // A logging sink failure must not change synchronization or lease cleanup.
+  }
 }

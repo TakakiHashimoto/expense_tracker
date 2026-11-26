@@ -3,10 +3,11 @@ import { withPlaidErrorBoundary } from "../lib/error-boundary";
 import { NextRequest, NextResponse } from "next/server";
 import { PlaidWebhookBody } from "../type/plaidwebhook.type";
 import { syncPlaidItem } from "@/features/plaid/server/syncPlaidItem";
-import { recordSyncFailure } from "@/features/plaid/server/recordSyncFailure";
+import { SyncFailureError } from "@/features/plaid/server/syncFailureError";
 import { createPlaidClient, getPlaidError } from "../lib/plaid.helper";
 import { createServerRoleClient } from "@/lib/supabase/server-role";
 import { verifyPlaidWebhook } from "./verifyWebhooks";
+import { recordItemError } from "@/features/plaid/server/recordItemError";
 
 async function handlePost(req: NextRequest) {
   const rawBody = await req.text();
@@ -46,13 +47,13 @@ async function handlePost(req: NextRequest) {
     body.webhook_code === "ERROR" &&
     body.error?.error_code === "ITEM_LOGIN_REQUIRED"
   ) {
-    await recordSyncFailure({
+    const recorded = await recordItemError({
       supabase,
       userId: plaidItem.user_id,
       plaidItemUuid: plaidItem.id,
-      errorCode: "ITEM_LOGIN_REQUIRED",
-      requiresUpdate: true,
     });
+
+    if (!recorded) return NextResponse.json({ ok: true, ignored: true });
 
     return NextResponse.json(
       { ok: true, message: "Login is required" },
@@ -138,26 +139,24 @@ async function handlePost(req: NextRequest) {
         removed: result.removedCount,
       });
     } catch (e) {
-      const plaidError = getPlaidError(e);
-      const errorCode = plaidError?.error_code ?? "SYNC_FAILED";
-      const requiresUpdate = errorCode === "ITEM_LOGIN_REQUIRED";
-      try {
-        await recordSyncFailure({
-          supabase,
-          userId: plaidItem.user_id,
-          plaidItemUuid: plaidItem.id,
-          errorCode,
-          requiresUpdate,
-        });
-      } catch (recordError) {
-        logPlaidError("webhook", recordError);
+      const originalError = e instanceof SyncFailureError ? e.originalError : e;
+      logPlaidError("webhook", originalError);
+      if (e instanceof SyncFailureError && e.recordingStatus === "skipped") {
+        // false cannot distinguish a transient fence from absence/revocation.
+        // Request redelivery without claiming another worker succeeded.
         return NextResponse.json(
-          { error: "Failed to record sync failure" },
-          { status: 500 },
+          { ok: false, retry: true, reason: "SYNC_SUPERSEDED" },
+          { status: 429, headers: { "Retry-After": "30" } },
         );
       }
-
-      if (requiresUpdate) {
+      const plaidError = getPlaidError(originalError);
+      const errorCode = plaidError?.error_code ?? "SYNC_FAILED";
+      const requiresUpdate = errorCode === "ITEM_LOGIN_REQUIRED";
+      if (
+        requiresUpdate &&
+        e instanceof SyncFailureError &&
+        e.recordingStatus === "recorded"
+      ) {
         return NextResponse.json({
           ok: true,
           error: "ITEM_LOGIN_REQUIRED",
@@ -165,8 +164,6 @@ async function handlePost(req: NextRequest) {
           plaidItemId: plaidItem.id,
         });
       }
-
-      logPlaidError("webhook", e);
 
       return NextResponse.json(
         { error: "Failed to sync transactions" },

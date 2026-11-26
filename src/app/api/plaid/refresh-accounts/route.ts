@@ -1,8 +1,5 @@
 import { logPlaidError } from "@/features/plaid/server/errors";
 import { withPlaidErrorBoundary } from "../lib/error-boundary";
-// call plai "/accounts/get" to get accounts
-// sync accounts
-
 import { grabUser } from "@/lib/getUser";
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
@@ -10,8 +7,8 @@ import { AccountsGetRequest } from "plaid";
 import { createPlaidClient, getPlaidError } from "../lib/plaid.helper";
 import { persistPlaidAccounts } from "@/features/plaid/server/persitstPlaidAccounts";
 import { syncPlaidItem } from "@/features/plaid/server/syncPlaidItem";
-import { recordSyncFailure } from "@/features/plaid/server/recordSyncFailure";
 import { createServerRoleClient } from "@/lib/supabase/server-role";
+import { SyncFailureError } from "@/features/plaid/server/syncFailureError";
 
 async function handlePost(req: NextRequest) {
   const { plaidItemUuid } = await req.json();
@@ -103,36 +100,44 @@ async function handlePost(req: NextRequest) {
         modifiedCount += result.modifiedCount;
         removedCount += result.removedCount;
       } catch (syncError) {
-        const plaidError = getPlaidError(syncError);
+        const originalError =
+          syncError instanceof SyncFailureError ? syncError.originalError : syncError;
+        logPlaidError("refresh_accounts", originalError);
+        if (
+          syncError instanceof SyncFailureError &&
+          syncError.recordingStatus === "skipped"
+        ) {
+          return NextResponse.json(
+            {
+              error: "SYNC_SUPERSEDED",
+              message: "This sync attempt is no longer valid.",
+              accountRefreshSucceeded: true,
+            },
+            { status: 409 },
+          );
+        }
+        const plaidError = getPlaidError(originalError);
         const errorCode = plaidError?.error_code ?? "SYNC_FAILED";
         const requiresUpdate = errorCode === "ITEM_LOGIN_REQUIRED";
-        try {
-          await recordSyncFailure({
-            supabase: serverSupabase,
-            userId: user.id,
-            plaidItemUuid: plaidItem.id,
-            errorCode,
-            requiresUpdate,
-          });
-        } catch (recordError) {
-          logPlaidError("refresh_accounts", recordError);
-        }
 
-        if (requiresUpdate) {
+        if (
+          requiresUpdate &&
+          syncError instanceof SyncFailureError &&
+          syncError.recordingStatus === "recorded"
+        ) {
           return NextResponse.json(
             {
               error: "ITEM_LOGIN_REQUIRED",
               message: "Your bank connection needs to be updated.",
               plaidItemId: plaidItem.id,
+              accountRefreshSucceeded: true,
             },
             { status: 409 },
           );
         }
 
-        logPlaidError("refresh_accounts", syncError);
-
         return NextResponse.json(
-          { error: "Failed to sync transactions" },
+          { error: "Failed to sync transactions", accountRefreshSucceeded: true },
           { status: 500 },
         );
       }

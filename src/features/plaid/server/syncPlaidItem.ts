@@ -5,10 +5,16 @@ import { syncTransactions } from "./sync";
 import { PlaidApi } from "plaid";
 import { fetchPlaidAccounts } from "./accounts";
 import { persistPlaidAccounts } from "./persitstPlaidAccounts";
-import { persistSyncResult } from "./db";
+import { persistSyncResult, SyncCommitUnconfirmedError } from "./db";
 import { aquireSyncLease } from "./syncLease";
 import { unlockLease } from "./unlockRelase";
-import { logPlaidError, type PlaidOperation } from "./errors";
+import { getPlaidError, logPlaidError, type PlaidOperation } from "./errors";
+import {
+  SyncFailureError,
+  type FailureRecordingStatus,
+} from "./syncFailureError";
+
+import { recordSyncFailure } from "./recordSyncFailure";
 
 interface ArgTypes {
   supabase: SupabaseClient;
@@ -82,6 +88,14 @@ export async function syncPlaidItem({
       );
     }
 
+    // Compute the response before commit; no fallible follow-up work belongs
+    // in this catch after a confirmed atomic commit.
+    const result = {
+      status: "synced" as const,
+      addedCount: added.length,
+      modifiedCount: modified.length,
+      removedCount: removed.length,
+    };
     // transaction syncing is integrated to one big db transaction to maintain atomicity
     await traceSyncStage("atomic_commit", () =>
       persistSyncResult({
@@ -95,12 +109,34 @@ export async function syncPlaidItem({
         removed,
       }),
     );
-    return {
-      status: "synced" as const,
-      addedCount: added.length,
-      modifiedCount: modified.length,
-      removedCount: removed.length,
-    };
+    return result;
+  } catch (syncError) {
+    if (syncError instanceof SyncCommitUnconfirmedError) {
+      throw new SyncFailureError(syncError, "failed");
+    }
+    const plaidError = getPlaidError(syncError);
+    const errorCode = plaidError?.error_code ?? "SYNC_FAILED";
+    const requiresUpdate = errorCode === "ITEM_LOGIN_REQUIRED";
+
+    let recordingStatus: FailureRecordingStatus = "failed";
+
+    try {
+      const recorded = await recordSyncFailure({
+        supabase,
+        userId,
+        plaidItemUuid,
+        leaseToken: lease.token,
+        expectedCursor: lease.cursor,
+        errorCode,
+        requiresUpdate,
+      });
+
+      recordingStatus = recorded ? "recorded" : "skipped";
+    } catch (recordError) {
+      logPlaidError("record_sync_failure", recordError);
+    }
+
+    throw new SyncFailureError(syncError, recordingStatus);
   } finally {
     try {
       await unlockLease({
