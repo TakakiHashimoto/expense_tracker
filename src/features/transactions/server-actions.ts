@@ -28,16 +28,24 @@ export async function updateTransactionCategory({
     }
   }
 
-  const { error } = await supabase
+  const { data: updatedTransaction, error } = await supabase
     .from("transactions")
     .update({ category_id: categoryId, category_source: "manual" })
     .eq("user_id", user.id)
     .eq("id", transactionId)
-    .eq("is_removed", false);
+    .eq("is_removed", false)
+    .select("id")
+    .maybeSingle();
 
   if (error) {
     console.error("Failed to update transaction", error);
     throw new Error("Failed to update transaction category");
+  }
+
+  if (!updatedTransaction) {
+    throw new Error(
+      "This transaction is no longer available. Refresh the transaction list and reopen the posted transaction.",
+    );
   }
 
   revalidatePath(`/transactions/${transactionId}`);

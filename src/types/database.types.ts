@@ -262,6 +262,8 @@ export type Database = {
           pending: boolean;
           plaid_account_id: string | null;
           plaid_item_id: string | null;
+          plaid_pending_transaction_id: string | null;
+          plaid_pending_reconciled_at: string | null;
           plaid_transaction_id: string | null;
           posted_date: string;
           posted_datetime: string | null;
@@ -286,6 +288,8 @@ export type Database = {
           pending?: boolean;
           plaid_account_id?: string | null;
           plaid_item_id?: string | null;
+          plaid_pending_transaction_id?: string | null;
+          plaid_pending_reconciled_at?: string | null;
           plaid_transaction_id?: string | null;
           posted_date: string;
           posted_datetime?: string | null;
@@ -310,6 +314,8 @@ export type Database = {
           pending?: boolean;
           plaid_account_id?: string | null;
           plaid_item_id?: string | null;
+          plaid_pending_transaction_id?: string | null;
+          plaid_pending_reconciled_at?: string | null;
           plaid_transaction_id?: string | null;
           posted_date?: string;
           posted_datetime?: string | null;
