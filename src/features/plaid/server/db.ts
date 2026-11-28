@@ -56,6 +56,7 @@ export async function persistSyncResult({
     return {
       transaction_id: item.transaction_id,
       account_id: item.account_id,
+      pending_transaction_id: item.pending_transaction_id ?? null,
       amount,
       category_kind: category.kind,
       category_name: category.name,

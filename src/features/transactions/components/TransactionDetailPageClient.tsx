@@ -26,7 +26,9 @@ function TransactionDetailPageClient({ transaction, categories }: Props) {
       toast.success("Successfully updated category");
     } catch (e) {
       console.error("Failed to update cateogry", e);
-      toast.error("Failed to update category");
+      toast.error(
+        "Could not update category. Refresh the transaction list and reopen the transaction before trying again.",
+      );
     } finally {
       setIsUpdating(false);
     }
